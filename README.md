@@ -8,6 +8,7 @@ Prácticas en C con el robot **Pololu Zumo 2040** (RP2040) y la **Raspberry Pi P
 | `MotorTests/` | Zumo 2040 | Pruebas de los motores con la librería de Pololu |
 | `CANbus/PicoCAN/` | Zumo 2040 | Nodo CAN con MCP2515. Envía el ID `0x500` |
 | `CANbus/Pico2wCAN/` | Pico 2 / 2 W | Nodo CAN con MCP2515. Envía el ID `0x200` |
+| `ZumoReflectanceStage1/` | Zumo 2040 | Imprime los tiempos de descarga (µs) de los 5 sensores de reflectancia |
 | `zumo-2040-robot/` | — | Librería oficial de Pololu (submódulo) |
 
 ## Clonar
