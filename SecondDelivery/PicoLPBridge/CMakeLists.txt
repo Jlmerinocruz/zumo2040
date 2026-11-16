@@ -41,8 +41,10 @@ pico_enable_stdio_usb(PicoLPBridge 1)
 target_link_libraries(PicoLPBridge
         pico_stdlib
         hardware_spi
+        hardware_watchdog
         pico_cyw43_arch_lwip_poll)
 
+target_compile_definitions(PicoLPBridge PRIVATE PICO_STACK_SIZE=0x1000)
 target_include_directories(PicoLPBridge PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_compile_options(PicoLPBridge PRIVATE -Wall -Wextra)
 pico_add_extra_outputs(PicoLPBridge)

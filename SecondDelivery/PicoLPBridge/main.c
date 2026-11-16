@@ -25,16 +25,20 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "hardware/watchdog.h"
 #include "lwip/udp.h"
 #include "lwip/pbuf.h"
+#include "lwip/raw.h"
+#include "lwip/etharp.h"
+#include "lwip/prot/ip4.h"
+#include "lwip/prot/udp.h"
 #include "mcp2515.h"
 #include "wifi_config.h"   // WIFI_SSID y WIFI_PASSWORD (copiar de wifi_config.example.h)
 
 #define TELEMETRY_PORT 5000
+#define SUBSCRIBE_PORT 5001   // el servidor de la cámara acepta suscripciones en este puerto
 
-// La coma final evita confundir el 4 con el 41.
-static const char *MARKER_KEY = "\"id\": 4,";
-
+#define MARKER_ID 4   // marcador del Zumo
 #define LP_POSE_ID  0x100
 #define LP_POSE_DLC 6
 
@@ -48,10 +52,35 @@ static pose_t pose;
 static volatile bool pose_ready = false;
 static uint32_t n_rx = 0, n_ok = 0, n_fail = 0, n_nomarker = 0;
 
-static bool parse_marker(const char *json, pose_t *out) {
-    const char *m = strstr(json, MARKER_KEY);
-    return m && sscanf(m, "\"id\": %*d, \"x\": %f, \"y\": %f, \"angle\": %f",
-                       &out->x, &out->y, &out->angle) == 3;
+static bool get_num(const char *obj, const char *key, float *out) {
+    const char *k = strstr(obj, key);
+    if (!k) return false;
+    char *end;
+    float v = strtof(k + strlen(key), &end);   // strtof ignora espacios iniciales
+    if (end == k + strlen(key)) return false;
+    *out = v;
+    return true;
+}
+
+// Busca el marcador MARKER_ID en {"markers":[{"id":..,"x":..,"y":..,"angle":..},...]}.
+// Funciona con o sin espacios después de los dos puntos (formato nuevo del servidor y
+// formato de la guía). Misma idea que el gateway de otro equipo que ya funcionó.
+static bool parse_marker(char *json, pose_t *out) {
+    char *p = json;
+    while ((p = strstr(p, "\"id\":")) != NULL) {
+        int id = atoi(p + 5);                  // atoi también ignora espacios
+        char *end = strchr(p, '}');
+        if (!end) return false;
+        if (id == MARKER_ID) {
+            *end = '\0';                       // limita la búsqueda a este marcador
+            bool ok = get_num(p, "\"x\":", &out->x) && get_num(p, "\"y\":", &out->y) &&
+                      get_num(p, "\"angle\":", &out->angle);
+            *end = '}';
+            return ok;
+        }
+        p = end;
+    }
+    return false;
 }
 
 static void on_udp_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
@@ -59,7 +88,9 @@ static void on_udp_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     (void)arg; (void)pcb; (void)addr; (void)port;
     if (p == NULL) return;
 
-    char json[1024];
+    // static: el callback corre dentro de cyw43_arch_poll() y la pila del núcleo 0
+    // es chica (sscanf con float también usa bastante); 1 KB en la pila la desbordaba.
+    static char json[1536];
     uint16_t len = pbuf_copy_partial(p, json, sizeof(json) - 1, 0);
     json[len] = '\0';
     pbuf_free(p);
@@ -67,6 +98,25 @@ static void on_udp_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     n_rx++;
     if (parse_marker(json, &pose)) pose_ready = true;
     else n_nomarker++;
+}
+
+// Diagnóstico: ve TODOS los paquetes UDP que llegan (cualquier puerto) sin consumirlos.
+static uint32_t n_any = 0;
+static char last_any[80] = "";
+static u8_t on_raw_udp(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr) {
+    (void)arg; (void)pcb;
+    if (p->len >= 28) {
+        const struct ip_hdr *ip = (const struct ip_hdr *)p->payload;
+        const struct udp_hdr *u = (const struct udp_hdr *)((const u8_t *)p->payload + IPH_HL_BYTES(ip));
+        n_any++;
+        char dst[16];
+        ip4_addr_t d;
+        memcpy(&d, (const u8_t *)p->payload + 16, sizeof d);   // destino del encabezado IP
+        ip4addr_ntoa_r(&d, dst, sizeof dst);
+        snprintf(last_any, sizeof last_any, "%s:%u -> %s:%u (%u bytes)",
+                 ipaddr_ntoa(addr), lwip_ntohs(u->src), dst, lwip_ntohs(u->dest), p->tot_len);
+    }
+    return 0;   // 0 = no se consume; lwIP sigue entregándolo normalmente
 }
 
 static int16_t to_fixed(float value, float scale) {
@@ -94,6 +144,17 @@ static bool send_pose(const pose_t *p) {
     return sent;
 }
 
+// Diagnóstico: lista todas las redes con el SSID del laboratorio (puede haber más de
+// un hotspot "embedded" con la misma IP 192.168.12.1, uno por cada pista).
+static int scan_cb(void *env, const cyw43_ev_scan_result_t *r) {
+    (void)env;
+    if (r && r->ssid_len == strlen(WIFI_SSID) && memcmp(r->ssid, WIFI_SSID, r->ssid_len) == 0)
+        printf("  AP \"%s\" BSSID %02X:%02X:%02X:%02X:%02X:%02X  RSSI %d dBm  canal %u\n",
+               WIFI_SSID, r->bssid[0], r->bssid[1], r->bssid[2], r->bssid[3], r->bssid[4],
+               r->bssid[5], r->rssi, r->channel);
+    return 0;
+}
+
 static void led(bool on) { cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, on); }
 
 static bool can_start(void) {
@@ -103,6 +164,9 @@ static bool can_start(void) {
 
 int main(void) {
     stdio_init_all();
+    bool wd_reboot = watchdog_caused_reboot();
+    sleep_ms(1500);   // tiempo para abrir el monitor serial
+    if (wd_reboot) printf("AVISO: reinicio por watchdog (el programa se habia colgado)\n");
 
     if (cyw43_arch_init()) {
         printf("Wi-Fi init failed\n");
@@ -115,6 +179,17 @@ int main(void) {
     bool can_ok = can_start();
     printf("MCP2515: %s\n", can_ok ? "listo" : "no responde (se reintenta)");
 
+    // Si algo se cuelga más de 3 s, la Pico se reinicia sola en vez de quedarse muerta.
+    watchdog_enable(3000, true);
+
+    printf("Buscando redes \"%s\"...\n", WIFI_SSID);
+    cyw43_wifi_scan_options_t opts = {0};
+    if (cyw43_wifi_scan(&cyw43_state, &opts, NULL, scan_cb) == 0) {
+        absolute_time_t t_end = make_timeout_time_ms(6000);
+        while (cyw43_wifi_scan_active(&cyw43_state) && !time_reached(t_end)) {
+            cyw43_arch_poll(); sleep_ms(10); watchdog_update();
+        }
+    }
     printf("Conectando a \"%s\"...\n", WIFI_SSID);
     cyw43_arch_wifi_connect_async(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK);
     bool blink = false;
@@ -126,8 +201,17 @@ int main(void) {
         }
         led(blink = !blink);
         for (int i = 0; i < 20; i++) { cyw43_arch_poll(); sleep_ms(5); }
+        watchdog_update();
     }
     printf("Conectado, IP: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
+    {
+        uint8_t b[6] = {0};
+        cyw43_wifi_get_bssid(&cyw43_state, b);
+        int32_t rssi = 0;
+        cyw43_wifi_get_rssi(&cyw43_state, &rssi);
+        printf("Conectado al AP %02X:%02X:%02X:%02X:%02X:%02X, RSSI %ld dBm\n",
+               b[0], b[1], b[2], b[3], b[4], b[5], (long)rssi);
+    }
     led(true);
 
     // Sin esto el radio acumula los broadcast y llegan con segundos de retraso.
@@ -135,12 +219,35 @@ int main(void) {
     struct udp_pcb *pcb = udp_new();
     udp_bind(pcb, IP_ADDR_ANY, TELEMETRY_PORT);
     udp_recv(pcb, on_udp_packet, NULL);
+    struct raw_pcb *rpcb = raw_new(IP_PROTO_UDP);
+    raw_recv(rpcb, on_raw_udp, NULL);
+    printf("IP %s, ", ip4addr_ntoa(netif_ip4_addr(netif_list)));
+    printf("servidor %s, escuchando UDP %d\n", ip4addr_ntoa(netif_ip4_gw(netif_list)), TELEMETRY_PORT);
+
+    // El servidor de la cámara manda broadcast al 5000, pero ese broadcast puede no
+    // salir por el hotspot. También acepta suscripciones en UDP 5001: le mandamos un
+    // paquete (desde nuestro puerto 5000) y registra nuestra IP para enviarnos directo. Se repite cada 2 s
+    // por si el servidor reinicia o expira la suscripción.
+    ip_addr_t server = *netif_ip4_gw(netif_list);
+    absolute_time_t next_sub = get_absolute_time();
 
     absolute_time_t next_status = make_timeout_time_ms(2000);
     while (true) {
+        watchdog_update();
         cyw43_arch_poll();
 
         if (!can_ok && time_reached(next_status)) can_ok = can_start();
+
+        if (time_reached(next_sub)) {
+            next_sub = make_timeout_time_ms(2000);
+            static const char msg[] = "subscribe";   // inofensivo si el servidor no lo usa
+            struct pbuf *sp = pbuf_alloc(PBUF_TRANSPORT, sizeof msg - 1, PBUF_RAM);
+            if (sp) {
+                memcpy(sp->payload, msg, sizeof msg - 1);
+                udp_sendto(pcb, sp, &server, SUBSCRIBE_PORT);
+                pbuf_free(sp);
+            }
+        }
 
         if (pose_ready) {
             pose_ready = false;
@@ -154,7 +261,16 @@ int main(void) {
             printf("# 2 s: UDP=%lu sin_marcador4=%lu CAN_ok=%lu CAN_fallo=%lu MCP2515=%s\n",
                    (unsigned long)n_rx, (unsigned long)n_nomarker, (unsigned long)n_ok,
                    (unsigned long)n_fail, can_ok ? "ok" : "NO RESPONDE");
-            n_rx = n_nomarker = n_ok = n_fail = 0;
+            {
+                struct eth_addr *mac; const ip4_addr_t *ipr;
+                ssize_t idx = etharp_find_addr(netif_list, ip_2_ip4(&server), &mac, &ipr);
+                if (idx >= 0) printf("#   ARP del servidor OK: %02X:%02X:%02X:%02X:%02X:%02X (la Pico si recibe de el)\n",
+                                     mac->addr[0], mac->addr[1], mac->addr[2], mac->addr[3], mac->addr[4], mac->addr[5]);
+                else printf("#   ARP del servidor SIN respuesta (no hay comunicacion con 192.168.12.1)\n");
+            }
+            if (n_any) printf("#   UDP de cualquier puerto: %lu, ultimo: %s\n", (unsigned long)n_any, last_any);
+            else printf("#   no llega ningun paquete UDP (ningun puerto)\n");
+            n_rx = n_nomarker = n_ok = n_fail = n_any = 0;
         }
         cyw43_arch_wait_for_work_until(make_timeout_time_ms(1));
     }
