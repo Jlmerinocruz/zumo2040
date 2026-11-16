@@ -21,14 +21,28 @@
 #include "waypoints.h"
 
 // ---- Parámetros a calibrar en pista (botón B) ----
-#define MOTOR_K        8000.0f  // cuentas de motor (0..6000) por m/s
+// Modelo del motor: cuentas = signo(v)·(MOTOR_DEAD + MOTOR_K·|v|).
+// MOTOR_DEAD es la zona muerta: con el peso del power bank el Zumo no se mueve
+// a 600 cuentas y sí a 900 (reporte Wireless, problema 5). Con la PCB ya no hay
+// power bank (todo sale de las pilas del Zumo), así que el valor real puede ser
+// menor: lo mide la calibración (botón B). Sin compensarla, la oruga interior
+// de cada vuelta (≈0.06 m/s) quedaría parada.
+#define MOTOR_K        7000.0f  // cuentas por m/s, arriba de la zona muerta
+#define MOTOR_DEAD     700.0f   // cuentas para vencer la fricción
 #define WHEEL_BASE     0.085f   // m, separación efectiva entre orugas
+#define CAM_LATENCY    0.12f    // s, retardo efectivo cámara→motor (lo imprime la calibración)
 // ---- Seguridad y calibración ----
-#define POSE_TIMEOUT_MS 300     // sin pose por este tiempo → se detiene
-#define CAL_COUNTS     2000
+// La cámara manda ~8 poses/s (una cada 125 ms): 300 ms = 2 poses perdidas seguidas.
+#define POSE_TIMEOUT_MS 300
+#define CAL_C1         1500     // dos velocidades para obtener K y la zona muerta
+#define CAL_C2         3000
 #define CAL_MS         1500
+// GP3 es el MOSI del MCP2515 y también los datos de los LEDs RGB. Con el reloj de
+// los LEDs (GP6) en bajo, el tráfico SPI no les cambia el color.
+#define RGB_CLOCK_PIN  6
 
 static float motor_k = MOTOR_K;
+static float motor_dead = MOTOR_DEAD;
 static float wheel_base = WHEEL_BASE;
 
 static pose_t last_pose;
@@ -37,10 +51,31 @@ static uint32_t last_pose_ms = 0;
 
 static uint32_t now_ms(void) { return to_ms_since_boot(get_absolute_time()); }
 
+// En la PCB, el MCP2515 del Zumo se alimenta del 3V3 de la Pico, y la Pico de VSW.
+// Con el switch del Zumo en OFF (solo USB) el módulo no tiene energía, así que la
+// inicialización se reintenta hasta que responda.
+static bool can_ready = false;
+static bool can_start(void) {
+    mcp2515_reset();
+    can_ready = mcp2515_set_bitrate_500kbps_8mhz() && mcp2515_set_mode(MCP2515_MODE_NORMAL);
+    return can_ready;
+}
+
+// Errores del bus CAN: si se pierde la pose a media vuelta, esto dice si fue el bus
+// (p. ej. voltaje bajo del TJA1050 al arrancar los motores) o la cámara.
+static void print_can_errors(void) {
+    printf("# CAN: EFLG=0x%02X TEC=%u REC=%u CANSTAT=0x%02X\n",
+           mcp2515_read_register(0x2D), mcp2515_read_register(0x1C),
+           mcp2515_read_register(0x1D), mcp2515_read_register(MCP2515_CANSTAT));
+}
+
 // Lee todos los frames pendientes; devuelve true si llegó al menos una pose nueva.
 static bool poll_pose(void) {
     bool fresh = false;
-    while (mcp2515_message_available()) {
+    if (!can_ready) return false;
+    // Máximo 4 frames por llamada: si MISO quedara en alto (módulo sin energía)
+    // el flag "hay mensaje" se leería siempre en 1 y esto no terminaría.
+    for (int n = 0; n < 4 && mcp2515_message_available(); n++) {
         can_frame_t rx;
         if (!mcp2515_read_message(&rx)) break;
         pose_t p;
@@ -54,8 +89,14 @@ static bool poll_pose(void) {
     return fresh;
 }
 
+static int32_t to_counts(float v) {
+    if (fabsf(v) < 0.005f) return 0;
+    float c = motor_dead + motor_k * fabsf(v);
+    return (int32_t)lroundf(v > 0 ? c : -c);
+}
+
 static void set_wheels(float v_left, float v_right) {
-    motors_set_speeds((int32_t)lroundf(v_left * motor_k), (int32_t)lroundf(v_right * motor_k));
+    motors_set_speeds(to_counts(v_left), to_counts(v_right));
 }
 
 static void wait_release_a(void) { while (button_a_is_pressed()) sleep_ms(10); sleep_ms(50); }
@@ -74,6 +115,10 @@ static void print_route(const follower_t *f) {
     }
 }
 
+// Resultados extra de drive_measure (para medir la cámara).
+static uint32_t dm_first_move_ms;  // ms desde que arrancan los motores hasta ver > 8 mm
+static int dm_poses;                // poses recibidas mientras se movía
+
 // Corre las orugas a velocidad fija durante ms milisegundos, acumulando el giro
 // medido por la cámara (desenvuelto) y la pose final.
 static void drive_measure(int32_t left, int32_t right, uint32_t ms,
@@ -81,12 +126,17 @@ static void drive_measure(int32_t left, int32_t right, uint32_t ms,
     poll_pose();
     *start = last_pose;
     float prev_th = last_pose.theta, acc = 0.0f;
+    dm_first_move_ms = 0;
+    dm_poses = 0;
     motors_set_speeds(left, right);
     uint32_t t0 = now_ms();
     while (now_ms() - t0 < ms) {
         if (poll_pose()) {
+            dm_poses++;
             acc += follower_wrap_pi(last_pose.theta - prev_th);
             prev_th = last_pose.theta;
+            if (!dm_first_move_ms && hypotf(last_pose.x - start->x, last_pose.y - start->y) > 0.008f)
+                dm_first_move_ms = now_ms() - t0;
         }
         sleep_ms(2);
     }
@@ -103,27 +153,44 @@ static void drive_measure(int32_t left, int32_t right, uint32_t ms,
 static void calibrate(void) {
     if (!have_pose) { printf("CAL: no hay pose de la camara, abortado\n"); return; }
     pose_t a, b; float dth;
-    printf("CAL 1/2: recto %d cuentas por %d ms...\n", CAL_COUNTS, CAL_MS);
-    sleep_ms(1000);
-    drive_measure(CAL_COUNTS, CAL_COUNTS, CAL_MS, &a, &b, &dth);
-    float d = hypotf(b.x - a.x, b.y - a.y);
-    float v = d / (CAL_MS / 1000.0f);
-    if (v > 0.02f) motor_k = CAL_COUNTS / v;
-    printf("CAL: avanzo %.3f m -> v=%.3f m/s -> MOTOR_K=%.0f cuentas/(m/s)\n", d, v, motor_k);
+    // Dos rectas a velocidades distintas: la pendiente da K y la ordenada la zona muerta.
+    // Nota: la primera va hacia +x/+y desde donde esté; dejar ~1 m libre al frente.
+    float v[2];
+    const int32_t c[2] = {CAL_C1, CAL_C2};
+    for (int i = 0; i < 2; i++) {
+        printf("CAL %d/3: recto %ld cuentas por %d ms...\n", i + 1, (long)c[i], CAL_MS);
+        sleep_ms(1000);
+        drive_measure(c[i], c[i], CAL_MS, &a, &b, &dth);
+        float d = hypotf(b.x - a.x, b.y - a.y);
+        v[i] = d / (CAL_MS / 1000.0f);
+        printf("CAL: %ld cuentas -> avanzo %.3f m -> v=%.3f m/s\n", (long)c[i], d, v[i]);
+        // Retardo efectivo = arranque del motor + retardo de la cámara (menos lo que
+        // tarda en recorrer los 8 mm del umbral). Es el valor de CAM_LATENCY.
+        if (dm_first_move_ms && v[i] > 0.02f)
+            printf("CAL: camara %.1f poses/s, retardo efectivo ~%.0f ms\n",
+                   dm_poses / (CAL_MS / 1000.0f), dm_first_move_ms - 8.0f / v[i]);
+    }
+    if (v[1] - v[0] > 0.02f) {
+        motor_k = (CAL_C2 - CAL_C1) / (v[1] - v[0]);
+        motor_dead = fmaxf(0.0f, CAL_C1 - motor_k * v[0]);
+    }
+    printf("CAL: MOTOR_K=%.0f cuentas/(m/s), MOTOR_DEAD=%.0f cuentas\n", motor_k, motor_dead);
 
-    printf("CAL 2/2: giro en su lugar...\n");
+    printf("CAL 3/3: giro en su lugar...\n");
     sleep_ms(1000);
-    drive_measure(-CAL_COUNTS, CAL_COUNTS, CAL_MS, &a, &b, &dth);
+    drive_measure(-CAL_C1, CAL_C1, CAL_MS, &a, &b, &dth);
     float w = dth / (CAL_MS / 1000.0f);
-    float vw = CAL_COUNTS / motor_k;
-    if (fabsf(w) > 0.2f) wheel_base = 2.0f * vw / fabsf(w);
+    float vw = (CAL_C1 - motor_dead) / motor_k;
+    if (fabsf(w) > 0.2f && vw > 0.0f) wheel_base = 2.0f * vw / fabsf(w);
     printf("CAL: giro %.1f deg -> w=%.2f rad/s -> WHEEL_BASE=%.3f m\n", dth * 57.2958f, w, wheel_base);
-    printf("CAL: copiar a main.c: #define MOTOR_K %.0ff  #define WHEEL_BASE %.3ff\n", motor_k, wheel_base);
+    printf("CAL: copiar a main.c: MOTOR_K %.0ff  MOTOR_DEAD %.0ff  WHEEL_BASE %.3ff\n",
+           motor_k, motor_dead, wheel_base);
 }
 
 static void run_lap(void) {
     follower_params_t p = follower_default_params();
     p.wheel_base = wheel_base;
+    p.latency = CAM_LATENCY;
     static follower_t f;
     follower_init(&f, &p, WAYPOINTS, WAYPOINT_COUNT, WAYPOINT_START);
 
@@ -159,6 +226,7 @@ static void run_lap(void) {
         if (now_ms() - last_pose_ms > POSE_TIMEOUT_MS) {
             motors_set_speeds(0, 0);
             printf("# ALTO: sin pose de la camara por %d ms (tramo %d)\n", POSE_TIMEOUT_MS, f.cur);
+            print_can_errors();
             return;
         }
         if (button_b_is_pressed()) {              // paro de emergencia
@@ -174,12 +242,15 @@ static void run_lap(void) {
 int main(void) {
     stdio_init_all();
     motors_init();
+    gpio_init(RGB_CLOCK_PIN);
+    gpio_set_dir(RGB_CLOCK_PIN, GPIO_OUT);
+    gpio_put(RGB_CLOCK_PIN, 0);
     sleep_ms(2000);
 
     printf("\n--- Zumo Waypoint Follower ---\n");
     mcp2515_init();
-    mcp2515_set_bitrate_500kbps_8mhz();
-    mcp2515_set_mode(MCP2515_MODE_NORMAL);
+    if (!can_start())
+        printf("MCP2515 no responde: revisar switch del Zumo en ON (alimenta la PCB) y el header SPI\n");
 
     static follower_t preview;
     follower_params_t p = follower_default_params();
@@ -192,6 +263,10 @@ int main(void) {
         poll_pose();
         if (now_ms() - last_print > 500) {
             last_print = now_ms();
+            if (!can_ready) {
+                if (can_start()) printf("MCP2515 listo\n");
+                else { printf("MCP2515 no responde: switch del Zumo en ON?\n"); continue; }
+            }
             if (have_pose && now_ms() - last_pose_ms < 1000)
                 printf("pose: x=%.3f y=%.3f th=%.1f deg\n",
                        last_pose.x, last_pose.y, last_pose.theta * 57.2958f);

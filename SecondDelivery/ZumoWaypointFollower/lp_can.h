@@ -1,14 +1,15 @@
 // Decodificación del mensaje CAN con la pose de la cámara (LPdata).
 //
 // La Pico 2 W recibe (x, y, angle) por WiFi/UDP y lo reenvía por CAN.
-// ESTE ES EL ÚNICO LUGAR QUE DEPENDE DEL FORMATO DEL MENSAJE: cuando tengamos el
-// código de la Pico 2 W del compañero, ajustar LP_CAN_ID y lp_decode() a su ID,
-// DLC, orden de bytes y unidades.
+// Este es el único lugar que depende del formato del mensaje.
 //
-// Formato supuesto por ahora (DLC = 6, little-endian, enteros con signo):
-//   bytes 0-1: x      en mm          (int16)
-//   bytes 2-3: y      en mm          (int16)
-//   bytes 4-5: ángulo en centésimas de grado (int16, -18000..18000)
+// Base de datos CAN-ID del equipo (reporte "Experiment Wireless Interfacing", 3b):
+//   LP_POSE, ID 0x100 (11 bits), Pico 2 W → Zumo, DLC 6, BIG-endian, enteros con signo:
+//     bytes 0-1: x      en mm               (int16)
+//     bytes 2-3: y      en mm               (int16)
+//     bytes 4-5: ángulo en décimas de grado (int16)
+//   Ejemplo real: x=0.176 m, y=0.079 m, angle=-69.0° → 00 B0 00 4F FD 4E
+//   La Pico solo lo manda cuando la cámara ve el marcador 4 (~8 veces por segundo).
 #ifndef LP_CAN_H
 #define LP_CAN_H
 

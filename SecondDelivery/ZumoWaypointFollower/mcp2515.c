@@ -62,18 +62,23 @@ uint8_t mcp2515_read_status(void) {
     return rx[1];
 }
 
-void mcp2515_set_mode(uint8_t mode) {
+// Espera máximo 100 ms al cambio de modo (antes podía quedarse esperando para
+// siempre si el MCP2515 no respondía; mismo arreglo que el reporte de Wireless).
+bool mcp2515_set_mode(uint8_t mode) {
     mcp2515_modify_register(MCP2515_CANCTRL, MCP2515_MODE_MASK, mode);
-    while ((mcp2515_read_register(MCP2515_CANSTAT) & MCP2515_MODE_MASK) != mode) {
+    for (int i = 0; i < 100; i++) {
+        if ((mcp2515_read_register(MCP2515_CANSTAT) & MCP2515_MODE_MASK) == mode) return true;
         sleep_ms(1);
     }
+    return false;
 }
 
 // CNF values for 500 kbps with an 8 MHz crystal (the crystal fitted to
 // most low-cost MCP2515 breakout boards). If your module uses a 16 MHz
 // crystal instead, use CNF1=0x00, CNF2=0xF0, CNF3=0x86.
 bool mcp2515_set_bitrate_500kbps_8mhz(void) {
-    mcp2515_set_mode(MCP2515_MODE_CONFIG);   // CNF registers are only writable in config mode
+    // CNF registers are only writable in config mode
+    if (!mcp2515_set_mode(MCP2515_MODE_CONFIG)) return false;
     mcp2515_write_register(MCP2515_CNF1, 0x00);
     mcp2515_write_register(MCP2515_CNF2, 0x90);
     mcp2515_write_register(MCP2515_CNF3, 0x02);
@@ -100,13 +105,17 @@ bool mcp2515_send_message(const can_frame_t *frame) {
     cs_select();
     spi_write_blocking(MCP2515_SPI_PORT, &cmd, 1);
     cs_deselect();
-    uint32_t timeout = 1000;
-    while ((mcp2515_read_register(MCP2515_TXB0CTRL) & 0x08) && timeout--) {
+    // Espera máximo 10 ms al ACK. (Antes "timeout--" llegaba a 0 y daba la vuelta a
+    // 0xFFFFFFFF, así que reportaba éxito aunque nadie confirmara el mensaje.)
+    bool sent = false;
+    for (int i = 0; i < 10; i++) {
+        if (!(mcp2515_read_register(MCP2515_TXB0CTRL) & 0x08)) { sent = true; break; }
         sleep_ms(1);
     }
+    if (!sent) mcp2515_modify_register(MCP2515_TXB0CTRL, 0x08, 0x00);   // abortar
 
     mcp2515_modify_register(MCP2515_CANINTF, MCP2515_CANINTF_TX0IF, 0x00);
-    return timeout > 0;
+    return sent;
 }
 
 bool mcp2515_message_available(void) {

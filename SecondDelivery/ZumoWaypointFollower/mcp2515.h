@@ -62,7 +62,7 @@ uint8_t mcp2515_read_register(uint8_t address);
 void    mcp2515_write_register(uint8_t address, uint8_t value);
 void    mcp2515_modify_register(uint8_t address, uint8_t mask, uint8_t value);
 uint8_t mcp2515_read_status(void);
-void    mcp2515_set_mode(uint8_t mode);
+bool    mcp2515_set_mode(uint8_t mode);
 bool    mcp2515_set_bitrate_500kbps_8mhz(void);
 bool    mcp2515_send_message(const can_frame_t *frame);
 bool    mcp2515_message_available(void);

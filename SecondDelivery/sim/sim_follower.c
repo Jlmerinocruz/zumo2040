@@ -65,7 +65,7 @@ static int dump_route(void) {
 int main(int argc, char **argv) {
     if (argc >= 2 && argv[1][0] == '-' && argv[1][1] == '-') return dump_route();
     follower_params_t p = follower_default_params();
-    float cam_hz = 15.0f, cam_delay = 0.08f;
+    float cam_hz = 8.0f, cam_delay = 0.12f;   // ~8 poses/s medido en Wireless
     if (argc >= 3) { p.v_straight = atof(argv[1]); p.v_arc = atof(argv[2]); }
     if (argc >= 5) { cam_hz = atof(argv[3]); cam_delay = atof(argv[4]); }
     p.latency = cam_delay;

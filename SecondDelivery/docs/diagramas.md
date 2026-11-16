@@ -30,8 +30,8 @@ flowchart LR
     end
     subgraph PCB["PCB del tractor"]
         subgraph P2W["Raspberry Pi Pico 2 W"]
-            UDP["Listener UDP :5000<br/>(lwIP, cyw43)"]
-            TXC["Empaquetado LPdata → CAN"]
+            UDP["Listener UDP :5000<br/>(lwIP, cyw43)<br/>filtra el marcador id 4"]
+            TXC["LP_POSE 0x100: x, y mm y ángulo 0.1°<br/>int16 big-endian"]
         end
         M1["MCP2515 + TJA1050<br/>(nodo Pico 2 W)"]
         M2["MCP2515 + TJA1050<br/>(nodo Zumo)"]
@@ -43,10 +43,11 @@ flowchart LR
         IR["Sensores de reflectancia<br/>(alpha.c, parte E)"]
     end
     CAMERA["Cámara del techo"] --> LP --> AP
-    AP -. "WiFi UDP (JSON x, y, angle)" .-> UDP --> TXC
-    TXC -- SPI --> M1
+    AP -. "WiFi UDP, JSON ~8/s<br/>{markers: [{id, x, y, angle}]}" .-> UDP --> TXC
+    PB["Power bank 5 V"] -- "VBUS: 5 V para los TJA1050" --> P2W
+    TXC -- "SPI (GP16–GP20)" --> M1
     M1 == "CAN 500 kbps" ==> M2
-    M2 -- SPI --> RXC --> FOL --> MOT
+    M2 -- "SPI (GP0–GP3, INT GP28)" --> RXC --> FOL --> MOT
 ```
 
 ## Diagrama de actividades: seguimiento de la trayectoria
@@ -76,14 +77,14 @@ flowchart TD
 | ID | Requisito | Tipo | Cómo se verifica |
 |---|---|---|---|
 | R1 | La PCB comunica Pico 2 W y Zumo por CAN a 500 kbps | Funcional | Serial de ambos nodos y repetición de los 50 cm (parte A) |
-| R2 | La Pico 2 W recibe la pose (x, y, θ) por WiFi y la reenvía por CAN de forma periódica | Funcional | Serial de la Pico 2 W (RX UDP / TX CAN) |
+| R2 | La Pico 2 W recibe la pose (x, y, θ) del marcador 4 por WiFi (~8 por segundo) y la reenvía como LP_POSE (0x100) | Funcional | Serial de la Pico 2 W (`LP ... TX ... OK`) |
 | R3 | Los 14 waypoints se guardan en la memoria del Zumo (tabla `WAYPOINTS`) | Funcional | `waypoints.c` y la tabla de tramos que imprime el Zumo al arrancar |
 | R4 | El Zumo identifica las vueltas: 5 de 180° y 2 de 90° | Funcional | Tabla de tramos impresa (arco, R, centro, sentido) |
 | R5 | La vuelta inicia y termina en P14 | Funcional | Log: `# FIN en P14` |
 | R6 | En cada pose nueva el Zumo se ubica en el tramo, elige el siguiente waypoint en orden y actualiza velocidad y giro | Funcional | Log `L,...` (tramo, avance t, e_y) |
 | R7 | No se salta waypoints | Funcional | El tramo solo avanza cuando t ≥ 1, en orden |
 | R8 | Los giros de 90° se hacen como arcos (R ≈ 7 cm) que mantienen al tractor sobre la pista | Funcional | Gráfica de ruta deseada vs medida |
-| R9 | Se detiene si pierde la cámara más de 300 ms | Seguridad | Tapar el marcador → `# ALTO` |
+| R9 | Se detiene si pierde la cámara más de 300 ms (≈2 poses seguidas) | Seguridad | Tapar el marcador → `# ALTO` |
 | R10 | Error lateral menor a ±5 cm (la mitad del espacio entre carriles, 14 cm) | Desempeño | Gráfica de ruta vs medida |
 | R11 | Vuelta lo más rápida posible (parte D) | Desempeño | Tiempo de 3 vueltas |
 | R12 | Se propone y programa un método para medir α con los 5 sensores | Funcional | `alpha/` y prueba en PC |

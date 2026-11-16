@@ -1,0 +1,4 @@
+build
+.cache
+wifi_config.h
+!.vscode/*

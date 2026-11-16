@@ -25,8 +25,10 @@ follower_params_t follower_default_params(void) {
         .decel      = 0.60f,
         // Ganancias elegidas con el barrido del simulador (ver SecondDelivery/README.md):
         // k_theta más alta oscila por el retardo y la baja frecuencia de la cámara.
-        .k_theta    = 5.0f,
-        .zeta       = 0.7f,
+        // Cámara a ~8 Hz (reporte Wireless). Con retardo de 100 ms k_theta=5 va bien,
+        // pero con 200 ms oscila; 4 / 0.8 aguanta ambos casos.
+        .k_theta    = 4.0f,
+        .zeta       = 0.8f,
         .k_e_max    = 30.0f,
         .omega_max  = 6.0f,
         .wheel_base = 0.085f,

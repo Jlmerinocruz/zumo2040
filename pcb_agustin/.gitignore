@@ -1,0 +1,5 @@
+# Historial y respaldos locales de KiCad
+.history/
+_restore_backup*/
+*.lck
+*.kicad_prl
