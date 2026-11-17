@@ -1,0 +1,112 @@
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+
+esperando LPdata por CAN (ID 0x100)...
+
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+

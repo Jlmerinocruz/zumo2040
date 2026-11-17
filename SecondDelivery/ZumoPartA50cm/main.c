@@ -72,6 +72,20 @@ int main(void) {
             continue;
         }
 
+        // Si el MCP2515 se reinició (bajón de voltaje al encender el WiFi de la Pico, que
+        // le da sus 3.3 V), queda en modo configuración y deja de recibir y de dar ACK.
+        // Se revisa cada segundo y se reconfigura.
+        static uint32_t last_check = 0;
+        if (now_ms() - last_check > 1000) {
+            last_check = now_ms();
+            uint8_t st = mcp2515_read_register(MCP2515_CANSTAT);
+            if ((st & 0xE0) != MCP2515_MODE_NORMAL) {
+                printf("MCP2515 fuera de modo normal (CANSTAT=0x%02X): reconfigurando\n", st);
+                can_ok = can_start();
+                if (!can_ok) continue;
+            }
+        }
+
         bool fresh = false;
         if (mcp2515_message_available()) {
             can_frame_t rx;
@@ -92,9 +106,13 @@ int main(void) {
         case WAIT_BUTTON:
             if (now_ms() - last_print > 500) {
                 last_print = now_ms();
-                if (pose_valid) printf("pose: x=%d y=%d mm ang=%.1f  (A = arrancar)\n",
-                                       (int)lroundf(p.x * 1000.0f), y_mm, p.theta * 57.2958f);
-                else printf("esperando pose por CAN (ID 0x%03X)...\n", LP_CAN_ID);
+                if (pose_valid) printf("pose: x=%d y=%d mm ang=%.1f bat=%u mV (A = arrancar)\n",
+                                       (int)lroundf(p.x * 1000.0f), y_mm, p.theta * 57.2958f,
+                                       battery_get_level_millivolts());
+                else printf("esperando pose por CAN (ID 0x%03X)... bat=%u mV CANSTAT=0x%02X EFLG=0x%02X TEC=%u REC=%u INTF=0x%02X\n",
+                            LP_CAN_ID, battery_get_level_millivolts(), mcp2515_read_register(MCP2515_CANSTAT), mcp2515_read_register(0x2D),
+                            mcp2515_read_register(0x1C), mcp2515_read_register(0x1D),
+                            mcp2515_read_register(MCP2515_CANINTF));
             }
             if (a_clicked) {
                 if (!pose_valid) {

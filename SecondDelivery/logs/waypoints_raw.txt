@@ -1,0 +1,1401 @@
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x00 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6389 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.373 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6345 mV
+pose: x=-0.373 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6398 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6371 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6389 mV
+pose: x=-0.373 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6371 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.373 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.373 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6318 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.135 th=94.0 deg | a P14: 96 mm | bat=6354 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6380 mV
+pose: x=-0.371 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6336 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.372 y=0.139 th=94.0 deg | a P14: 92 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6389 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6309 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6487 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6336 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.373 y=0.139 th=93.0 deg | a P14: 92 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6327 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6380 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6380 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6327 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6318 mV
+pose: x=-0.372 y=0.136 th=95.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6371 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.373 y=0.139 th=94.0 deg | a P14: 92 mm | bat=6371 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6274 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6380 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.135 th=94.0 deg | a P14: 96 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6327 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6398 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6469 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.134 th=94.0 deg | a P14: 97 mm | bat=6354 mV
+pose: x=-0.371 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6380 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6371 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6327 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6496 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6336 mV
+pose: x=-0.373 y=0.135 th=95.0 deg | a P14: 96 mm | bat=6336 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6327 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6309 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6292 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6380 mV
+pose: x=-0.373 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6371 mV
+pose: x=-0.373 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.372 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6274 mV
+pose: x=-0.372 y=0.135 th=94.0 deg | a P14: 96 mm | bat=6363 mV
+pose: x=-0.371 y=0.135 th=93.0 deg | a P14: 96 mm | bat=6478 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.373 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.373 y=0.136 th=95.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.371 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6336 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6327 mV
+pose: x=-0.371 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6256 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.139 th=93.0 deg | a P14: 92 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6371 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6371 mV
+pose: x=-0.372 y=0.135 th=94.0 deg | a P14: 96 mm | bat=6371 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.139 th=94.0 deg | a P14: 92 mm | bat=6327 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.372 y=0.135 th=94.0 deg | a P14: 96 mm | bat=6336 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.374 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6336 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6327 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.371 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.372 y=0.135 th=93.0 deg | a P14: 96 mm | bat=6380 mV
+pose: x=-0.374 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6371 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6363 mV
+pose: x=-0.373 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.373 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6318 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.373 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.371 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.372 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.372 y=0.135 th=94.0 deg | a P14: 96 mm | bat=6345 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6327 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6336 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.373 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6380 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6380 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6336 mV
+pose: x=-0.373 y=0.139 th=94.0 deg | a P14: 92 mm | bat=6371 mV
+pose: x=-0.373 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6363 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6371 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6327 mV
+pose: x=-0.373 y=0.136 th=93.0 deg | a P14: 95 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6380 mV
+pose: x=-0.371 y=0.138 th=93.0 deg | a P14: 93 mm | bat=6345 mV
+pose: x=-0.371 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6371 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6309 mV
+pose: x=-0.373 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6354 mV
+pose: x=-0.372 y=0.141 th=93.0 deg | a P14: 90 mm | bat=6354 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6327 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6336 mV
+pose: x=-0.373 y=0.137 th=95.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.372 y=0.138 th=94.0 deg | a P14: 93 mm | bat=6371 mV
+pose: x=-0.371 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.371 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6380 mV
+pose: x=-0.372 y=0.137 th=93.0 deg | a P14: 94 mm | bat=6363 mV
+pose: x=-0.371 y=0.137 th=94.0 deg | a P14: 94 mm | bat=6345 mV
+pose: x=-0.372 y=0.136 th=94.0 deg | a P14: 95 mm | bat=6354 mV
+pose: x=-0.372 y=0.135 th=94.0 deg | a P14: 96 mm | bat=6363 mV
+pose: x=-0.371 y=0.139 th=93.0 deg | a P14: 92 mm | bat=6363 mV
+pose: x=-0.370 y=0.154 th=94.0 deg | a P14: 77 mm | bat=6363 mV
+pose: x=-0.371 y=0.168 th=94.0 deg | a P14: 63 mm | bat=6345 mV
+pose: x=-0.372 y=0.179 th=93.0 deg | a P14: 52 mm | bat=6336 mV
+pose: x=-0.371 y=0.184 th=94.0 deg | a P14: 47 mm | bat=6336 mV
+pose: x=-0.372 y=0.183 th=93.0 deg | a P14: 49 mm | bat=6354 mV
+pose: x=-0.372 y=0.185 th=93.0 deg | a P14: 47 mm | bat=6309 mV
+pose: x=-0.372 y=0.184 th=93.0 deg | a P14: 48 mm | bat=6345 mV
+pose: x=-0.371 y=0.184 th=93.0 deg | a P14: 47 mm | bat=6354 mV
+pose: x=-0.373 y=0.183 th=94.0 deg | a P14: 49 mm | bat=6354 mV
+pose: x=-0.372 y=0.182 th=93.0 deg | a P14: 49 mm | bat=6354 mV
+pose: x=-0.372 y=0.186 th=93.0 deg | a P14: 46 mm | bat=6354 mV
+pose: x=-0.371 y=0.188 th=93.0 deg | a P14: 43 mm | bat=6354 mV
+pose: x=-0.373 y=0.187 th=95.0 deg | a P14: 45 mm | bat=6363 mV
+pose: x=-0.373 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6336 mV
+pose: x=-0.373 y=0.192 th=94.0 deg | a P14: 40 mm | bat=6283 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6327 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6363 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6336 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6327 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6345 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6487 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6345 mV
+pose: x=-0.372 y=0.194 th=93.0 deg | a P14: 38 mm | bat=6292 mV
+pose: x=-0.373 y=0.193 th=94.0 deg | a P14: 39 mm | bat=6345 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6345 mV
+pose: x=-0.374 y=0.193 th=93.0 deg | a P14: 40 mm | bat=6345 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6363 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6336 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6345 mV
+pose: x=-0.372 y=0.194 th=93.0 deg | a P14: 38 mm | bat=6354 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6354 mV
+pose: x=-0.372 y=0.192 th=94.0 deg | a P14: 40 mm | bat=6354 mV
+pose: x=-0.373 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6345 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6345 mV
+pose: x=-0.373 y=0.196 th=93.0 deg | a P14: 36 mm | bat=6354 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6336 mV
+pose: x=-0.373 y=0.195 th=93.0 deg | a P14: 37 mm | bat=6336 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6354 mV
+pose: x=-0.373 y=0.191 th=93.0 deg | a P14: 41 mm | bat=6354 mV
+pose: x=-0.372 y=0.192 th=94.0 deg | a P14: 40 mm | bat=6327 mV
+pose: x=-0.371 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6354 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6345 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6336 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6336 mV
+pose: x=-0.374 y=0.194 th=93.0 deg | a P14: 39 mm | bat=6354 mV
+pose: x=-0.372 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6363 mV
+pose: x=-0.372 y=0.193 th=92.0 deg | a P14: 39 mm | bat=6380 mV
+pose: x=-0.372 y=0.194 th=93.0 deg | a P14: 38 mm | bat=6327 mV
+pose: x=-0.373 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6354 mV
+pose: x=-0.373 y=0.195 th=93.0 deg | a P14: 37 mm | bat=6354 mV
+pose: x=-0.373 y=0.193 th=94.0 deg | a P14: 39 mm | bat=6363 mV
+pose: x=-0.374 y=0.193 th=93.0 deg | a P14: 40 mm | bat=6336 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6354 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6354 mV
+pose: x=-0.373 y=0.195 th=94.0 deg | a P14: 37 mm | bat=6345 mV
+pose: x=-0.372 y=0.192 th=94.0 deg | a P14: 40 mm | bat=6301 mV
+pose: x=-0.373 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6327 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6345 mV
+pose: x=-0.373 y=0.192 th=93.0 deg | a P14: 40 mm | bat=6363 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6345 mV
+pose: x=-0.372 y=0.193 th=93.0 deg | a P14: 39 mm | bat=6336 mV
+pose: x=-0.375 y=0.195 th=96.0 deg | a P14: 38 mm | bat=6345 mV
+pose: x=-0.402 y=0.248 th=91.0 deg | a P14: 46 mm | bat=6345 mV
+pose: x=-0.402 y=0.248 th=91.0 deg | a P14: 46 mm | bat=6309 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.478 y=0.577 th=70.0 deg | a P14: 367 mm | bat=6354 mV
+pose: x=-0.478 y=0.577 th=70.0 deg | a P14: 367 mm | bat=6345 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=47 CANSTAT=0x00
+pose: x=-0.374 y=1.005 th=91.0 deg | a P14: 775 mm | bat=6336 mV
+pose: x=-0.375 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6345 mV
+pose: x=-0.376 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6318 mV
+pose: x=-0.374 y=1.006 th=91.0 deg | a P14: 776 mm | bat=6345 mV
+pose: x=-0.375 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6354 mV
+pose: x=-0.375 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6336 mV
+pose: x=-0.375 y=1.006 th=91.0 deg | a P14: 776 mm | bat=6354 mV
+pose: x=-0.376 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6318 mV
+pose: x=-0.374 y=1.005 th=91.0 deg | a P14: 775 mm | bat=6327 mV
+pose: x=-0.375 y=1.004 th=92.0 deg | a P14: 774 mm | bat=6363 mV
+pose: x=-0.375 y=1.004 th=92.0 deg | a P14: 774 mm | bat=6380 mV
+pose: x=-0.375 y=1.004 th=91.0 deg | a P14: 774 mm | bat=6363 mV
+pose: x=-0.375 y=1.004 th=92.0 deg | a P14: 774 mm | bat=6380 mV
+pose: x=-0.375 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6478 mV
+pose: x=-0.375 y=1.004 th=92.0 deg | a P14: 774 mm | bat=6345 mV
+pose: x=-0.374 y=1.005 th=91.0 deg | a P14: 775 mm | bat=6363 mV
+pose: x=-0.375 y=1.005 th=91.0 deg | a P14: 775 mm | bat=6451 mV
+pose: x=-0.375 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6327 mV
+pose: x=-0.376 y=1.004 th=92.0 deg | a P14: 774 mm | bat=6327 mV
+pose: x=-0.376 y=1.004 th=92.0 deg | a P14: 774 mm | bat=6389 mV
+pose: x=-0.375 y=1.004 th=92.0 deg | a P14: 774 mm | bat=6336 mV
+pose: x=-0.375 y=1.004 th=91.0 deg | a P14: 774 mm | bat=6336 mV
+pose: x=-0.376 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6354 mV
+pose: x=-0.375 y=1.004 th=91.0 deg | a P14: 774 mm | bat=6363 mV
+pose: x=-0.375 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6336 mV
+pose: x=-0.376 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6354 mV
+pose: x=-0.375 y=1.005 th=92.0 deg | a P14: 775 mm | bat=6345 mV
+pose: x=-0.388 y=1.008 th=91.0 deg | a P14: 779 mm | bat=6371 mV
+pose: x=-0.374 y=1.016 th=92.0 deg | a P14: 786 mm | bat=6336 mV
+pose: x=-0.356 y=1.042 th=42.0 deg | a P14: 812 mm | bat=6354 mV
+pose: x=-0.313 y=1.065 th=19.0 deg | a P14: 836 mm | bat=6354 mV
+pose: x=-0.250 y=1.061 th=-53.0 deg | a P14: 838 mm | bat=6345 mV
+pose: x=-0.257 y=1.046 th=-53.0 deg | a P14: 822 mm | bat=6363 mV
+pose: x=-0.257 y=1.046 th=-53.0 deg | a P14: 822 mm | bat=6380 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.236 y=1.083 th=-87.0 deg | a P14: 862 mm | bat=6354 mV
+pose: x=-0.229 y=1.099 th=-87.0 deg | a P14: 879 mm | bat=6354 mV
+pose: x=-0.235 y=1.084 th=-87.0 deg | a P14: 863 mm | bat=6327 mV
+pose: x=-0.229 y=1.100 th=-87.0 deg | a P14: 880 mm | bat=6363 mV
+pose: x=-0.240 y=1.075 th=-86.0 deg | a P14: 853 mm | bat=6345 mV
+pose: x=-0.247 y=1.059 th=-87.0 deg | a P14: 837 mm | bat=6363 mV
+pose: x=-0.221 y=1.071 th=-90.0 deg | a P14: 852 mm | bat=6345 mV
+pose: x=-0.239 y=1.074 th=-89.0 deg | a P14: 853 mm | bat=6363 mV
+pose: x=-0.226 y=1.080 th=-89.0 deg | a P14: 860 mm | bat=6363 mV
+pose: x=-0.234 y=1.065 th=-89.0 deg | a P14: 844 mm | bat=6345 mV
+pose: x=-0.239 y=1.075 th=-89.0 deg | a P14: 854 mm | bat=6363 mV
+pose: x=-0.239 y=1.074 th=-89.0 deg | a P14: 853 mm | bat=6363 mV
+pose: x=-0.244 y=1.055 th=-88.0 deg | a P14: 833 mm | bat=6345 mV
+pose: x=-0.236 y=1.067 th=-87.0 deg | a P14: 846 mm | bat=6371 mV
+pose: x=-0.237 y=1.066 th=-87.0 deg | a P14: 845 mm | bat=6354 mV
+pose: x=-0.236 y=1.066 th=-88.0 deg | a P14: 845 mm | bat=6380 mV
+pose: x=-0.236 y=1.066 th=-87.0 deg | a P14: 845 mm | bat=6336 mV
+pose: x=-0.224 y=1.072 th=-87.0 deg | a P14: 853 mm | bat=6345 mV
+pose: x=-0.218 y=1.065 th=-88.0 deg | a P14: 847 mm | bat=6318 mV
+pose: x=-0.236 y=1.066 th=-86.0 deg | a P14: 845 mm | bat=6354 mV
+pose: x=-0.224 y=1.072 th=-88.0 deg | a P14: 853 mm | bat=6265 mV
+pose: x=-0.213 y=1.055 th=-88.0 deg | a P14: 838 mm | bat=6345 mV
+pose: x=-0.237 y=1.066 th=-87.0 deg | a P14: 845 mm | bat=6283 mV
+pose: x=-0.236 y=1.066 th=-88.0 deg | a P14: 845 mm | bat=6345 mV
+pose: x=-0.224 y=1.072 th=-88.0 deg | a P14: 853 mm | bat=6363 mV
+pose: x=-0.236 y=1.066 th=-87.0 deg | a P14: 845 mm | bat=6354 mV
+pose: x=-0.244 y=1.049 th=-88.0 deg | a P14: 827 mm | bat=6345 mV
+pose: x=-0.236 y=1.066 th=-88.0 deg | a P14: 845 mm | bat=6256 mV
+pose: x=-0.236 y=1.066 th=-88.0 deg | a P14: 845 mm | bat=6354 mV
+pose: x=-0.237 y=1.066 th=-87.0 deg | a P14: 845 mm | bat=6363 mV
+pose: x=-0.236 y=1.066 th=-87.0 deg | a P14: 845 mm | bat=6363 mV
+pose: x=-0.236 y=1.066 th=-88.0 deg | a P14: 845 mm | bat=6380 mV
+pose: x=-0.236 y=1.066 th=-88.0 deg | a P14: 845 mm | bat=6345 mV
+pose: x=-0.236 y=1.066 th=-88.0 deg | a P14: 845 mm | bat=6345 mV
+pose: x=-0.225 y=1.062 th=-87.0 deg | a P14: 843 mm | bat=6354 mV
+pose: x=-0.225 y=1.062 th=-87.0 deg | a P14: 843 mm | bat=6345 mV
+pose: x=-0.226 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6327 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6345 mV
+pose: x=-0.225 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6380 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6363 mV
+pose: x=-0.226 y=1.062 th=-87.0 deg | a P14: 843 mm | bat=6345 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6363 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6363 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6345 mV
+pose: x=-0.226 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6354 mV
+pose: x=-0.226 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6345 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6345 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6380 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6363 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6354 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6354 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6363 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6354 mV
+pose: x=-0.226 y=1.062 th=-87.0 deg | a P14: 843 mm | bat=6380 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6345 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6354 mV
+pose: x=-0.226 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6371 mV
+pose: x=-0.227 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6354 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6363 mV
+pose: x=-0.225 y=1.064 th=-88.0 deg | a P14: 845 mm | bat=6363 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6363 mV
+pose: x=-0.225 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6327 mV
+pose: x=-0.225 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6345 mV
+pose: x=-0.225 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6354 mV
+pose: x=-0.225 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6363 mV
+pose: x=-0.225 y=1.064 th=-87.0 deg | a P14: 845 mm | bat=6345 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6363 mV
+pose: x=-0.226 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6345 mV
+pose: x=-0.225 y=1.062 th=-87.0 deg | a P14: 843 mm | bat=6363 mV
+pose: x=-0.225 y=1.062 th=-87.0 deg | a P14: 843 mm | bat=6363 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6363 mV
+pose: x=-0.226 y=1.062 th=-88.0 deg | a P14: 843 mm | bat=6496 mV
+pose: x=-0.225 y=1.063 th=-88.0 deg | a P14: 844 mm | bat=6327 mV
+pose: x=-0.225 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6336 mV
+pose: x=-0.225 y=1.063 th=-87.0 deg | a P14: 844 mm | bat=6354 mV
+pose: x=-0.227 y=1.068 th=-87.0 deg | a P14: 848 mm | bat=6265 mV
+pose: x=-0.227 y=1.068 th=-86.0 deg | a P14: 848 mm | bat=6345 mV
+pose: x=-0.227 y=1.068 th=-86.0 deg | a P14: 848 mm | bat=6336 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.214 y=0.360 th=-88.0 deg | a P14: 195 mm | bat=6345 mV
+pose: x=-0.213 y=0.359 th=-88.0 deg | a P14: 196 mm | bat=6363 mV
+pose: x=-0.214 y=0.358 th=-88.0 deg | a P14: 194 mm | bat=6363 mV
+pose: x=-0.214 y=0.360 th=-88.0 deg | a P14: 195 mm | bat=6354 mV
+pose: x=-0.214 y=0.360 th=-87.0 deg | a P14: 195 mm | bat=6354 mV
+pose: x=-0.213 y=0.360 th=-88.0 deg | a P14: 196 mm | bat=6336 mV
+pose: x=-0.213 y=0.359 th=-88.0 deg | a P14: 196 mm | bat=6354 mV
+pose: x=-0.214 y=0.358 th=-88.0 deg | a P14: 194 mm | bat=6354 mV
+pose: x=-0.214 y=0.359 th=-88.0 deg | a P14: 195 mm | bat=6345 mV
+pose: x=-0.214 y=0.357 th=-88.0 deg | a P14: 194 mm | bat=6354 mV
+pose: x=-0.213 y=0.359 th=-87.0 deg | a P14: 196 mm | bat=6363 mV
+pose: x=-0.214 y=0.358 th=-87.0 deg | a P14: 194 mm | bat=6363 mV
+pose: x=-0.213 y=0.361 th=-88.0 deg | a P14: 197 mm | bat=6487 mV
+pose: x=-0.214 y=0.360 th=-88.0 deg | a P14: 195 mm | bat=6460 mV
+pose: x=-0.214 y=0.359 th=-87.0 deg | a P14: 195 mm | bat=6345 mV
+pose: x=-0.213 y=0.359 th=-88.0 deg | a P14: 196 mm | bat=6327 mV
+pose: x=-0.214 y=0.358 th=-87.0 deg | a P14: 194 mm | bat=6363 mV
+pose: x=-0.214 y=0.360 th=-88.0 deg | a P14: 195 mm | bat=6371 mV
+pose: x=-0.213 y=0.359 th=-88.0 deg | a P14: 196 mm | bat=6363 mV
+pose: x=-0.214 y=0.361 th=-87.0 deg | a P14: 196 mm | bat=6336 mV
+pose: x=-0.214 y=0.360 th=-87.0 deg | a P14: 195 mm | bat=6487 mV
+pose: x=-0.214 y=0.359 th=-87.0 deg | a P14: 195 mm | bat=6354 mV
+pose: x=-0.214 y=0.359 th=-88.0 deg | a P14: 195 mm | bat=6292 mV
+pose: x=-0.214 y=0.359 th=-87.0 deg | a P14: 195 mm | bat=6354 mV
+pose: x=-0.215 y=0.359 th=-87.0 deg | a P14: 194 mm | bat=6363 mV
+pose: x=-0.214 y=0.357 th=-87.0 deg | a P14: 194 mm | bat=6327 mV
+pose: x=-0.215 y=0.359 th=-86.0 deg | a P14: 194 mm | bat=6336 mV
+pose: x=-0.214 y=0.361 th=-87.0 deg | a P14: 196 mm | bat=6487 mV
+pose: x=-0.215 y=0.361 th=-87.0 deg | a P14: 195 mm | bat=6363 mV
+pose: x=-0.214 y=0.359 th=-86.0 deg | a P14: 195 mm | bat=6363 mV
+pose: x=-0.214 y=0.360 th=-87.0 deg | a P14: 195 mm | bat=6354 mV
+pose: x=-0.213 y=0.360 th=-88.0 deg | a P14: 196 mm | bat=6327 mV
+pose: x=-0.214 y=0.358 th=-87.0 deg | a P14: 194 mm | bat=6371 mV
+pose: x=-0.215 y=0.360 th=-86.0 deg | a P14: 195 mm | bat=6354 mV
+pose: x=-0.214 y=0.359 th=-87.0 deg | a P14: 195 mm | bat=6336 mV
+pose: x=-0.214 y=0.360 th=-87.0 deg | a P14: 195 mm | bat=6345 mV
+pose: x=-0.214 y=0.358 th=-87.0 deg | a P14: 194 mm | bat=6363 mV
+pose: x=-0.214 y=0.360 th=-87.0 deg | a P14: 195 mm | bat=6363 mV
+pose: x=-0.211 y=0.358 th=-89.0 deg | a P14: 196 mm | bat=6274 mV
+pose: x=-0.209 y=0.355 th=-91.0 deg | a P14: 196 mm | bat=6460 mV
+pose: x=-0.209 y=0.355 th=-91.0 deg | a P14: 196 mm | bat=6354 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.078 y=0.315 th=91.0 deg | a P14: 295 mm | bat=6345 mV
+pose: x=-0.078 y=0.316 th=91.0 deg | a P14: 295 mm | bat=6354 mV
+pose: x=-0.077 y=0.316 th=91.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.077 y=0.316 th=91.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.316 th=91.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6363 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.078 y=0.315 th=91.0 deg | a P14: 295 mm | bat=6363 mV
+pose: x=-0.077 y=0.316 th=91.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6380 mV
+pose: x=-0.078 y=0.317 th=91.0 deg | a P14: 295 mm | bat=6354 mV
+pose: x=-0.077 y=0.317 th=91.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6345 mV
+pose: x=-0.076 y=0.316 th=92.0 deg | a P14: 297 mm | bat=6318 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6363 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6318 mV
+pose: x=-0.077 y=0.318 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.078 y=0.316 th=92.0 deg | a P14: 295 mm | bat=6336 mV
+pose: x=-0.077 y=0.318 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.076 y=0.316 th=92.0 deg | a P14: 297 mm | bat=6265 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6354 mV
+pose: x=-0.076 y=0.316 th=92.0 deg | a P14: 297 mm | bat=6380 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.315 th=91.0 deg | a P14: 295 mm | bat=6336 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6363 mV
+pose: x=-0.076 y=0.317 th=92.0 deg | a P14: 297 mm | bat=6363 mV
+pose: x=-0.076 y=0.315 th=93.0 deg | a P14: 296 mm | bat=6380 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6345 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6336 mV
+pose: x=-0.076 y=0.316 th=92.0 deg | a P14: 297 mm | bat=6354 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6345 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6345 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6354 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6327 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6363 mV
+pose: x=-0.077 y=0.315 th=91.0 deg | a P14: 295 mm | bat=6336 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.078 y=0.316 th=92.0 deg | a P14: 295 mm | bat=6354 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.078 y=0.316 th=92.0 deg | a P14: 295 mm | bat=6345 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6363 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6354 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.077 y=0.315 th=92.0 deg | a P14: 295 mm | bat=6354 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6363 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6363 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6354 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6363 mV
+pose: x=-0.077 y=0.316 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.316 th=90.0 deg | a P14: 296 mm | bat=6327 mV
+pose: x=-0.078 y=0.316 th=92.0 deg | a P14: 295 mm | bat=6327 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6336 mV
+pose: x=-0.077 y=0.317 th=92.0 deg | a P14: 296 mm | bat=6345 mV
+pose: x=-0.077 y=0.320 th=92.0 deg | a P14: 297 mm | bat=6345 mV
+pose: x=-0.077 y=0.320 th=92.0 deg | a P14: 297 mm | bat=6363 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.075 y=0.353 th=90.0 deg | a P14: 310 mm | bat=6345 mV
+pose: x=-0.076 y=0.353 th=91.0 deg | a P14: 309 mm | bat=6487 mV
+pose: x=-0.076 y=0.353 th=91.0 deg | a P14: 309 mm | bat=6363 mV
+pose: x=-0.076 y=0.353 th=91.0 deg | a P14: 309 mm | bat=6309 mV
+pose: x=-0.075 y=0.353 th=92.0 deg | a P14: 310 mm | bat=6354 mV
+pose: x=-0.076 y=0.354 th=92.0 deg | a P14: 310 mm | bat=6345 mV
+pose: x=-0.075 y=0.353 th=91.0 deg | a P14: 310 mm | bat=6354 mV
+pose: x=-0.075 y=0.352 th=92.0 deg | a P14: 310 mm | bat=6363 mV
+pose: x=-0.075 y=0.351 th=92.0 deg | a P14: 310 mm | bat=6345 mV
+pose: x=-0.074 y=0.354 th=90.0 deg | a P14: 312 mm | bat=6336 mV
+pose: x=-0.075 y=0.353 th=91.0 deg | a P14: 310 mm | bat=6345 mV
+pose: x=-0.075 y=0.355 th=93.0 deg | a P14: 311 mm | bat=6336 mV
+pose: x=-0.074 y=0.355 th=91.0 deg | a P14: 312 mm | bat=6345 mV
+pose: x=-0.074 y=0.355 th=91.0 deg | a P14: 312 mm | bat=6354 mV
+pose: x=-0.076 y=0.356 th=93.0 deg | a P14: 311 mm | bat=6354 mV
+pose: x=-0.076 y=0.355 th=91.0 deg | a P14: 310 mm | bat=6354 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.074 y=0.355 th=91.0 deg | a P14: 312 mm | bat=6354 mV
+pose: x=-0.074 y=0.355 th=91.0 deg | a P14: 312 mm | bat=6265 mV
+pose: x=-0.075 y=0.354 th=92.0 deg | a P14: 311 mm | bat=6336 mV
+pose: x=-0.074 y=0.356 th=91.0 deg | a P14: 313 mm | bat=6363 mV
+pose: x=-0.075 y=0.354 th=92.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.075 y=0.355 th=93.0 deg | a P14: 311 mm | bat=6256 mV
+pose: x=-0.074 y=0.356 th=92.0 deg | a P14: 313 mm | bat=6327 mV
+pose: x=-0.075 y=0.355 th=92.0 deg | a P14: 311 mm | bat=6363 mV
+pose: x=-0.075 y=0.355 th=93.0 deg | a P14: 311 mm | bat=6371 mV
+pose: x=-0.074 y=0.355 th=92.0 deg | a P14: 312 mm | bat=6354 mV
+pose: x=-0.075 y=0.356 th=91.0 deg | a P14: 312 mm | bat=6354 mV
+pose: x=-0.075 y=0.354 th=92.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.076 y=0.356 th=91.0 deg | a P14: 311 mm | bat=6247 mV
+pose: x=-0.075 y=0.354 th=91.0 deg | a P14: 311 mm | bat=6327 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6354 mV
+pose: x=-0.075 y=0.354 th=92.0 deg | a P14: 311 mm | bat=6354 mV
+pose: x=-0.075 y=0.354 th=91.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.075 y=0.354 th=92.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.076 y=0.355 th=91.0 deg | a P14: 310 mm | bat=6345 mV
+pose: x=-0.075 y=0.355 th=93.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.075 y=0.354 th=91.0 deg | a P14: 311 mm | bat=6371 mV
+pose: x=-0.074 y=0.356 th=91.0 deg | a P14: 313 mm | bat=6345 mV
+pose: x=-0.074 y=0.355 th=92.0 deg | a P14: 312 mm | bat=6363 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6336 mV
+pose: x=-0.074 y=0.355 th=92.0 deg | a P14: 312 mm | bat=6318 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6336 mV
+pose: x=-0.076 y=0.356 th=93.0 deg | a P14: 311 mm | bat=6327 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6363 mV
+pose: x=-0.075 y=0.356 th=93.0 deg | a P14: 312 mm | bat=6354 mV
+pose: x=-0.075 y=0.354 th=92.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6336 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6345 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6354 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6354 mV
+pose: x=-0.074 y=0.355 th=92.0 deg | a P14: 312 mm | bat=6327 mV
+pose: x=-0.074 y=0.355 th=92.0 deg | a P14: 312 mm | bat=6345 mV
+pose: x=-0.076 y=0.354 th=92.0 deg | a P14: 310 mm | bat=6363 mV
+pose: x=-0.075 y=0.355 th=92.0 deg | a P14: 311 mm | bat=6309 mV
+pose: x=-0.074 y=0.354 th=92.0 deg | a P14: 312 mm | bat=6363 mV
+pose: x=-0.074 y=0.356 th=91.0 deg | a P14: 313 mm | bat=6354 mV
+pose: x=-0.074 y=0.355 th=91.0 deg | a P14: 312 mm | bat=6363 mV
+pose: x=-0.075 y=0.354 th=91.0 deg | a P14: 311 mm | bat=6371 mV
+pose: x=-0.075 y=0.356 th=91.0 deg | a P14: 312 mm | bat=6336 mV
+pose: x=-0.074 y=0.355 th=93.0 deg | a P14: 312 mm | bat=6327 mV
+pose: x=-0.075 y=0.355 th=91.0 deg | a P14: 311 mm | bat=6363 mV
+pose: x=-0.074 y=0.357 th=91.0 deg | a P14: 313 mm | bat=6327 mV
+pose: x=-0.073 y=0.367 th=94.0 deg | a P14: 318 mm | bat=6327 mV
+pose: x=-0.079 y=0.382 th=90.0 deg | a P14: 319 mm | bat=6327 mV
+pose: x=-0.080 y=0.392 th=92.0 deg | a P14: 323 mm | bat=6345 mV
+pose: x=-0.080 y=0.392 th=92.0 deg | a P14: 323 mm | bat=6345 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6469 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6345 mV
+pose: x=-0.073 y=1.034 th=93.0 deg | a P14: 854 mm | bat=6363 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6336 mV
+pose: x=-0.073 y=1.035 th=94.0 deg | a P14: 855 mm | bat=6354 mV
+pose: x=-0.073 y=1.034 th=95.0 deg | a P14: 854 mm | bat=6327 mV
+pose: x=-0.074 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6345 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6336 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6363 mV
+pose: x=-0.073 y=1.035 th=94.0 deg | a P14: 855 mm | bat=6345 mV
+pose: x=-0.073 y=1.033 th=94.0 deg | a P14: 853 mm | bat=6354 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6345 mV
+pose: x=-0.075 y=1.033 th=93.0 deg | a P14: 852 mm | bat=6345 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6354 mV
+pose: x=-0.074 y=1.033 th=95.0 deg | a P14: 852 mm | bat=6354 mV
+pose: x=-0.074 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6345 mV
+pose: x=-0.073 y=1.033 th=94.0 deg | a P14: 853 mm | bat=6336 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6363 mV
+pose: x=-0.075 y=1.035 th=93.0 deg | a P14: 854 mm | bat=6363 mV
+pose: x=-0.075 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6318 mV
+pose: x=-0.074 y=1.035 th=93.0 deg | a P14: 854 mm | bat=6309 mV
+pose: x=-0.074 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6336 mV
+pose: x=-0.075 y=1.034 th=93.0 deg | a P14: 853 mm | bat=6345 mV
+pose: x=-0.073 y=1.033 th=94.0 deg | a P14: 853 mm | bat=6336 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6336 mV
+pose: x=-0.074 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6336 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6327 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6327 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6309 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6345 mV
+pose: x=-0.074 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6345 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6354 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6363 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6354 mV
+pose: x=-0.074 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6354 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6354 mV
+pose: x=-0.075 y=1.035 th=94.0 deg | a P14: 854 mm | bat=6345 mV
+pose: x=-0.073 y=1.033 th=95.0 deg | a P14: 853 mm | bat=6327 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6363 mV
+pose: x=-0.074 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6336 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6336 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6318 mV
+pose: x=-0.075 y=1.034 th=94.0 deg | a P14: 853 mm | bat=6380 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6336 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6363 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6327 mV
+pose: x=-0.073 y=1.033 th=94.0 deg | a P14: 853 mm | bat=6371 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6354 mV
+pose: x=-0.073 y=1.034 th=94.0 deg | a P14: 854 mm | bat=6336 mV
+pose: x=-0.074 y=1.033 th=94.0 deg | a P14: 852 mm | bat=6354 mV
+pose: x=-0.077 y=1.032 th=92.0 deg | a P14: 850 mm | bat=6354 mV
+pose: x=-0.066 y=1.038 th=68.0 deg | a P14: 860 mm | bat=6345 mV
+pose: x=-0.066 y=1.038 th=68.0 deg | a P14: 860 mm | bat=6345 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=-0.062 y=1.047 th=72.0 deg | a P14: 870 mm | bat=6345 mV
+pose: x=-0.063 y=1.046 th=72.0 deg | a P14: 868 mm | bat=6354 mV
+pose: x=-0.063 y=1.048 th=72.0 deg | a P14: 870 mm | bat=6363 mV
+pose: x=-0.053 y=1.047 th=62.0 deg | a P14: 873 mm | bat=6336 mV
+pose: x=0.026 y=1.076 th=17.0 deg | a P14: 930 mm | bat=6380 mV
+pose: x=0.029 y=1.074 th=6.0 deg | a P14: 929 mm | bat=6327 mV
+pose: x=0.066 y=1.071 th=-28.0 deg | a P14: 943 mm | bat=6336 mV
+pose: x=0.062 y=1.076 th=-35.0 deg | a P14: 945 mm | bat=6363 mV
+pose: x=0.061 y=1.076 th=-36.0 deg | a P14: 945 mm | bat=6345 mV
+pose: x=0.061 y=1.076 th=-37.0 deg | a P14: 945 mm | bat=6345 mV
+pose: x=0.066 y=1.061 th=-82.0 deg | a P14: 934 mm | bat=6354 mV
+pose: x=0.068 y=1.063 th=-84.0 deg | a P14: 937 mm | bat=6354 mV
+pose: x=0.069 y=1.063 th=-86.0 deg | a P14: 937 mm | bat=6354 mV
+pose: x=0.070 y=1.063 th=-86.0 deg | a P14: 937 mm | bat=6460 mV
+pose: x=0.075 y=1.064 th=-88.0 deg | a P14: 941 mm | bat=6487 mV
+pose: x=0.076 y=1.061 th=-88.0 deg | a P14: 938 mm | bat=6318 mV
+pose: x=0.076 y=1.061 th=-86.0 deg | a P14: 938 mm | bat=6336 mV
+pose: x=0.077 y=1.061 th=-87.0 deg | a P14: 939 mm | bat=6354 mV
+pose: x=0.077 y=1.056 th=-87.0 deg | a P14: 934 mm | bat=6336 mV
+pose: x=0.075 y=1.060 th=-87.0 deg | a P14: 937 mm | bat=6354 mV
+pose: x=0.075 y=1.059 th=-88.0 deg | a P14: 936 mm | bat=6336 mV
+pose: x=0.076 y=1.059 th=-88.0 deg | a P14: 937 mm | bat=6345 mV
+pose: x=0.076 y=1.058 th=-88.0 deg | a P14: 936 mm | bat=6354 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6354 mV
+pose: x=0.074 y=1.060 th=-89.0 deg | a P14: 937 mm | bat=6345 mV
+pose: x=0.076 y=1.058 th=-88.0 deg | a P14: 936 mm | bat=6354 mV
+pose: x=0.076 y=1.056 th=-88.0 deg | a P14: 934 mm | bat=6345 mV
+pose: x=0.077 y=1.055 th=-88.0 deg | a P14: 934 mm | bat=6345 mV
+pose: x=0.074 y=1.059 th=-88.0 deg | a P14: 936 mm | bat=6354 mV
+pose: x=0.076 y=1.055 th=-88.0 deg | a P14: 933 mm | bat=6318 mV
+pose: x=0.076 y=1.054 th=-88.0 deg | a P14: 932 mm | bat=6380 mV
+pose: x=0.077 y=1.054 th=-88.0 deg | a P14: 933 mm | bat=6363 mV
+pose: x=0.075 y=1.059 th=-89.0 deg | a P14: 936 mm | bat=6318 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6327 mV
+pose: x=0.075 y=1.059 th=-89.0 deg | a P14: 936 mm | bat=6336 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6345 mV
+pose: x=0.076 y=1.058 th=-88.0 deg | a P14: 936 mm | bat=6354 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6345 mV
+pose: x=0.075 y=1.058 th=-87.0 deg | a P14: 935 mm | bat=6336 mV
+pose: x=0.075 y=1.059 th=-89.0 deg | a P14: 936 mm | bat=6354 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6336 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6336 mV
+pose: x=0.074 y=1.059 th=-88.0 deg | a P14: 936 mm | bat=6327 mV
+pose: x=0.076 y=1.059 th=-88.0 deg | a P14: 937 mm | bat=6354 mV
+pose: x=0.074 y=1.060 th=-88.0 deg | a P14: 937 mm | bat=6363 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6336 mV
+pose: x=0.075 y=1.059 th=-88.0 deg | a P14: 936 mm | bat=6354 mV
+pose: x=0.076 y=1.059 th=-88.0 deg | a P14: 937 mm | bat=6336 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6345 mV
+pose: x=0.076 y=1.058 th=-88.0 deg | a P14: 936 mm | bat=6336 mV
+pose: x=0.076 y=1.059 th=-88.0 deg | a P14: 937 mm | bat=6345 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6354 mV
+pose: x=0.075 y=1.059 th=-88.0 deg | a P14: 936 mm | bat=6336 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6354 mV
+pose: x=0.075 y=1.058 th=-88.0 deg | a P14: 935 mm | bat=6327 mV
+pose: x=0.076 y=1.059 th=-88.0 deg | a P14: 937 mm | bat=6336 mV
+pose: x=0.076 y=1.059 th=-89.0 deg | a P14: 937 mm | bat=6327 mV
+pose: x=0.076 y=1.059 th=-88.0 deg | a P14: 937 mm | bat=6354 mV
+pose: x=0.075 y=1.059 th=-88.0 deg | a P14: 936 mm | bat=6327 mV
+pose: x=0.076 y=1.059 th=-89.0 deg | a P14: 937 mm | bat=6345 mV
+pose: x=0.076 y=1.059 th=-89.0 deg | a P14: 937 mm | bat=6363 mV
+pose: x=0.074 y=1.059 th=-88.0 deg | a P14: 936 mm | bat=6363 mV
+pose: x=0.089 y=0.839 th=-92.0 deg | a P14: 757 mm | bat=6336 mV
+pose: x=0.100 y=0.639 th=-96.0 deg | a P14: 616 mm | bat=6336 mV
+pose: x=0.077 y=0.398 th=-94.0 deg | a P14: 468 mm | bat=6363 mV
+pose: x=0.078 y=0.388 th=-94.0 deg | a P14: 466 mm | bat=6336 mV
+pose: x=0.072 y=0.364 th=-88.0 deg | a P14: 452 mm | bat=6354 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6354 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6345 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6345 mV
+pose: x=0.074 y=0.361 th=-90.0 deg | a P14: 453 mm | bat=6336 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6371 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6327 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6354 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6318 mV
+pose: x=0.073 y=0.363 th=-90.0 deg | a P14: 453 mm | bat=6354 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6354 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6345 mV
+pose: x=0.074 y=0.360 th=-90.0 deg | a P14: 453 mm | bat=6345 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6354 mV
+pose: x=0.073 y=0.362 th=-89.0 deg | a P14: 453 mm | bat=6354 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6363 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6345 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6336 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6345 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6434 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6336 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6345 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6354 mV
+pose: x=0.073 y=0.361 th=-90.0 deg | a P14: 452 mm | bat=6363 mV
+pose: x=0.072 y=0.362 th=-89.0 deg | a P14: 452 mm | bat=6345 mV
+pose: x=0.073 y=0.361 th=-89.0 deg | a P14: 452 mm | bat=6354 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6354 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6354 mV
+pose: x=0.075 y=0.363 th=-90.0 deg | a P14: 455 mm | bat=6345 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6336 mV
+pose: x=0.073 y=0.363 th=-90.0 deg | a P14: 453 mm | bat=6336 mV
+pose: x=0.074 y=0.361 th=-89.0 deg | a P14: 453 mm | bat=6451 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6336 mV
+pose: x=0.074 y=0.362 th=-89.0 deg | a P14: 454 mm | bat=6345 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6336 mV
+pose: x=0.074 y=0.362 th=-90.0 deg | a P14: 454 mm | bat=6292 mV
+pose: x=0.073 y=0.363 th=-89.0 deg | a P14: 453 mm | bat=6283 mV
+pose: x=0.073 y=0.364 th=-90.0 deg | a P14: 453 mm | bat=6345 mV
+pose: x=0.074 y=0.361 th=-90.0 deg | a P14: 453 mm | bat=6354 mV
+pose: x=0.074 y=0.361 th=-89.0 deg | a P14: 453 mm | bat=6345 mV
+pose: x=0.074 y=0.360 th=-88.0 deg | a P14: 453 mm | bat=6354 mV
+pose: x=0.074 y=0.360 th=-88.0 deg | a P14: 453 mm | bat=6354 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=5 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=5 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=5 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=5 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=5 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=5 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=5 CANSTAT=0x00
+pose: x=0.211 y=0.342 th=91.0 deg | a P14: 582 mm | bat=6354 mV
+pose: x=0.211 y=0.343 th=91.0 deg | a P14: 582 mm | bat=6345 mV
+pose: x=0.215 y=0.346 th=90.0 deg | a P14: 587 mm | bat=6327 mV
+pose: x=0.224 y=0.345 th=92.0 deg | a P14: 595 mm | bat=6318 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6345 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6380 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.224 y=0.347 th=91.0 deg | a P14: 596 mm | bat=6336 mV
+pose: x=0.224 y=0.346 th=90.0 deg | a P14: 595 mm | bat=6309 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6345 mV
+pose: x=0.223 y=0.347 th=91.0 deg | a P14: 595 mm | bat=6354 mV
+pose: x=0.223 y=0.345 th=92.0 deg | a P14: 594 mm | bat=6345 mV
+pose: x=0.222 y=0.347 th=91.0 deg | a P14: 594 mm | bat=6363 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6345 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6345 mV
+pose: x=0.223 y=0.347 th=90.0 deg | a P14: 595 mm | bat=6363 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6327 mV
+pose: x=0.224 y=0.346 th=90.0 deg | a P14: 595 mm | bat=6345 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6345 mV
+pose: x=0.222 y=0.347 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6345 mV
+pose: x=0.223 y=0.347 th=91.0 deg | a P14: 595 mm | bat=6327 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6363 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6363 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6380 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6363 mV
+pose: x=0.224 y=0.345 th=91.0 deg | a P14: 595 mm | bat=6336 mV
+pose: x=0.224 y=0.346 th=91.0 deg | a P14: 595 mm | bat=6345 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6336 mV
+pose: x=0.224 y=0.342 th=91.0 deg | a P14: 595 mm | bat=6354 mV
+pose: x=0.224 y=0.346 th=90.0 deg | a P14: 595 mm | bat=6336 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.224 y=0.347 th=91.0 deg | a P14: 596 mm | bat=6354 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6336 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6336 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6380 mV
+pose: x=0.223 y=0.345 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.223 y=0.346 th=91.0 deg | a P14: 594 mm | bat=6354 mV
+pose: x=0.224 y=0.349 th=90.0 deg | a P14: 596 mm | bat=6478 mV
+pose: x=0.224 y=0.351 th=90.0 deg | a P14: 596 mm | bat=6354 mV
+pose: x=0.224 y=0.351 th=90.0 deg | a P14: 596 mm | bat=6336 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x43 TEC=0 REC=120 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x43 TEC=0 REC=120 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x43 TEC=0 REC=120 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x43 TEC=0 REC=120 CANSTAT=0x00
+pose: x=0.227 y=1.016 th=91.0 deg | a P14: 981 mm | bat=6336 mV
+pose: x=0.225 y=1.017 th=91.0 deg | a P14: 981 mm | bat=6336 mV
+pose: x=0.225 y=1.016 th=91.0 deg | a P14: 980 mm | bat=6354 mV
+pose: x=0.225 y=1.016 th=91.0 deg | a P14: 980 mm | bat=6292 mV
+pose: x=0.227 y=1.015 th=91.0 deg | a P14: 980 mm | bat=6327 mV
+pose: x=0.226 y=1.016 th=91.0 deg | a P14: 980 mm | bat=6345 mV
+pose: x=0.226 y=1.016 th=91.0 deg | a P14: 980 mm | bat=6336 mV
+pose: x=0.226 y=1.017 th=91.0 deg | a P14: 981 mm | bat=6336 mV
+pose: x=0.227 y=1.015 th=91.0 deg | a P14: 980 mm | bat=6354 mV
+pose: x=0.227 y=1.015 th=91.0 deg | a P14: 980 mm | bat=6336 mV
+pose: x=0.227 y=1.017 th=92.0 deg | a P14: 982 mm | bat=6363 mV
+pose: x=0.226 y=1.018 th=92.0 deg | a P14: 982 mm | bat=6354 mV
+pose: x=0.226 y=1.026 th=92.0 deg | a P14: 988 mm | bat=6345 mV
+pose: x=0.225 y=1.031 th=91.0 deg | a P14: 992 mm | bat=6336 mV
+pose: x=0.226 y=1.031 th=91.0 deg | a P14: 992 mm | bat=6247 mV
+pose: x=0.226 y=1.031 th=91.0 deg | a P14: 992 mm | bat=6336 mV
+pose: x=0.226 y=1.031 th=91.0 deg | a P14: 992 mm | bat=6336 mV
+pose: x=0.226 y=1.031 th=91.0 deg | a P14: 992 mm | bat=6345 mV
+pose: x=0.226 y=1.031 th=91.0 deg | a P14: 992 mm | bat=6354 mV
+pose: x=0.225 y=1.032 th=91.0 deg | a P14: 993 mm | bat=6336 mV
+pose: x=0.225 y=1.032 th=91.0 deg | a P14: 993 mm | bat=6345 mV
+pose: x=0.225 y=1.034 th=90.0 deg | a P14: 994 mm | bat=6345 mV
+pose: x=0.226 y=1.044 th=91.0 deg | a P14: 1003 mm | bat=6354 mV
+pose: x=0.226 y=1.040 th=91.0 deg | a P14: 1000 mm | bat=6336 mV
+pose: x=0.226 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6345 mV
+pose: x=0.224 y=1.039 th=91.0 deg | a P14: 998 mm | bat=6345 mV
+pose: x=0.226 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6345 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6363 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6327 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.224 y=1.039 th=91.0 deg | a P14: 998 mm | bat=6318 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6363 mV
+pose: x=0.226 y=1.039 th=91.0 deg | a P14: 999 mm | bat=6345 mV
+pose: x=0.225 y=1.039 th=92.0 deg | a P14: 998 mm | bat=6345 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.226 y=1.039 th=91.0 deg | a P14: 999 mm | bat=6345 mV
+pose: x=0.225 y=1.038 th=92.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.224 y=1.039 th=91.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6318 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6336 mV
+pose: x=0.224 y=1.039 th=92.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6336 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6354 mV
+pose: x=0.225 y=1.039 th=91.0 deg | a P14: 998 mm | bat=6327 mV
+pose: x=0.226 y=1.033 th=91.0 deg | a P14: 994 mm | bat=6380 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6345 mV
+pose: x=0.224 y=1.040 th=91.0 deg | a P14: 999 mm | bat=6354 mV
+pose: x=0.224 y=1.040 th=91.0 deg | a P14: 999 mm | bat=6345 mV
+pose: x=0.226 y=1.032 th=91.0 deg | a P14: 993 mm | bat=6336 mV
+pose: x=0.225 y=1.038 th=91.0 deg | a P14: 998 mm | bat=6336 mV
+pose: x=0.224 y=1.040 th=92.0 deg | a P14: 999 mm | bat=6345 mV
+pose: x=0.224 y=1.038 th=91.0 deg | a P14: 997 mm | bat=6380 mV
+pose: x=0.224 y=1.038 th=91.0 deg | a P14: 997 mm | bat=6345 mV
+pose: x=0.226 y=1.034 th=91.0 deg | a P14: 995 mm | bat=6345 mV
+pose: x=0.228 y=1.054 th=90.0 deg | a P14: 1012 mm | bat=6336 mV
+pose: x=0.228 y=1.054 th=90.0 deg | a P14: 1012 mm | bat=6336 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=0.371 y=1.067 th=-87.0 deg | a P14: 1111 mm | bat=6345 mV
+pose: x=0.370 y=1.066 th=-85.0 deg | a P14: 1110 mm | bat=6371 mV
+pose: x=0.369 y=1.063 th=-84.0 deg | a P14: 1107 mm | bat=6327 mV
+pose: x=0.369 y=1.062 th=-84.0 deg | a P14: 1106 mm | bat=6336 mV
+pose: x=0.372 y=1.062 th=-89.0 deg | a P14: 1108 mm | bat=6327 mV
+pose: x=0.372 y=1.061 th=-89.0 deg | a P14: 1107 mm | bat=6354 mV
+pose: x=0.373 y=1.061 th=-89.0 deg | a P14: 1108 mm | bat=6345 mV
+pose: x=0.372 y=1.061 th=-90.0 deg | a P14: 1107 mm | bat=6354 mV
+pose: x=0.373 y=1.061 th=-89.0 deg | a P14: 1108 mm | bat=6354 mV
+pose: x=0.372 y=1.061 th=-89.0 deg | a P14: 1107 mm | bat=6318 mV
+pose: x=0.373 y=1.061 th=-88.0 deg | a P14: 1108 mm | bat=6345 mV
+pose: x=0.373 y=1.061 th=-88.0 deg | a P14: 1108 mm | bat=6345 mV
+pose: x=0.372 y=1.061 th=-89.0 deg | a P14: 1107 mm | bat=6318 mV
+pose: x=0.373 y=1.061 th=-89.0 deg | a P14: 1108 mm | bat=6371 mV
+pose: x=0.372 y=1.062 th=-89.0 deg | a P14: 1108 mm | bat=6336 mV
+pose: x=0.372 y=1.062 th=-88.0 deg | a P14: 1108 mm | bat=6345 mV
+pose: x=0.373 y=1.061 th=-89.0 deg | a P14: 1108 mm | bat=6354 mV
+pose: x=0.373 y=1.061 th=-89.0 deg | a P14: 1108 mm | bat=6336 mV
+pose: x=0.371 y=1.069 th=-88.0 deg | a P14: 1113 mm | bat=6380 mV
+pose: x=0.371 y=1.068 th=-89.0 deg | a P14: 1112 mm | bat=6363 mV
+pose: x=0.372 y=1.067 th=-88.0 deg | a P14: 1112 mm | bat=6345 mV
+pose: x=0.371 y=1.067 th=-88.0 deg | a P14: 1111 mm | bat=6380 mV
+pose: x=0.371 y=1.067 th=-88.0 deg | a P14: 1111 mm | bat=6345 mV
+pose: x=0.372 y=1.067 th=-88.0 deg | a P14: 1112 mm | bat=6336 mV
+pose: x=0.371 y=1.068 th=-89.0 deg | a P14: 1112 mm | bat=6354 mV
+pose: x=0.372 y=1.067 th=-88.0 deg | a P14: 1112 mm | bat=6318 mV
+pose: x=0.370 y=1.068 th=-89.0 deg | a P14: 1111 mm | bat=6371 mV
+pose: x=0.371 y=1.068 th=-88.0 deg | a P14: 1112 mm | bat=6345 mV
+pose: x=0.372 y=1.067 th=-88.0 deg | a P14: 1112 mm | bat=6354 mV
+pose: x=0.371 y=1.068 th=-88.0 deg | a P14: 1112 mm | bat=6380 mV
+pose: x=0.371 y=1.067 th=-88.0 deg | a P14: 1111 mm | bat=6345 mV
+pose: x=0.372 y=1.067 th=-89.0 deg | a P14: 1112 mm | bat=6318 mV
+pose: x=0.371 y=1.069 th=-88.0 deg | a P14: 1113 mm | bat=6354 mV
+pose: x=0.371 y=1.067 th=-88.0 deg | a P14: 1111 mm | bat=6336 mV
+pose: x=0.372 y=1.068 th=-88.0 deg | a P14: 1113 mm | bat=6345 mV
+pose: x=0.372 y=1.066 th=-88.0 deg | a P14: 1111 mm | bat=6354 mV
+pose: x=0.370 y=1.068 th=-89.0 deg | a P14: 1111 mm | bat=6327 mV
+pose: x=0.372 y=1.067 th=-89.0 deg | a P14: 1112 mm | bat=6336 mV
+pose: x=0.371 y=1.067 th=-89.0 deg | a P14: 1111 mm | bat=6336 mV
+pose: x=0.370 y=1.069 th=-87.0 deg | a P14: 1112 mm | bat=6327 mV
+pose: x=0.371 y=1.067 th=-88.0 deg | a P14: 1111 mm | bat=6345 mV
+pose: x=0.372 y=1.067 th=-89.0 deg | a P14: 1112 mm | bat=6354 mV
+pose: x=0.372 y=1.067 th=-88.0 deg | a P14: 1112 mm | bat=6363 mV
+pose: x=0.371 y=1.066 th=-90.0 deg | a P14: 1111 mm | bat=6469 mV
+pose: x=0.371 y=1.067 th=-89.0 deg | a P14: 1111 mm | bat=6460 mV
+pose: x=0.371 y=1.066 th=-89.0 deg | a P14: 1111 mm | bat=6363 mV
+pose: x=0.371 y=1.068 th=-88.0 deg | a P14: 1112 mm | bat=6354 mV
+pose: x=0.369 y=1.068 th=-90.0 deg | a P14: 1111 mm | bat=6354 mV
+pose: x=0.369 y=1.068 th=-90.0 deg | a P14: 1111 mm | bat=6336 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=0.371 y=0.173 th=-87.0 deg | a P14: 733 mm | bat=6354 mV
+pose: x=0.368 y=0.182 th=-88.0 deg | a P14: 730 mm | bat=6363 mV
+pose: x=0.364 y=0.174 th=-87.0 deg | a P14: 726 mm | bat=6345 mV
+pose: x=0.364 y=0.173 th=-87.0 deg | a P14: 726 mm | bat=6336 mV
+pose: x=0.363 y=0.176 th=-87.0 deg | a P14: 725 mm | bat=6354 mV
+pose: x=0.363 y=0.174 th=-88.0 deg | a P14: 725 mm | bat=6345 mV
+pose: x=0.363 y=0.175 th=-88.0 deg | a P14: 725 mm | bat=6345 mV
+pose: x=0.371 y=0.168 th=-93.0 deg | a P14: 734 mm | bat=6371 mV
+pose: x=0.371 y=0.167 th=-92.0 deg | a P14: 734 mm | bat=6363 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.374 y=0.162 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.373 y=0.165 th=-89.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.372 y=0.165 th=-88.0 deg | a P14: 735 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6380 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6336 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.374 y=0.165 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6327 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.373 y=0.162 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.373 y=0.161 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.373 y=0.161 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.373 y=0.161 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.372 y=0.158 th=-88.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6389 mV
+pose: x=0.371 y=0.165 th=-88.0 deg | a P14: 734 mm | bat=6354 mV
+pose: x=0.373 y=0.165 th=-89.0 deg | a P14: 736 mm | bat=6363 mV
+pose: x=0.373 y=0.167 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-89.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.373 y=0.166 th=-89.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.373 y=0.166 th=-87.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.373 y=0.160 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.372 y=0.161 th=-88.0 deg | a P14: 735 mm | bat=6345 mV
+pose: x=0.371 y=0.160 th=-88.0 deg | a P14: 734 mm | bat=6336 mV
+pose: x=0.371 y=0.161 th=-88.0 deg | a P14: 734 mm | bat=6363 mV
+pose: x=0.372 y=0.160 th=-88.0 deg | a P14: 735 mm | bat=6354 mV
+pose: x=0.372 y=0.160 th=-88.0 deg | a P14: 735 mm | bat=6327 mV
+pose: x=0.373 y=0.159 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.372 y=0.163 th=-88.0 deg | a P14: 735 mm | bat=6336 mV
+pose: x=0.373 y=0.165 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.374 y=0.162 th=-88.0 deg | a P14: 737 mm | bat=6318 mV
+pose: x=0.373 y=0.163 th=-89.0 deg | a P14: 736 mm | bat=6363 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.374 y=0.162 th=-88.0 deg | a P14: 737 mm | bat=6354 mV
+pose: x=0.372 y=0.163 th=-88.0 deg | a P14: 735 mm | bat=6354 mV
+pose: x=0.374 y=0.163 th=-89.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.373 y=0.165 th=-88.0 deg | a P14: 736 mm | bat=6283 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.374 y=0.165 th=-89.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.372 y=0.164 th=-88.0 deg | a P14: 735 mm | bat=6354 mV
+pose: x=0.374 y=0.162 th=-88.0 deg | a P14: 737 mm | bat=6336 mV
+pose: x=0.374 y=0.165 th=-87.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.372 y=0.163 th=-87.0 deg | a P14: 735 mm | bat=6345 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.372 y=0.164 th=-88.0 deg | a P14: 735 mm | bat=6336 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6496 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6363 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6336 mV
+pose: x=0.374 y=0.166 th=-88.0 deg | a P14: 737 mm | bat=6247 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6336 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6354 mV
+pose: x=0.373 y=0.165 th=-88.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-89.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6354 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6327 mV
+pose: x=0.373 y=0.163 th=-89.0 deg | a P14: 736 mm | bat=6371 mV
+pose: x=0.372 y=0.165 th=-88.0 deg | a P14: 735 mm | bat=6354 mV
+pose: x=0.374 y=0.162 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6371 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6327 mV
+pose: x=0.374 y=0.162 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.374 y=0.165 th=-88.0 deg | a P14: 737 mm | bat=6309 mV
+pose: x=0.373 y=0.165 th=-88.0 deg | a P14: 736 mm | bat=6327 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6336 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.371 y=0.164 th=-88.0 deg | a P14: 734 mm | bat=6327 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.373 y=0.164 th=-88.0 deg | a P14: 736 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-89.0 deg | a P14: 736 mm | bat=6363 mV
+pose: x=0.372 y=0.163 th=-89.0 deg | a P14: 735 mm | bat=6345 mV
+pose: x=0.373 y=0.163 th=-88.0 deg | a P14: 736 mm | bat=6363 mV
+pose: x=0.374 y=0.165 th=-88.0 deg | a P14: 737 mm | bat=6354 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6327 mV
+pose: x=0.374 y=0.163 th=-88.0 deg | a P14: 737 mm | bat=6345 mV
+pose: x=0.372 y=0.167 th=-89.0 deg | a P14: 735 mm | bat=6371 mV
+pose: x=0.372 y=0.167 th=-89.0 deg | a P14: 735 mm | bat=6345 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=0.304 y=0.071 th=179.0 deg | a P14: 683 mm | bat=6309 mV
+pose: x=0.304 y=0.075 th=179.0 deg | a P14: 682 mm | bat=6371 mV
+pose: x=0.304 y=0.073 th=-179.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.304 y=0.075 th=-179.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.073 th=180.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.074 th=-179.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.076 th=-178.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.076 th=-179.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.074 th=-178.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.305 y=0.076 th=-179.0 deg | a P14: 683 mm | bat=6354 mV
+pose: x=0.304 y=0.076 th=-178.0 deg | a P14: 682 mm | bat=6327 mV
+pose: x=0.303 y=0.075 th=-178.0 deg | a P14: 681 mm | bat=6336 mV
+pose: x=0.303 y=0.076 th=-178.0 deg | a P14: 681 mm | bat=6345 mV
+pose: x=0.304 y=0.073 th=-179.0 deg | a P14: 682 mm | bat=6327 mV
+pose: x=0.304 y=0.073 th=-179.0 deg | a P14: 682 mm | bat=6460 mV
+pose: x=0.304 y=0.075 th=-179.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.305 y=0.073 th=-179.0 deg | a P14: 683 mm | bat=6336 mV
+pose: x=0.304 y=0.074 th=-179.0 deg | a P14: 682 mm | bat=6363 mV
+pose: x=0.304 y=0.075 th=-178.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.074 th=-179.0 deg | a P14: 682 mm | bat=6363 mV
+pose: x=0.305 y=0.073 th=-179.0 deg | a P14: 683 mm | bat=6336 mV
+pose: x=0.304 y=0.073 th=-179.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.074 th=-179.0 deg | a P14: 682 mm | bat=6363 mV
+pose: x=0.306 y=0.073 th=-178.0 deg | a P14: 684 mm | bat=6327 mV
+pose: x=0.304 y=0.075 th=-176.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.075 th=-176.0 deg | a P14: 682 mm | bat=6354 mV
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+esperando LPdata por CAN (ID 0x100)...
+# CAN: EFLG=0x40 TEC=0 REC=0 CANSTAT=0x00
+pose: x=0.305 y=0.077 th=-179.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.304 y=0.075 th=-179.0 deg | a P14: 682 mm | bat=6478 mV
+pose: x=0.304 y=0.073 th=-178.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.074 th=-179.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.074 th=180.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.076 th=-179.0 deg | a P14: 682 mm | bat=6345 mV
+pose: x=0.304 y=0.075 th=-179.0 deg | a P14: 682 mm | bat=6327 mV
+pose: x=0.305 y=0.073 th=-178.0 deg | a P14: 683 mm | bat=6363 mV
+pose: x=0.304 y=0.075 th=-178.0 deg | a P14: 682 mm | bat=6363 mV
+pose: x=0.304 y=0.074 th=-177.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.075 th=-178.0 deg | a P14: 682 mm | bat=6380 mV
+pose: x=0.304 y=0.076 th=180.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.303 y=0.074 th=-178.0 deg | a P14: 681 mm | bat=6345 mV
+pose: x=0.304 y=0.075 th=-179.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.077 th=-178.0 deg | a P14: 681 mm | bat=6354 mV
+pose: x=0.304 y=0.074 th=180.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.074 th=-178.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.305 y=0.073 th=-178.0 deg | a P14: 683 mm | bat=6336 mV
+pose: x=0.304 y=0.073 th=-179.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.304 y=0.075 th=-179.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.305 y=0.075 th=-179.0 deg | a P14: 683 mm | bat=6336 mV
+pose: x=0.303 y=0.076 th=-179.0 deg | a P14: 681 mm | bat=6345 mV
+pose: x=0.304 y=0.074 th=-178.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.304 y=0.076 th=180.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.304 y=0.074 th=-179.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.304 y=0.073 th=-179.0 deg | a P14: 682 mm | bat=6336 mV
+pose: x=0.304 y=0.074 th=-178.0 deg | a P14: 682 mm | bat=6354 mV
+pose: x=0.299 y=0.070 th=-174.0 deg | a P14: 678 mm | bat=6345 mV
+pose: x=0.023 y=0.040 th=-175.0 deg | a P14: 428 mm | bat=6460 mV
+pose: x=0.023 y=0.040 th=-175.0 deg | a P14: 428 mm | bat=6345 mV
+pose: x=-0.274 y=0.060 th=-175.0 deg | a P14: 191 mm | bat=6363 mV
+pose: x=-0.272 y=0.057 th=-179.0 deg | a P14: 194 mm | bat=6380 mV
+pose: x=-0.272 y=0.058 th=-179.0 deg | a P14: 193 mm | bat=6354 mV
+pose: x=-0.273 y=0.071 th=-176.0 deg | a P14: 181 mm | bat=6345 mV
+pose: x=-0.273 y=0.085 th=-175.0 deg | a P14: 169 mm | bat=6336 mV
+pose: x=-0.277 y=0.076 th=-177.0 deg | a P14: 175 mm | bat=6363 mV
+pose: x=-0.277 y=0.076 th=-177.0 deg | a P14: 175 mm | bat=6354 mV
+pose: x=-0.277 y=0.080 th=-176.0 deg | a P14: 171 mm | bat=6345 mV
+pose: x=-0.281 y=0.077 th=-179.0 deg | a P14: 172 mm | bat=6371 mV
+pose: x=-0.279 y=0.077 th=-179.0 deg | a P14: 173 mm | bat=6345 mV
+pose: x=-0.279 y=0.076 th=-179.0 deg | a P14: 174 mm | bat=6327 mV
+pose: x=-0.279 y=0.076 th=-179.0 deg | a P14: 174 mm | bat=6345 mV
+pose: x=-0.279 y=0.080 th=-179.0 deg | a P14: 170 mm | bat=6371 mV
+pose: x=-0.278 y=0.079 th=-179.0 deg | a P14: 172 mm | bat=6336 mV
+pose: x=-0.278 y=0.079 th=-178.0 deg | a P14: 172 mm | bat=6354 mV
+pose: x=-0.277 y=0.079 th=-179.0 deg | a P14: 172 mm | bat=6336 mV
+pose: x=-0.278 y=0.079 th=-179.0 deg | a P14: 172 mm | bat=6363 mV
+pose: x=-0.277 y=0.079 th=-179.0 deg | a P14: 172 mm | bat=6451 mV
+pose: x=-0.278 y=0.080 th=-179.0 deg | a P14: 171 mm | bat=6363 mV
+pose: x=-0.277 y=0.079 th=-179.0 deg | a P14: 172 mm | bat=6336 mV
+pose: x=-0.278 y=0.080 th=-179.0 deg | a P14: 171 mm | bat=6345 mV
+pose: x=-0.280 y=0.079 th=-179.0 deg | a P14: 171 mm | bat=6469 mV
+pose: x=-0.277 y=0.079 th=-179.0 deg | a P14: 172 mm | bat=6354 mV
+pose: x=-0.278 y=0.080 th=-179.0 deg | a P14: 171 mm | bat=6496 mV
+pose: x=-0.278 y=0.076 th=-179.0 deg | a P14: 174 mm | bat=6363 mV
+pose: x=-0.278 y=0.077 th=-179.0 deg | a P14: 174 mm | bat=6345 mV
+pose: x=-0.278 y=0.079 th=-179.0 deg | a P14: 172 mm | bat=6336 mV
+pose: x=-0.278 y=0.077 th=-179.0 deg | a P14: 174 mm | bat=6336 mV
+pose: x=-0.278 y=0.078 th=-179.0 deg | a P14: 173 mm | bat=6327 mV
+pose: x=-0.279 y=0.077 th=-179.0 deg | a P14: 173 mm | bat=6345 mV
+pose: x=-0.278 y=0.077 th=-179.0 deg | a P14: 174 mm | bat=6363 mV
+pose: x=-0.279 y=0.080 th=-179.0 deg | a P14: 170 mm | bat=6354 mV
+pose: x=-0.279 y=0.078 th=-178.0 deg | a P14: 172 mm | bat=6354 mV
+pose: x=-0.278 y=0.080 th=-179.0 deg | a P14: 171 mm | bat=6345 mV
+pose: x=-0.279 y=0.079 th=-179.0 deg | a P14: 171 mm | bat=6327 mV
+pose: x=-0.279 y=0.081 th=-179.0 deg | a P14: 170 mm | bat=6336 mV
+pose: x=-0.279 y=0.079 th=-179.0 deg | a P14: 171 mm | bat=6345 mV
+pose: x=-0.278 y=0.080 th=-179.0 deg | a P14: 171 mm | bat=6354 mV
+pose: x=-0.279 y=0.079 th=-179.0 deg | a P14: 171 mm | bat=6460 mV
+pose: x=-0.279 y=0.080 th=-178.0 deg | a P14: 170 mm | bat=6309 mV
+pose: x=-0.279 y=0.080 th=-179.0 deg | a P14: 170 mm | bat=6363 mV

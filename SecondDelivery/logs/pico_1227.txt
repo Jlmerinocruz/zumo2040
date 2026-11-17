@@ -1,0 +1,21 @@
+# 2 s: UDP=0 sin_marcador4=0 CAN_ok=0 CAN_fallo=0 MCP2515=ok
+#   ARP del servidor OK: 14:CC:20:10:92:E5 (la Pico si recibe de el)
+#   no llega ningun paquete UDP (ningun puerto)
+# 2 s: UDP=0 sin_marcador4=0 CAN_ok=0 CAN_fallo=0 MCP2515=ok
+#   ARP del servidor OK: 14:CC:20:10:92:E5 (la Pico si recibe de el)
+#   no llega ningun paquete UDP (ningun puerto)
+# 2 s: UDP=0 sin_marcador4=0 CAN_ok=0 CAN_fallo=0 MCP2515=ok
+#   ARP del servidor OK: 14:CC:20:10:92:E5 (la Pico si recibe de el)
+#   no llega ningun paquete UDP (ningun puerto)
+# 2 s: UDP=0 sin_marcador4=0 CAN_ok=0 CAN_fallo=0 MCP2515=ok
+#   ARP del servidor OK: 14:CC:20:10:92:E5 (la Pico si recibe de el)
+#   no llega ningun paquete UDP (ningun puerto)
+# 2 s: UDP=0 sin_marcador4=0 CAN_ok=0 CAN_fallo=0 MCP2515=ok
+#   ARP del servidor OK: 14:CC:20:10:92:E5 (la Pico si recibe de el)
+#   no llega ningun paquete UDP (ningun puerto)
+# 2 s: UDP=0 sin_marcador4=0 CAN_ok=0 CAN_fallo=0 MCP2515=ok
+#   ARP del servidor OK: 14:CC:20:10:92:E5 (la Pico si recibe de el)
+#   no llega ningun paquete UDP (ningun puerto)
+# 2 s: UDP=0 sin_marcador4=0 CAN_ok=0 CAN_fallo=0 MCP2515=ok
+#   ARP del servidor OK: 14:CC:20:10:92:E5 (la Pico si recibe de el)
+#   no llega ningun paquete UDP (ningun puerto)
