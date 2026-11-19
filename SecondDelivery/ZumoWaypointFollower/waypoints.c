@@ -1,10 +1,11 @@
 #include "waypoints.h"
 
 // Orden de recorrido: P14 → P1 → P2 → … → P13 → P14 (sentido horario).
-// Medidos el 17/11 con la cámara del techo y el marcador ya montado sobre el soporte
-// de la PCB (mediana de 8 poses con el Zumo quieto; variación ±1–2 mm y ±1°).
-// La tabla anterior (13/11) se midió con el soporte de protoboard: el marcador quedaba
-// en otra posición sobre el Zumo y los puntos salían corridos hasta ~8 cm.
+// Medidos el 17/11 con la cámara del techo, el Zumo quieto en cada punto y el marcador
+// pegado al soporte impreso en 3D (se tomó la mediana de las poses registradas).
+// La tabla anterior (13/11) se midió con el protoboard: con la PCB el marcador queda
+// más elevado y en las vueltas 1 y 2 el Zumo seguía la recta P12 → P13 un poco a la
+// derecha de la línea, por eso se volvieron a medir.
 const waypoint_t WAYPOINTS[WAYPOINT_COUNT] = {
     /* P1  */ {-0.375f, 1.005f,   92.0f},  // entrada vuelta 180° (arriba)
     /* P2  */ {-0.226f, 1.062f,  -88.0f},  // salida
