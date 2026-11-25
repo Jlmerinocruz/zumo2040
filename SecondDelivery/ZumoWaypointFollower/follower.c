@@ -34,6 +34,7 @@ follower_params_t follower_default_params(void) {
         .wheel_base = 0.085f,
         .wheel_max  = 0.60f,
         .latency    = 0.05f,
+        .diff_max   = 0.40f,
         .adapt      = true,
     };
     return p;
@@ -218,6 +219,14 @@ static bool control(follower_t *f, float dt, float *v_left, float *v_right) {
     // ganancias medidas con la cámara. (v, ω) → orugas; si una satura, se escalan
     // ambas para conservar la curvatura.
     float vm = v / f->g_v, wm = omega / f->g_w;
+    // Límite a la diferencia entre orugas: con ±0.6 m/s (diferencia ~1 m/s) el Zumo
+    // pivotea mucho más rápido de lo que predice g_ω y en la prueba del 25/11 los
+    // arcos salían en zigzag. Los arcos que salieron bien usaban ~0.2–0.3 m/s.
+    float w_lim = f->p.diff_max / f->p.wheel_base;
+    if (fabsf(wm) > w_lim) {
+        wm = copysignf(w_lim, wm);
+        f->omega_cmd = wm * f->g_w;
+    }
     float vl = vm - wm * f->p.wheel_base * 0.5f;
     float vr = vm + wm * f->p.wheel_base * 0.5f;
     float m = fmaxf(fabsf(vl), fabsf(vr));
