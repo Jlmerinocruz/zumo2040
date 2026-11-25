@@ -25,6 +25,7 @@
 #define TXB0CTRL_TXREQ     0x08
 
 #define SPI_BAUD           1000000u
+#define CNF2_500K          0x90   // CNF1/2/3 = 0x00/0x90/0x02: 500 kbps con cristal de 8 MHz
 
 static uint pin_cs;
 
@@ -87,7 +88,7 @@ bool mcp2515_start(void) {
     sleep_ms(10);
     if (!set_mode(MCP2515_MODE_CONFIG)) return false;   // CNFx solo se escriben aquí
     // CNF3, CNF2, CNF1 son consecutivos (0x28-0x2A): 500 kbps con cristal de 8 MHz.
-    const uint8_t cnf[] = { CMD_WRITE, REG_CNF3, 0x02, 0x90, 0x00 };
+    const uint8_t cnf[] = { CMD_WRITE, REG_CNF3, 0x02, CNF2_500K, 0x00 };
     transfer(cnf, NULL, sizeof cnf);
     // INT con mensaje en RXB0 o RXB1. RXB0 acepta todo y, si está lleno, el siguiente
     // mensaje pasa a RXB1 (rollover) en vez de perderse: la cámara llega en ráfagas.
@@ -101,7 +102,8 @@ bool mcp2515_start(void) {
 }
 
 bool mcp2515_in_normal_mode(void) {
-    return (mcp2515_read_register(MCP2515_CANSTAT) & MCP2515_MODE_MASK) == MCP2515_MODE_NORMAL;
+    return (mcp2515_read_register(MCP2515_CANSTAT) & MCP2515_MODE_MASK) == MCP2515_MODE_NORMAL &&
+           mcp2515_read_register(MCP2515_CNF2) == CNF2_500K;
 }
 
 bool mcp2515_send_message(const can_frame_t *frame) {
