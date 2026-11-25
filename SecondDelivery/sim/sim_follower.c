@@ -14,7 +14,8 @@
 // Uso:   ./sim_follower [v_recta v_arco [hz_camara retardo_s]] > vuelta.csv
 // Variables de entorno opcionales: K_TH, ZETA, ACC, WB, LAT (ganancias y parámetros del
 // seguidor), ADAPT=0 (sin ajuste de ganancias), TICK=0 (control solo con pose nueva,
-// como el firmware anterior), IDEAL=1, GAIN, WB_REAL (planta) y SEED (ruido).
+// como el firmware anterior), IDEAL=1, GAIN, WB_REAL, DZ (planta), PARES=1 (poses de
+// dos en dos), HOLD (s que se espera para usar solo la última pose) y SEED (ruido).
 // Salida: CSV por stdout (t,x,y,theta,seg,vl,vr,e_true) y un resumen por stderr.
 #include <math.h>
 #include <stdio.h>
@@ -93,6 +94,9 @@ int main(int argc, char **argv) {
     const float wb_real = getenv("WB_REAL") ? atof(getenv("WB_REAL"))
                         : ideal ? p.wheel_base : 0.30f;
     const float gap_period = 0.8f, gap_len = 0.45f;   // ráfagas de WiFi
+    const bool pairs = getenv("PARES") != NULL;
+    const float dz = getenv("DZ") ? atof(getenv("DZ")) : 0.0f;
+    const float hold = getenv("HOLD") ? atof(getenv("HOLD")) : 0.0f;
 
     const float noise_xy = 0.005f;                    // σ = 5 mm (≈ ±1 cm)
     const float noise_th = 0.5f * (float)M_PI / 180;  // σ = 0.5° (≈ ±1°)
@@ -129,12 +133,18 @@ int main(int argc, char **argv) {
             // Hueco de WiFi: lo que llegaría dentro del hueco se entrega todo junto al final.
             float ph = fmodf(qt[i], gap_period);
             if (!ideal && ph > gap_period - gap_len) qt[i] += gap_period - ph;
+            // PARES=1: como en la prueba del 25/11, las poses llegan de dos en dos
+            // (5 ms entre ellas) cada 200 ms.
+            if (pairs) {
+                qt[i] = ceilf(qt[i] / 0.2f) * 0.2f;
+                if (qn > 1 && qt[i] <= qt[(i + QN - 1) % QN]) qt[i] = qt[(i + QN - 1) % QN] + 0.005f;
+            }
             if (qn < QN) qn++;
             next_cam += 1.0f / cam_hz;
         }
         if (qn > 0 && t >= qt[qh]) {                  // llega una pose al Zumo
             // De una ráfaga solo se usa la más reciente (como BURST_WAIT_MS en main.c).
-            while (qn > 1 && t >= qt[(qh + 1) % QN]) { qh = (qh + 1) % QN; qn--; }
+            while (qn > 1 && t + hold >= qt[(qh + 1) % QN]) { qh = (qh + 1) % QN; qn--; }
             pose_t meas = q[qh];
             qh = (qh + 1) % QN; qn--;
             bool running = follower_update(&f, &meas, t - last_upd, &cl, &cr);
@@ -153,7 +163,9 @@ int main(int argc, char **argv) {
         // Planta: motores de primer orden + uniciclo.
         vl += (gain * cl * asym - vl) * dt / tau;
         vr += (gain * cr - vr) * dt / tau;
-        float v = 0.5f * (vl + vr), w = (vr - vl) / wb_real;
+        // DZ: zona muerta del giro (m/s de diferencia entre orugas que no giran nada).
+        float dv = vr - vl, dv_eff = (fabsf(dv) > dz) ? dv - copysignf(dz, dv) : 0.0f;
+        float v = 0.5f * (vl + vr), w = dv_eff / wb_real;
         x += v * cosf(th) * dt;
         y += v * sinf(th) * dt;
         th += w * dt;

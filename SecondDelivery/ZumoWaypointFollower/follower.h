@@ -78,12 +78,14 @@ typedef struct {
 #define FOLLOWER_FORGET   0.95f   // olvido por pose (~20 poses ≈ 2 s de memoria)
 #define FOLLOWER_PRIOR_V  0.01f   // peso inicial de g_v = 1 (m)
 #define FOLLOWER_PRIOR_W  0.1f    // peso inicial de g_ω = 1 (rad)
-#define FOLLOWER_MIN_V    0.003f  // m   avance mínimo mandado para usar un intervalo
-#define FOLLOWER_MIN_W    0.03f   // rad giro mínimo mandado para usar un intervalo
+#define FOLLOWER_MIN_V    0.01f   // m   avance mandado que junta un intervalo de ajuste
+#define FOLLOWER_MIN_W    0.1f    // rad giro mandado que junta un intervalo de ajuste
 // Límites de las ganancias. g_v no baja de 0.5 para que, si el Zumo se atora y no
-// avanza, no se le mande cada vez más velocidad; g_ω sí llega a ~0.25 en pista.
+// avanza, no se le mande cada vez más velocidad. g_ω llegaba a ~0.25 en los arcos de
+// las vueltas del 17/11; con 0.15 la prueba del 25/11 saturaba las orugas, así que no
+// se deja amplificar el giro más de 4 veces.
 #define FOLLOWER_GV_MIN   0.5f
-#define FOLLOWER_GW_MIN   0.15f
+#define FOLLOWER_GW_MIN   0.25f
 #define FOLLOWER_GAIN_MAX 2.0f
 
 typedef struct { float t, v, w; } hist_t;
@@ -106,8 +108,10 @@ typedef struct {
     float cum_v, cum_w;            // ∫v_mot dt, ∫w_mot dt
     hist_t hist[FOLLOWER_HIST];    // (clock, cum_v, cum_w) para leerlas con retardo
     int h_i, h_n;
-    pose_t cam;                    // pose anterior de la cámara
-    float cam_cv, cam_cw;          // integrales en el instante de esa foto
+    pose_t cam;                    // pose anterior de la cámara (para sumar Δθ)
+    pose_t anc_v;                  // pose donde empieza el intervalo que se junta para g_v
+    float anc_cv, anc_cw;          // integrales al inicio de los intervalos de g_v y g_ω
+    float acc_th;                  // giro visto desde el inicio del intervalo de g_ω
     bool cam_ok;
     // Diagnóstico de la última actualización:
     float t;            // avance en el tramo actual [0..1]

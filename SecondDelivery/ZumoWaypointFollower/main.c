@@ -45,6 +45,9 @@
 // Retardo cámara + arranque del motor. En el simulador 0.16 s funcionó mejor que 0.12
 // (sirve entre 0.12 y 0.20); la calibración (botón B) imprime el valor medido.
 #define CAM_LATENCY    0.16f    // s
+// Ajuste de g_v y g_ω con la cámara. Si en pista se porta raro, poner false: queda el
+// control anterior (más el control entre poses) para comparar.
+#define ADAPT_GAINS    true
 // ---- Velocidades (parte D: subirlas poco a poco cuando la vuelta salga completa) ----
 // Prueba 17/11: a 0.20 m/s la cámara dejó de reconocer el marcador en cuanto el Zumo
 // se movió (imagen movida). En la parte A (~0.05 m/s) sí lo seguía. Se empieza lento
@@ -61,7 +64,6 @@
 // (en un arco, ω = v/R mantiene la curva); si se pasa, se detiene y espera a que
 // vuelva la pose. Si no vuelve en POSE_ABORT_MS, termina la vuelta.
 #define POSE_TIMEOUT_MS 800
-#define BURST_GAP_US   250000u  // hueco a partir del cual se espera la ráfaga completa
 #define BURST_WAIT_US  20000u   // tiempo para juntar la ráfaga y usar solo la última pose
 #define TICK_US        20000u   // periodo del control entre poses (follower_tick)
 #define POSE_ABORT_MS  3000
@@ -235,6 +237,7 @@ static follower_params_t route_params(void) {
     follower_params_t p = follower_default_params();
     p.wheel_base = wheel_base;
     p.latency = CAM_LATENCY;
+    p.adapt = ADAPT_GAINS;
     p.v_straight = V_STRAIGHT;
     p.v_arc = V_ARC;
     return p;
@@ -247,17 +250,18 @@ static bool run_route(follower_t *f, float *t_s) {
     log_printf("L,t_ms,x,y,theta_deg,seg,t,ey_mm,vl,vr\n");
 
     update_pose();                                 // descarta lo que llegó durante la espera
-    uint32_t t0 = time_us_32(), prev_us = t0, call_us = t0;
+    uint32_t t0 = time_us_32(), call_us = t0;
     lap_stats_t st = { .replaced0 = comm_replaced_poses(), .dropped0 = comm_dropped_logs() };
     int last_seg = -1;
     bool pending = false, paused = false;
     while (true) {
         pending |= update_pose();
         update_goto();
-        // Tras un hueco de WiFi llegan varias poses atrasadas casi juntas: se espera
-        // BURST_WAIT_US desde la última para usar solo la más reciente.
-        if (pending && (last_pose_us - prev_us < BURST_GAP_US ||
-                        time_us_32() - last_pose_us >= BURST_WAIT_US)) {
+        // Las poses llegan juntas: en ráfagas tras un hueco del WiFi y, en la prueba del
+        // 25/11, de dos en dos (5 ms entre ellas) cada 200 ms. La primera de cada grupo
+        // es más vieja de lo que supone la compensación de retardo, así que se espera
+        // BURST_WAIT_US desde la última y solo se usa la más reciente.
+        if (pending && time_us_32() - last_pose_us >= BURST_WAIT_US) {
             pending = false;
             uint32_t start_us = time_us_32();
             if (paused) {                          // volvió la pose: arrancar desde cero
@@ -268,7 +272,6 @@ static bool run_route(follower_t *f, float *t_s) {
             }
             float vl, vr;
             bool running = follower_update(f, &last_pose, (start_us - call_us) / 1e6f, &vl, &vr);
-            prev_us = last_pose_us;
             call_us = start_us;
             set_wheels(vl, vr);
             uint32_t done_us = time_us_32();

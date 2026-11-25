@@ -167,13 +167,10 @@ static void advance(follower_t *f, float dt) {
 // Se suman los intervalos (con el signo de lo mandado) en vez de pesarlos por
 // mínimos cuadrados: así, si el instante de una foto se estima mal, lo que le
 // sobra a un intervalo le falta al siguiente y el error se cancela.
-// Intervalos con muy poco mandado (ω en una recta) solo traerían ruido de la cámara.
-static float fit_gain(float *num, float *den, float real, float sent, float min_sent, float g_min) {
-    if (fabsf(sent) >= min_sent) {
-        float sg = (sent > 0.0f) ? 1.0f : -1.0f;
-        *num = FOLLOWER_FORGET * *num + real * sg;
-        *den = FOLLOWER_FORGET * *den + sent * sg;
-    }
+static float fit_gain(float *num, float *den, float real, float sent, float g_min) {
+    float sg = (sent > 0.0f) ? 1.0f : -1.0f;
+    *num = FOLLOWER_FORGET * *num + real * sg;
+    *den = FOLLOWER_FORGET * *den + sent * sg;
     return clampf(*num / *den, g_min, FOLLOWER_GAIN_MAX);
 }
 
@@ -246,15 +243,32 @@ bool follower_update(follower_t *f, const pose_t *pose, float dt,
     // se mandó a las orugas en ese mismo intervalo (desplazado por el retardo).
     float cv, cw;
     hist_at(f, f->clock - f->p.latency, &cv, &cw);
-    if (f->cam_ok && f->p.adapt) {
-        float d_th = follower_wrap_pi(pose->theta - f->cam.theta);
-        float th_m = f->cam.theta + 0.5f * d_th;
-        float d_s = (pose->x - f->cam.x) * cosf(th_m) + (pose->y - f->cam.y) * sinf(th_m);
-        f->g_v = fit_gain(&f->nv, &f->dv, d_s, cv - f->cam_cv, FOLLOWER_MIN_V, FOLLOWER_GV_MIN);
-        f->g_w = fit_gain(&f->nw, &f->dw, d_th, cw - f->cam_cw, FOLLOWER_MIN_W, FOLLOWER_GW_MIN);
+    // Los intervalos se juntan hasta que lo mandado pase de FOLLOWER_MIN_V/W: las
+    // poses que llegan de dos en dos (5 ms entre ellas) o en ráfagas no cuadran con
+    // el comando de su intervalo, pero sí con el de varios intervalos juntos.
+    if (!f->cam_ok) {
+        f->anc_v = *pose; f->anc_cv = cv;
+        f->acc_th = 0.0f; f->anc_cw = cw;
+    } else if (f->p.adapt) {
+        f->acc_th += follower_wrap_pi(pose->theta - f->cam.theta);
+        if (fabsf(cv - f->anc_cv) >= FOLLOWER_MIN_V) {
+            float th_m = f->anc_v.theta + 0.5f * follower_wrap_pi(pose->theta - f->anc_v.theta);
+            float d_s = (pose->x - f->anc_v.x) * cosf(th_m) + (pose->y - f->anc_v.y) * sinf(th_m);
+            f->g_v = fit_gain(&f->nv, &f->dv, d_s, cv - f->anc_cv, FOLLOWER_GV_MIN);
+            f->anc_v = *pose; f->anc_cv = cv;
+        }
+        // g_ω solo se ajusta en los arcos. En una recta las correcciones de rumbo son
+        // pequeñas y caen en la zona muerta del giro (la prueba del 25/11 mandaba
+        // diferencias constantes entre orugas sin que el Zumo girara), así que el
+        // ajuste bajaba g_ω al mínimo y en el arco siguiente el comando se disparaba.
+        if (f->seg[f->cur].type != SEG_ARC) {
+            f->acc_th = 0.0f; f->anc_cw = cw;
+        } else if (fabsf(cw - f->anc_cw) >= FOLLOWER_MIN_W) {
+            f->g_w = fit_gain(&f->nw, &f->dw, f->acc_th, cw - f->anc_cw, FOLLOWER_GW_MIN);
+            f->acc_th = 0.0f; f->anc_cw = cw;
+        }
     }
     f->cam = *pose;
-    f->cam_cv = cv; f->cam_cw = cw;
     f->cam_ok = true;
 
     // Compensación de retardo: se adelanta la pose con el último comando.
