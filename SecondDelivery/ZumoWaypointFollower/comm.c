@@ -77,9 +77,12 @@ static void on_can_irq(uint gpio, uint32_t events) {
 }
 
 static void print_can_errors(void) {
-    printf("# CAN: EFLG=0x%02X TEC=%u REC=%u CANSTAT=0x%02X\n",
+    // CNF2 distingue un MCP2515 sano sin tráfico (0x90 y errores en 0) de un MISO
+    // muerto (todo se lee 0x00).
+    printf("# CAN: EFLG=0x%02X TEC=%u REC=%u CANSTAT=0x%02X CNF2=0x%02X (debe ser 0x90)\n",
            mcp2515_read_register(MCP2515_EFLG), mcp2515_read_register(MCP2515_TEC),
-           mcp2515_read_register(MCP2515_REC), mcp2515_read_register(MCP2515_CANSTAT));
+           mcp2515_read_register(MCP2515_REC), mcp2515_read_register(MCP2515_CANSTAT),
+           mcp2515_read_register(MCP2515_CNF2));
 }
 
 static void push_pose(const pose_msg_t *m) {
