@@ -6,6 +6,12 @@
 //   LP_POSE  ID 0x100  DLC 6  big-endian
 //     bytes 0-1: x [mm] int16 | bytes 2-3: y [mm] int16 | bytes 4-5: ángulo [0.1°] int16
 //
+// También es el puente de la GUI de la PC para ir a un waypoint (../gui/):
+//   UDP 5002 "GOTO n" (n = 1..14) o "STOP" -> CAN WP_GOTO  ID 0x110 DLC 1 (byte 0 = n, 0 = alto)
+//     y contesta "OK GOTO n" / "OK STOP" si el Zumo dio ACK, o "ERR CAN" si no.
+//   CAN WP_STATUS ID 0x111 DLC 2 (estado, waypoint) -> UDP "ESTADO e n" a la GUI
+//     (la dirección que mandó el último comando).
+//
 // Basado en el código del reporte "Experiment Wireless Interfacing" (ya probado),
 // con estos cambios:
 //   - Driver MCP2515 corregido (set_mode con timeout y ACK con timeout real).
@@ -41,6 +47,12 @@
 #define MARKER_ID 4   // marcador del Zumo
 #define LP_POSE_ID  0x100
 #define LP_POSE_DLC 6
+#define WP_CMD_PORT   5002
+#define WP_GOTO_ID    0x110
+#define WP_GOTO_DLC   1
+#define WP_STATUS_ID  0x111
+#define WP_STATUS_DLC 2
+#define WAYPOINT_COUNT 14
 
 typedef struct {
     float x;      // m
@@ -98,6 +110,64 @@ static void on_udp_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     n_rx++;
     if (parse_marker(json, &pose)) pose_ready = true;
     else n_nomarker++;
+}
+
+// Comando de la GUI pendiente de mandar por CAN: -1 = ninguno, 0 = alto, 1..14 = destino.
+static volatile int wp_cmd = -1;
+static ip_addr_t gui_addr;
+static u16_t gui_port = 0;   // 0 = la GUI todavía no manda nada
+
+static void on_cmd_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
+                          const ip_addr_t *addr, u16_t port) {
+    (void)arg; (void)pcb;
+    if (p == NULL) return;
+    char text[16];
+    uint16_t len = pbuf_copy_partial(p, text, sizeof(text) - 1, 0);
+    text[len] = '\0';
+    pbuf_free(p);
+
+    int n;
+    if (strcmp(text, "STOP") == 0) wp_cmd = 0;
+    else if (sscanf(text, "GOTO %d", &n) == 1 && n >= 1 && n <= WAYPOINT_COUNT) wp_cmd = n;
+    else { printf("GUI: comando desconocido \"%s\"\n", text); return; }
+    ip_addr_copy(gui_addr, *addr);
+    gui_port = port;
+}
+
+static void reply_gui(struct udp_pcb *pcb, const char *text) {
+    if (gui_port == 0) return;
+    struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, strlen(text), PBUF_RAM);
+    if (!p) return;
+    memcpy(p->payload, text, strlen(text));
+    udp_sendto(pcb, p, &gui_addr, gui_port);
+    pbuf_free(p);
+}
+
+// Manda el comando pendiente de la GUI por CAN y le contesta si el Zumo dio ACK.
+static void forward_wp_cmd(struct udp_pcb *pcb, bool can_ok) {
+    int n = wp_cmd;
+    wp_cmd = -1;
+    can_frame_t frame = { .id = WP_GOTO_ID, .dlc = WP_GOTO_DLC, .data = { (uint8_t)n } };
+    bool sent = can_ok && mcp2515_send_message(&frame);
+    char text[24];
+    if (!sent) snprintf(text, sizeof text, "ERR CAN");
+    else if (n == 0) snprintf(text, sizeof text, "OK STOP");
+    else snprintf(text, sizeof text, "OK GOTO %d", n);
+    printf("GUI -> CAN WP_GOTO %d: %s\n", n, text);
+    reply_gui(pcb, text);
+}
+
+// Reenvía a la GUI los WP_STATUS del Zumo. Máximo 4 frames por llamada, como en el Zumo.
+static void forward_wp_status(struct udp_pcb *pcb) {
+    for (int i = 0; i < 4 && mcp2515_message_available(); i++) {
+        can_frame_t rx;
+        if (!mcp2515_read_message(&rx)) break;
+        if (rx.id != WP_STATUS_ID || rx.dlc < WP_STATUS_DLC) continue;
+        char text[24];
+        snprintf(text, sizeof text, "ESTADO %u %u", rx.data[0], rx.data[1]);
+        printf("CAN WP_STATUS -> GUI: %s\n", text);
+        reply_gui(pcb, text);
+    }
 }
 
 // Diagnóstico: ve TODOS los paquetes UDP que llegan (cualquier puerto) sin consumirlos.
@@ -219,10 +289,14 @@ int main(void) {
     struct udp_pcb *pcb = udp_new();
     udp_bind(pcb, IP_ADDR_ANY, TELEMETRY_PORT);
     udp_recv(pcb, on_udp_packet, NULL);
+    struct udp_pcb *cmd_pcb = udp_new();
+    udp_bind(cmd_pcb, IP_ADDR_ANY, WP_CMD_PORT);
+    udp_recv(cmd_pcb, on_cmd_packet, NULL);
     struct raw_pcb *rpcb = raw_new(IP_PROTO_UDP);
     raw_recv(rpcb, on_raw_udp, NULL);
     printf("IP %s, ", ip4addr_ntoa(netif_ip4_addr(netif_list)));
-    printf("servidor %s, escuchando UDP %d\n", ip4addr_ntoa(netif_ip4_gw(netif_list)), TELEMETRY_PORT);
+    printf("servidor %s, escuchando UDP %d (camara) y %d (GUI de waypoints)\n",
+           ip4addr_ntoa(netif_ip4_gw(netif_list)), TELEMETRY_PORT, WP_CMD_PORT);
 
     // El servidor de la cámara manda broadcast al 5000, pero ese broadcast puede no
     // salir por el hotspot. También acepta suscripciones en UDP 5001: le mandamos un
@@ -248,6 +322,9 @@ int main(void) {
                 pbuf_free(sp);
             }
         }
+
+        if (wp_cmd >= 0) forward_wp_cmd(cmd_pcb, can_ok);
+        if (can_ok) forward_wp_status(cmd_pcb);
 
         if (pose_ready) {
             pose_ready = false;

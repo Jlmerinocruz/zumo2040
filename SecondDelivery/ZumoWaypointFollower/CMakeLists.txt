@@ -33,7 +33,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(ZumoWaypointFollower main.c mcp2515.c lp_can.c follower.c waypoints.c)
+add_executable(ZumoWaypointFollower main.c mcp2515.c lp_can.c follower.c goto_wp.c waypoints.c)
 
 # Librería de Pololu (motores y botones del Zumo)
 add_subdirectory(../../zumo-2040-robot/c/pololu_zumo_2040_robot pololu_zumo_2040_robot)

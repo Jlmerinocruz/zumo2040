@@ -57,6 +57,8 @@ JSON de la cámara: `{"timestamp", "board_detected", "markers":[{"id","x","y","a
 | ID | Nombre | Emisor → Receptor | DLC | Bytes 0–1 | Bytes 2–3 | Bytes 4–5 |
 |---|---|---|---|---|---|---|
 | 0x100 | LP_POSE | Pico 2 W → Zumo | 6 | x [mm] int16 | y [mm] int16 | ángulo [0.1°] int16 |
+| 0x110 | WP_GOTO | Pico 2 W → Zumo | 1 | byte 0: waypoint destino 1–14, 0 = alto | — | — |
+| 0x111 | WP_STATUS | Zumo → Pico 2 W | 2 | byte 0: estado (0 espera, 1 en camino, 2 llegó, 3 rechazado, 4 detenido) · byte 1: destino | — | — |
 
 CAN 2.0A (11 bits), **big-endian**, cristal de 8 MHz. Ejemplo real: x=0.176, y=0.079, ángulo=−69.0 → `00 B0 00 4F FD 4E`. Si se agregan mensajes nuevos, documentarlos en esta tabla y en el README.
 
@@ -95,7 +97,7 @@ Requisitos completos: `docs/Final_Evidence_TE2004B_AD26.pdf`. El reporte final d
 | 4 | Estimación de α en el Zumo | Solo en PC (`alpha/`); faltan radios de calibración reales | Integración 2 |
 | 5 | Multinúcleo / hilos con sincronización | Nada; todo corre en un núcleo | Integración 3 |
 | 6 | Micrófono: muestreo, filtrado de ruido, reconocer tonos y mandar la acción por CAN al Zumo | Nada (micrófono en GP26/ADC0 de la Pico 2 W) | Sistema 2 |
-| 7 | Función innovadora (sugerida: waypoints en la zona gris con reflectancia + LP) | Nada; requiere aprobación del profesor antes | Sistema 3 |
+| 7 | Función innovadora: GUI para ir a un waypoint | `SecondDelivery/gui/` + `goto_wp.c` + IDs 0x110/0x111; falta probar en pista, definir la acción al llegar y la aprobación del profesor | Sistema 3 |
 | 8 | Pruebas unitarias con criterio pass/fail | `alpha_test.c` y `sim/` existen pero no son pruebas unitarias formales | Unitarias (≥2) |
 | 9 | Firmware integrado del Zumo (modos: vuelta LP, radio/α, comandos por tono) | Cada función es un proyecto aparte | Sistema 1–3 |
 

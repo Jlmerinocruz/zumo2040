@@ -5,9 +5,13 @@
 //
 // Botones (el botón C NO se usa: comparte GP0 con el MISO del MCP2515):
 //   A : arranca la vuelta (colocar el Zumo sobre P14 mirando hacia +y; a ≤ 10 cm).
+//   B durante un trayecto: paro.
 //   B (mantener 3 s): calibración con la cámara: avanza recto 1.5 s y luego gira 1.5 s.
 //       Imprime K (cuentas de motor por m/s) y la separación efectiva de orugas.
 //       Copiar esos valores a MOTOR_K y WHEEL_BASE.
+//
+// GUI de la PC (función innovadora): CAN WP_GOTO (0x110) = ir a un waypoint siguiendo
+// la pista o alto; el Zumo responde con WP_STATUS (0x111). Ver lp_can.h y ../gui/.
 //
 // Salida serial: líneas "L,..." en CSV para graficar la trayectoria
 // (ver ../analysis/plot_route.py).
@@ -18,6 +22,7 @@
 #include "mcp2515.h"
 #include "lp_can.h"
 #include "follower.h"
+#include "goto_wp.h"
 #include "waypoints.h"
 
 // ---- Parámetros a calibrar en pista (botón B) ----
@@ -64,6 +69,8 @@ static float wheel_base = WHEEL_BASE;
 static pose_t last_pose;
 static bool have_pose = false;
 static uint32_t last_pose_ms = 0;
+// Último WP_GOTO recibido y aún no atendido: -1 = ninguno, 0 = alto, 1..14 = destino.
+static int goto_req = -1;
 
 static uint32_t now_ms(void) { return to_ms_since_boot(get_absolute_time()); }
 
@@ -107,7 +114,10 @@ static bool poll_pose(void) {
         can_frame_t rx;
         if (!mcp2515_read_message(&rx)) break;
         pose_t p;
-        if (lp_decode(&rx, &p)) {
+        uint8_t wp;
+        if (wp_goto_decode(&rx, &wp)) {
+            goto_req = wp;
+        } else if (lp_decode(&rx, &p)) {
             last_pose = p;
             have_pose = true;
             last_pose_ms = now_ms();
@@ -115,6 +125,12 @@ static bool poll_pose(void) {
         }
     }
     return fresh;
+}
+
+static void send_status(wp_state_t state, int waypoint) {
+    if (!can_ready) return;
+    can_frame_t frame = wp_status_frame(state, (uint8_t)waypoint);
+    if (!mcp2515_send_message(&frame)) printf("# WP_STATUS sin ACK de la Pico\n");
 }
 
 static int32_t to_counts(float v) {
@@ -215,26 +231,27 @@ static void calibrate(void) {
            motor_k, motor_dead, wheel_base);
 }
 
-static void run_lap(void) {
+// Parámetros del seguidor con lo calibrado en este Zumo.
+static follower_params_t route_params(void) {
     follower_params_t p = follower_default_params();
     p.wheel_base = wheel_base;
     p.latency = CAM_LATENCY;
     p.v_straight = V_STRAIGHT;
     p.v_arc = V_ARC;
-    static follower_t f;
-    follower_init(&f, &p, WAYPOINTS, WAYPOINT_COUNT, WAYPOINT_START);
+    return p;
+}
 
-    printf("Vuelta: inicio en P%d, v_recta=%.2f v_arco=%.2f m/s, bat=%u mV, "
-           "K=%.0f DEAD=%.0f WB=%.3f. Arranca en 1 s...\n",
-           WAYPOINT_START + 1, V_STRAIGHT, V_ARC, battery_get_level_millivolts(),
-           motor_k, motor_dead, wheel_base);
-    sleep_ms(1000);
+// Recorre los tramos ya armados en f. Devuelve true si llegó al final y false si se
+// detuvo antes: botón B, sin pose de la cámara o un WP_GOTO nuevo (alto u otro destino,
+// que el lazo principal atiende al regresar). *t_ms = duración del recorrido.
+static bool run_route(follower_t *f, uint32_t *t_ms) {
     printf("L,t_ms,x,y,theta_deg,seg,t,ey_mm,vl,vr\n");
-
     uint32_t t0 = now_ms(), prev = t0;
     int last_seg = -1;
     bool paused = false;
+    goto_req = -1;
     while (true) {
+        *t_ms = now_ms() - t0;
         if (poll_pose()) {
             uint32_t t = now_ms();
             if (t - prev > BURST_GAP_MS) {         // tras un hueco llegan varias poses viejas
@@ -244,27 +261,26 @@ static void run_lap(void) {
             if (paused) {                          // volvió la pose: arrancar desde cero
                 printf("# pose recuperada, sigue\n");
                 paused = false;
-                f.v_cmd = 0.0f;
+                f->v_cmd = 0.0f;
                 prev = t;
             }
             float vl, vr;
-            bool running = follower_update(&f, &last_pose, (t - prev) / 1000.0f, &vl, &vr);
+            bool running = follower_update(f, &last_pose, (t - prev) / 1000.0f, &vl, &vr);
             prev = t;
             set_wheels(vl, vr);
             printf("L,%lu,%.3f,%.3f,%.1f,%d,%.2f,%.0f,%.3f,%.3f\n",
                    (unsigned long)(t - t0), last_pose.x, last_pose.y, last_pose.theta * 57.2958f,
-                   f.cur, f.t, f.e_y * 1000.0f, vl, vr);
-            if (running && f.cur != last_seg) {
-                const segment_t *s = &f.seg[f.cur];
-                printf("# tramo %d: P%d -> P%d (%s)\n", f.cur, s->from + 1, s->to + 1,
+                   f->cur, f->t, f->e_y * 1000.0f, vl, vr);
+            if (running && f->cur != last_seg) {
+                const segment_t *s = &f->seg[f->cur];
+                printf("# tramo %d: P%d -> P%d (%s)\n", f->cur, s->from + 1, s->to + 1,
                        s->type == SEG_LINE ? "recta" : "arco");
-                last_seg = f.cur;
+                last_seg = f->cur;
             }
             if (!running) {
                 motors_set_speeds(0, 0);
-                printf("# FIN en P%d. Tiempo de vuelta: %.2f s\n", WAYPOINT_START + 1,
-                       (t - t0) / 1000.0f);
-                return;
+                *t_ms = t - t0;
+                return true;
             }
         }
         uint32_t lost = now_ms() - last_pose_ms;
@@ -273,21 +289,89 @@ static void run_lap(void) {
             paused = true;
             check_can_mode();
             printf("# PAUSA: sin pose de la camara por %d ms (tramo %d), esperando...\n",
-                   POSE_TIMEOUT_MS, f.cur);
+                   POSE_TIMEOUT_MS, f->cur);
         }
         if (lost > POSE_ABORT_MS) {
             motors_set_speeds(0, 0);
-            printf("# ALTO: sin pose de la camara por %d ms (tramo %d)\n", POSE_ABORT_MS, f.cur);
+            printf("# ALTO: sin pose de la camara por %d ms (tramo %d)\n", POSE_ABORT_MS, f->cur);
             print_can_errors();
-            return;
+            return false;
         }
         if (button_b_is_pressed()) {              // paro de emergencia
             motors_set_speeds(0, 0);
             printf("# ALTO: boton B\n");
             wait_release_b();
-            return;
+            return false;
+        }
+        if (goto_req >= 0) {                       // la GUI mandó alto u otro destino
+            motors_set_speeds(0, 0);
+            printf("# ALTO: WP_GOTO %d desde la GUI\n", goto_req);
+            return false;
         }
         sleep_ms(1);
+    }
+}
+
+static void run_lap(void) {
+    follower_params_t p = route_params();
+    static follower_t f;
+    follower_init(&f, &p, WAYPOINTS, WAYPOINT_COUNT, WAYPOINT_START);
+
+    printf("Vuelta: inicio en P%d, v_recta=%.2f v_arco=%.2f m/s, bat=%u mV, "
+           "K=%.0f DEAD=%.0f WB=%.3f. Arranca en 1 s...\n",
+           WAYPOINT_START + 1, V_STRAIGHT, V_ARC, battery_get_level_millivolts(),
+           motor_k, motor_dead, wheel_base);
+    sleep_ms(1000);
+    uint32_t t_ms;
+    if (run_route(&f, &t_ms))
+        printf("# FIN en P%d. Tiempo de vuelta: %.2f s\n", WAYPOINT_START + 1, t_ms / 1000.0f);
+}
+
+// Qué hace el Zumo al llegar al waypoint elegido en la GUI. PENDIENTE: el equipo
+// todavía no lo define; por ahora solo lo avisa y parpadea el LED amarillo.
+static void on_arrival(int waypoint) {
+    printf("# LLEGO a P%d: accion pendiente de definir\n", waypoint);
+    for (int i = 0; i < 3; i++) {
+        yellow_led(1); sleep_ms(150);
+        yellow_led(0); sleep_ms(150);
+    }
+}
+
+// Va al waypoint (1..14) siguiendo la pista desde donde esté el Zumo.
+static void run_goto(int waypoint) {
+    static follower_t f;
+    follower_params_t p = route_params();
+    if (!have_pose || now_ms() - last_pose_ms > POSE_TIMEOUT_MS) {
+        printf("GOTO P%d: no hay pose reciente; no arranco.\n", waypoint);
+        send_status(WP_REJECTED, waypoint);
+        return;
+    }
+    switch (goto_plan(&f, &p, &last_pose, waypoint - 1)) {
+    case GOTO_OK:
+        break;
+    case GOTO_ALREADY_THERE:
+        printf("GOTO P%d: ya estoy ahi.\n", waypoint);
+        send_status(WP_ARRIVED, waypoint);
+        on_arrival(waypoint);
+        return;
+    case GOTO_OFF_ROUTE:
+        printf("GOTO P%d: estoy a mas de %.0f cm de la pista; no arranco.\n",
+               waypoint, GOTO_ROUTE_TOL_M * 100.0f);
+        send_status(WP_REJECTED, waypoint);
+        return;
+    case GOTO_BAD_TARGET:
+        printf("GOTO P%d: destino invalido (1..%d).\n", waypoint, WAYPOINT_COUNT);
+        return;
+    }
+    printf("GOTO P%d: desde P%d, %d tramos.\n", waypoint, f.seg[0].from + 1, f.n_seg);
+    send_status(WP_MOVING, waypoint);
+    uint32_t t_ms;
+    if (run_route(&f, &t_ms)) {
+        printf("# FIN en P%d. Tiempo: %.2f s\n", waypoint, t_ms / 1000.0f);
+        send_status(WP_ARRIVED, waypoint);
+        on_arrival(waypoint);
+    } else {
+        send_status(WP_STOPPED, waypoint);
     }
 }
 
@@ -308,7 +392,8 @@ int main(void) {
     follower_params_t p = follower_default_params();
     follower_init(&preview, &p, WAYPOINTS, WAYPOINT_COUNT, WAYPOINT_START);
     print_route(&preview);
-    printf("A = correr vuelta, B 3 s = calibrar, B durante la vuelta = paro\n");
+    printf("A = correr vuelta, B 3 s = calibrar, B durante un recorrido = paro, "
+           "GUI = ir a un waypoint (CAN 0x%03X)\n", WP_GOTO_ID);
 
     uint32_t last_print = 0;
     while (true) {
@@ -343,6 +428,12 @@ int main(void) {
                 printf("Muy lejos de P%d (%.2f, %.2f); colocarlo ahí mirando hacia +y.\n",
                        WAYPOINT_START + 1, w0->x, w0->y);
             else run_lap();
+        }
+        while (goto_req >= 0) {                    // WP_GOTO de la GUI (alto u otro destino)
+            int wp = goto_req;
+            goto_req = -1;
+            if (wp == 0) send_status(WP_IDLE, 0);
+            else run_goto(wp);
         }
         // Calibrar solo si B se mantiene 3 s. Prueba 17/11 (vuelta 3): un toque de B en
         // reposo (pensando que era "paro") calibró con el Zumo mal colocado y dejó
