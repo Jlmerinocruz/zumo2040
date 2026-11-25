@@ -10,7 +10,7 @@ Reto: el Zumo 2040 da una vuelta completa a la pista en serpentina siguiendo 14 
 | `common/` | Driver del MCP2515 que comparten la Pico 2 W y el Zumo (solo cambian los pines) | Pico 2 W y Zumo 2040 |
 | `sim/` | Simulador del seguidor y prueba unitaria de `goto_wp.c`; compilan **el mismo** código del Zumo | PC |
 | `gui/` | Función innovadora: GUI para mandar al Zumo a cualquiera de los 14 waypoints | PC (Python) |
-| `analysis/` | Mapa de waypoints y gráfica de ruta deseada vs medida | PC (Python) |
+| `analysis/` | Mapa de waypoints, gráfica de ruta deseada vs medida y análisis por tramo de los logs | PC (Python) |
 | `alpha/` | Parte E: método y código para α, con su prueba | PC (portable al Zumo) |
 | `docs/diagramas.md` | Diagramas de contexto, despliegue y actividades; requisitos; justificación de waypoints | — |
 
@@ -66,7 +66,9 @@ GUI (PC) <--UDP "ESTADO e n"--------- Pico 2 W <--CAN 0x111 WP_STATUS-- Zumo
    - si t ≥ 1, se pasa al siguiente tramo, en orden y sin saltarse waypoints.
 3. **Giro:** ω = v/R (solo en arcos) + k_θ·(rumbo ref − θ), donde el rumbo de referencia es la tangente − atan(k_e·e_y). k_e se ajusta con la velocidad para mantener el amortiguamiento ζ constante. Si fuera fija, el Zumo serpentea al acelerar.
 4. **Velocidad:** `v_recta` en las rectas, con frenado para llegar a `v_arco` justo al entrar a cada vuelta.
-5. Se detiene al cerrar la vuelta en P14, o si pasan 300 ms sin pose.
+5. **Entre poses** (`follower_tick`, cada 20 ms): la pose se estima integrando (v, ω) y el control se recalcula. Por el WiFi, en ~40 % de la vuelta pasan más de 250 ms sin pose; antes el Zumo seguía a ciegas con el último comando.
+6. **Ganancias medidas con la cámara:** el Zumo no hace lo que se le manda. En las vueltas del 17/11 avanzaba ~1.3 veces la v mandada en rectas y giraba solo ~0.3 veces la ω mandada en los arcos (las orugas patinan de lado), por eso se abría 15–25 mm hacia afuera en **todos** los arcos. Con cada pose se compara lo que avanzó y giró (cámara) contra lo que se mandó a las orugas en ese intervalo (desplazado por el retardo) y se ajustan g_v y g_ω con un cociente de sumas con olvido (~2 s de memoria). El comando a las orugas es v/g_v y ω/g_ω. Al terminar la vuelta se imprimen los valores medidos.
+7. Se detiene al cerrar la vuelta en P14. Si pasan 800 ms sin pose se pausa, y si pasan 3 s termina.
 
 ## Reparto entre núcleos (multinúcleo)
 
@@ -88,9 +90,11 @@ Detalles:
 ### Simulador (PC)
 ```bash
 cd sim && make
-./sim_follower                    # v_recta=0.30, v_arco=0.15, cámara 15 Hz / 80 ms
-./sim_follower 0.40 0.20 10 0.15  # v_recta v_arco Hz_cámara retardo_s
-ZETA=0.7 K_TH=5 ./sim_follower 0.40 0.20 > vuelta.csv   # probar otras ganancias
+./sim_follower 0.15 0.10 > vuelta.csv   # v_recta v_arco (cámara 9.5 Hz / 120 ms)
+./sim_follower 0.15 0.10 8 0.2          # v_recta v_arco Hz_cámara retardo_s
+K_TH=5 ZETA=0.7 ./sim_follower 0.15 0.10            # probar otras ganancias
+ADAPT=0 TICK=0 LAT=0.12 ./sim_follower 0.08 0.06    # como el firmware del 17/11
+IDEAL=1 ./sim_follower 0.15 0.10                    # planta ideal (modelo anterior)
 ```
 
 ### Gráficas (PC, con `uv`)
@@ -98,6 +102,7 @@ ZETA=0.7 K_TH=5 ./sim_follower 0.40 0.20 > vuelta.csv   # probar otras ganancias
 uv run analysis/plot_route.py                  # mapa de waypoints numerados
 uv run analysis/plot_route.py sim/vuelta.csv   # ruta deseada vs simulada
 uv run analysis/plot_route.py log_vuelta1.txt  # ruta deseada vs real (log serial del Zumo)
+uv run analysis/analizar_vueltas.py logs/vuelta4.txt   # error, huecos y real/mandado por tramo
 ```
 
 ### En el Zumo
@@ -111,19 +116,25 @@ uv run analysis/plot_route.py log_vuelta1.txt  # ruta deseada vs real (log seria
 
 ## Resultados del simulador
 
-Modelo usado:
-- cámara a 8 Hz, que es lo que midió el reporte de Wireless (una pose cada ~125 ms);
-- motores con retardo de 80 ms y oruga izquierda 5 % más lenta;
-- ruido de cámara σ = 5 mm y 0.5°.
+El modelo de planta se ajustó para que el firmware del 17/11 se equivoque igual que en pista (`analysis/analizar_vueltas.py` sobre `logs/vuelta4.txt`):
+- orugas que van 1.3 veces lo mandado, con la izquierda 5 % más lenta, y respuesta de 80 ms;
+- separación efectiva de orugas de 0.30 m (la geométrica es 0.085 m): así el Zumo se abre 15–25 mm en los arcos, como en pista;
+- cámara a 9.5 Hz con 120 ms de retardo, ruido σ = 5 mm y 0.5°, y un hueco de 450 ms cada 0.8 s (las ráfagas del WiFi).
 
-| v_recta / v_arco | Retardo de cámara | Tiempo de vuelta | Error lateral máx. | RMS |
-|---|---|---|---|---|
-| 0.30 / 0.15 m/s | 100 ms | 28.0 s | 35 mm | 13 mm |
-| 0.40 / 0.20 m/s | 100 ms | 22.1 s | 41 mm | 20 mm |
-| 0.30 / 0.15 m/s | 200 ms | 29.5 s | 55 mm | 22 mm |
-| 0.40 / 0.20 m/s | 200 ms | 23.2 s | 72 mm | 34 mm |
+Promedio de 5 corridas con ruido distinto (`SEED=1..5`); el máximo es el peor de las 5.
 
-Ganancias: k_θ = 4 y ζ = 0.8. Con k_θ = 5 el control va mejor si el retardo es de 100 ms, pero oscila si es de 200 ms. **El retardo real todavía no se conoce.** La calibración del botón B lo imprime: con ese valor, ajustar `CAM_LATENCY` en `main.c` y, si es ≤ 100 ms, subir k_θ a 5.
+| v_recta / v_arco | Firmware del 17/11 | Con `follower_tick` + ganancias medidas |
+|---|---|---|
+| 0.08 / 0.06 m/s | 75.6 s, máx 47 mm, RMS 16.2 mm | 84.5 s, máx 12 mm, RMS 3.1 mm |
+| 0.12 / 0.08 m/s | 55.8 s, máx 69 mm, RMS 28.3 mm | 59.0 s, máx 15 mm, RMS 3.5 mm |
+| 0.15 / 0.10 m/s | 46.8 s, máx 103 mm, RMS 40.9 mm | 47.6 s, máx 20 mm, RMS 4.6 mm |
+| 0.20 / 0.12 m/s | 38.3 s, máx 122 mm, RMS 58.4 mm | 37.4 s, máx 30 mm, RMS 6.3 mm |
+
+A la misma velocidad mandada, el firmware anterior da vueltas más cortas porque en rectas el Zumo iba más rápido de lo que se mandaba; el nuevo va a lo que se manda.
+
+Ninguno de los cambios depende de conocer la planta. A 0.15 / 0.10 m/s, con separación efectiva de 0.20 o 0.41 m, con orugas exactas (ganancia 1.0) o con la planta ideal, el RMS queda entre 4.1 y 4.9 mm. Con 200 ms de retardo de cámara (compensando 160 ms) queda en ~9 mm. El retardo a compensar (`CAM_LATENCY`) funciona entre 0.12 y 0.20 s, y lo mejor fue 0.16 s (cámara + medio tiempo de respuesta del motor). k_θ = 4 y ζ = 0.8 siguen siendo buenos: con 3 o 5 cambia poco.
+
+Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen movida (pasó a 0.20 m/s mandados, que en realidad eran ~0.26 m/s), el arrastre extra de las orugas al girar (en pista los arcos tardan más) y la caída de las pilas.
 
 ## Pendiente (requiere hardware o datos)
 
@@ -134,5 +145,6 @@ Ganancias: k_θ = 4 y ζ = 0.8. Con k_θ = 5 el control va mejor si el retardo e
 - [ ] Medir VCC_CAN con pilas, con el Zumo quieto y con motores andando (para el reporte).
 - [ ] Calibración con el botón B → `MOTOR_K`, `MOTOR_DEAD`, `WHEEL_BASE` y `CAM_LATENCY`.
 - [ ] Vueltas en pista: subir velocidades poco a poco (parte D), 3 tiempos, video y gráfica medida.
+- [ ] Probar en pista `follower_tick` + ganancias medidas, primero a 0.12 / 0.08 m/s y luego a 0.15 / 0.10. Comparar con `analysis/analizar_vueltas.py` contra la línea base (vuelta 4: 89.0 s, máx 92 mm, RMS 21.3 mm) y anotar los `g_v`, `g_w` que imprime al final.
 - [ ] GUI de waypoints en pista: comprobar UDP 5002 con la Pico, que el Zumo llegue a varios puntos y definir `on_arrival()`.
 - [ ] Parte E: medir t_i(r) con α = 0 en 5–7 radios (por ejemplo 0.25, 0.5, 0.75, 1.0, 1.25, 1.5 y 1.75 m) y cargarlos en la tabla de `alpha_test.c`. Opcional: validar con α = 45° y 90° en r = 1.5 m.

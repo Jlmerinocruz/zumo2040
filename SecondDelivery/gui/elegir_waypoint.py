@@ -52,7 +52,44 @@ MARGIN = 30
 
 def load_waypoints():
     pat = re.compile(r"/\*\s*P(\d+)\s*\*/\s*\{\s*([-\d.]+)f,\s*([-\d.]+)f,\s*([-\d.]+)f")
-    return [(int(m[1]), float(m[2]), float(m[3])) for m in pat.finditer(WAYPOINTS_C.read_text())]
+    return [(int(m[1]), float(m[2]), float(m[3]), float(m[4]))
+            for m in pat.finditer(WAYPOINTS_C.read_text())]
+
+
+def wrap_pi(a):
+    return (a + math.pi) % (2 * math.pi) - math.pi
+
+
+def arc_points(ax, ay, ta, bx, by, tb, n=24):
+    """Arco entre dos waypoints, calculado igual que build_arc() en follower.c."""
+    dx, dy = bx - ax, by - ay
+    d = 1 if math.cos(ta) * dy - math.sin(ta) * dx >= 0 else -1
+    nax, nay = -math.sin(ta) * d, math.cos(ta) * d
+    nbx, nby = -math.sin(tb) * d, math.cos(tb) * d
+    mx, my = nax - nbx, nay - nby
+    den = mx * mx + my * my
+    r = -((ax - bx) * mx + (ay - by) * my) / den if den > 1e-6 else 0.5 * math.hypot(dx, dy)
+    if r < 0.02:
+        r = 0.5 * math.hypot(dx, dy)
+    cx = 0.5 * ((ax + r * nax) + (bx + r * nbx))
+    cy = 0.5 * ((ay + r * nay) + (by + r * nby))
+    phi0 = math.atan2(ay - cy, ax - cx)
+    span = ((math.atan2(by - cy, bx - cx) - phi0) * d) % (2 * math.pi)
+    return [(cx + r * math.cos(phi0 + d * span * k / n), cy + r * math.sin(phi0 + d * span * k / n))
+            for k in range(n + 1)]
+
+
+def route_points(waypoints):
+    """Ruta que sigue el Zumo: rectas entre waypoints con el mismo rumbo y arcos en las vueltas."""
+    pts = []
+    for i, (_, ax, ay, ta) in enumerate(waypoints):
+        _, bx, by, tb = waypoints[(i + 1) % len(waypoints)]
+        ta, tb = math.radians(ta), math.radians(tb)
+        if abs(wrap_pi(tb - ta)) < math.radians(30):
+            pts += [(ax, ay), (bx, by)]
+        else:
+            pts += arc_points(ax, ay, ta, bx, by, tb)
+    return pts
 
 
 def to_px(x, y):
@@ -109,9 +146,9 @@ class App:
 
     def draw_map(self):
         c = self.canvas
-        pts = [to_px(x, y) for _, x, y in self.waypoints]
-        c.create_line(*[v for p in pts + pts[:1] for v in p], fill="#bbb", width=3)
-        for n, x, y in self.waypoints:
+        pts = [to_px(x, y) for x, y in route_points(self.waypoints)]
+        c.create_line(*[v for p in pts for v in p], fill="#bbb", width=3)
+        for n, x, y, _ in self.waypoints:
             px, py = to_px(x, y)
             tag = f"wp{n}"
             c.create_oval(px - 11, py - 11, px + 11, py + 11, fill="#2e86c1", outline="",
@@ -124,7 +161,7 @@ class App:
 
     def goto(self, n):
         self.target = n
-        for wn, _, _ in self.waypoints:
+        for wn, *_ in self.waypoints:
             self.canvas.itemconfigure(f"wp{wn}&&wp", fill="#e67e22" if wn == n else "#2e86c1")
         self.send(f"GOTO {n}")
 

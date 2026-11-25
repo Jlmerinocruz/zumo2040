@@ -39,14 +39,20 @@
 // vuelta (≈0.06 m/s) quedaría parada.
 #define MOTOR_K        7000.0f  // cuentas por m/s, arriba de la zona muerta
 #define MOTOR_DEAD     850.0f   // cuentas para vencer la fricción
-#define WHEEL_BASE     0.085f   // m, separación efectiva entre orugas
-#define CAM_LATENCY    0.12f    // s, retardo efectivo cámara→motor (lo imprime la calibración)
+// Ya no hace falta que MOTOR_K y WHEEL_BASE sean exactos: el seguidor mide con la
+// cámara cuánto avanza y gira el Zumo de verdad (g_v, g_w) y corrige el comando.
+#define WHEEL_BASE     0.085f   // m, separación geométrica entre orugas
+// Retardo cámara + arranque del motor. En el simulador 0.16 s funcionó mejor que 0.12
+// (sirve entre 0.12 y 0.20); la calibración (botón B) imprime el valor medido.
+#define CAM_LATENCY    0.16f    // s
 // ---- Velocidades (parte D: subirlas poco a poco cuando la vuelta salga completa) ----
 // Prueba 17/11: a 0.20 m/s la cámara dejó de reconocer el marcador en cuanto el Zumo
 // se movió (imagen movida). En la parte A (~0.05 m/s) sí lo seguía. Se empieza lento
-// y se sube poco a poco mientras la cámara lo siga viendo.
-#define V_STRAIGHT     0.08f    // m/s en rectas
-#define V_ARC          0.06f    // m/s en las vueltas
+// y se sube poco a poco mientras la cámara lo siga viendo. Ojo: antes el Zumo iba
+// ~1.3 veces más rápido de lo mandado en rectas (0.08 → ~0.10 m/s reales) y ahora va
+// a lo que se manda. Siguiente paso sugerido si la cámara lo sigue viendo: 0.15 / 0.10.
+#define V_STRAIGHT     0.12f    // m/s en rectas
+#define V_ARC          0.08f    // m/s en las vueltas
 // ---- Seguridad y calibración ----
 // En el laboratorio la cámara manda ~9.5 poses/s (una cada ~105 ms), pero por WiFi
 // llegan en ráfagas: cada ~0.8 s hay un hueco de ~450 ms y luego 4-5 poses atrasadas
@@ -57,6 +63,7 @@
 #define POSE_TIMEOUT_MS 800
 #define BURST_GAP_US   250000u  // hueco a partir del cual se espera la ráfaga completa
 #define BURST_WAIT_US  20000u   // tiempo para juntar la ráfaga y usar solo la última pose
+#define TICK_US        20000u   // periodo del control entre poses (follower_tick)
 #define POSE_ABORT_MS  3000
 // Distancia máxima a P14 para aceptar el arranque (evita arrancar mal colocado).
 #define START_TOL_M    0.10f
@@ -215,6 +222,14 @@ static void print_lap_stats(const lap_stats_t *st) {
                (unsigned long)(comm_dropped_logs() - st->dropped0));
 }
 
+// Termina un recorrido que llegó a su destino: motores en 0, ganancias y estadísticas.
+static void finish_route(const follower_t *f, uint32_t route_us, const lap_stats_t *st, float *t_s) {
+    motors_set_speeds(0, 0);
+    *t_s = route_us / 1e6f;
+    log_printf("# Ganancias medidas: g_v=%.2f g_w=%.2f\n", f->g_v, f->g_w);
+    print_lap_stats(st);
+}
+
 // Parámetros del seguidor con lo calibrado en este Zumo.
 static follower_params_t route_params(void) {
     follower_params_t p = follower_default_params();
@@ -232,14 +247,13 @@ static bool run_route(follower_t *f, float *t_s) {
     log_printf("L,t_ms,x,y,theta_deg,seg,t,ey_mm,vl,vr\n");
 
     update_pose();                                 // descarta lo que llegó durante la espera
-    uint32_t t0 = time_us_32(), prev_us = t0;
+    uint32_t t0 = time_us_32(), prev_us = t0, call_us = t0;
     lap_stats_t st = { .replaced0 = comm_replaced_poses(), .dropped0 = comm_dropped_logs() };
     int last_seg = -1;
     bool pending = false, paused = false;
     while (true) {
         pending |= update_pose();
         update_goto();
-        *t_s = (time_us_32() - t0) / 1e6f;
         // Tras un hueco de WiFi llegan varias poses atrasadas casi juntas: se espera
         // BURST_WAIT_US desde la última para usar solo la más reciente.
         if (pending && (last_pose_us - prev_us < BURST_GAP_US ||
@@ -249,12 +263,13 @@ static bool run_route(follower_t *f, float *t_s) {
             if (paused) {                          // volvió la pose: arrancar desde cero
                 log_printf("# pose recuperada, sigue\n");
                 paused = false;
-                f->v_cmd = 0.0f;
-                prev_us = last_pose_us;
+                follower_resume(f);
+                call_us = start_us;
             }
             float vl, vr;
-            bool running = follower_update(f, &last_pose, (last_pose_us - prev_us) / 1e6f, &vl, &vr);
+            bool running = follower_update(f, &last_pose, (start_us - call_us) / 1e6f, &vl, &vr);
             prev_us = last_pose_us;
+            call_us = start_us;
             set_wheels(vl, vr);
             uint32_t done_us = time_us_32();
             st.n++;
@@ -272,12 +287,16 @@ static bool run_route(follower_t *f, float *t_s) {
                            sg->type == SEG_LINE ? "recta" : "arco");
                 last_seg = f->cur;
             }
-            if (!running) {
-                motors_set_speeds(0, 0);
-                *t_s = (last_pose_us - t0) / 1e6f;
-                print_lap_stats(&st);
-                return true;
-            }
+            if (!running) { finish_route(f, last_pose_us - t0, &st, t_s); return true; }
+        } else if (!paused && time_us_32() - call_us >= TICK_US) {
+            // Entre poses se sigue con la pose estimada, para no ir a ciegas durante
+            // los huecos del WiFi.
+            uint32_t now = time_us_32();
+            float vl, vr;
+            bool running = follower_tick(f, (now - call_us) / 1e6f, &vl, &vr);
+            call_us = now;
+            set_wheels(vl, vr);
+            if (!running) { finish_route(f, now - t0, &st, t_s); return true; }
         }
         uint32_t lost = pose_age_ms();
         if (lost > POSE_TIMEOUT_MS && !paused) {
