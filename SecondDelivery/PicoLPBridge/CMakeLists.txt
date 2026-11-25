@@ -30,7 +30,7 @@ if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/wifi_config.h)
     message(FATAL_ERROR "Falta wifi_config.h: copia wifi_config.example.h como wifi_config.h y pon la red del laboratorio")
 endif()
 
-add_executable(PicoLPBridge main.c mcp2515.c)
+add_executable(PicoLPBridge main.c ../common/mcp2515.c)
 
 pico_set_program_name(PicoLPBridge "PicoLPBridge")
 pico_set_program_version(PicoLPBridge "0.1")
@@ -42,9 +42,10 @@ target_link_libraries(PicoLPBridge
         pico_stdlib
         hardware_spi
         hardware_watchdog
+        pico_multicore
         pico_cyw43_arch_lwip_poll)
 
-target_compile_definitions(PicoLPBridge PRIVATE PICO_STACK_SIZE=0x1000)
-target_include_directories(PicoLPBridge PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_compile_definitions(PicoLPBridge PRIVATE PICO_STACK_SIZE=0x1000 PICO_CORE1_STACK_SIZE=0x1000)
+target_include_directories(PicoLPBridge PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/../common)
 target_compile_options(PicoLPBridge PRIVATE -Wall -Wextra)
 pico_add_extra_outputs(PicoLPBridge)

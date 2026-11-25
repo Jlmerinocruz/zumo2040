@@ -6,32 +6,33 @@
 //   LP_POSE  ID 0x100  DLC 6  big-endian
 //     bytes 0-1: x [mm] int16 | bytes 2-3: y [mm] int16 | bytes 4-5: ángulo [0.1°] int16
 //
-// Basado en el código del reporte "Experiment Wireless Interfacing" (ya probado),
-// con estos cambios:
-//   - Driver MCP2515 corregido (set_mode con timeout y ACK con timeout real).
-//   - Si el MCP2515 no responde al arrancar, se reintenta cada segundo.
-//   - El LED de la Pico indica el estado (ver abajo), porque montada en el Zumo
-//     normalmente no hay monitor serial.
-//   - La red WiFi se configura en wifi_config.h (no se sube al repo).
+// Reparto entre núcleos:
+//   núcleo 0: WiFi y lwIP (cyw43_arch_poll), parseo del JSON, LED y watchdog. El chip
+//             WiFi y lwIP solo se usan desde este núcleo (no son seguros entre núcleos).
+//   núcleo 1: MCP2515 (envío por CAN con su espera de ACK de hasta 10 ms) e impresión
+//             de cada pose enviada. Así el ACK y el printf no detienen la recepción WiFi.
+// Sincronización: una cola queue_t (spinlock de hardware) lleva las poses del núcleo 0
+// al 1. Los contadores los escribe un solo núcleo y el otro solo los lee.
+// El watchdog (3 s) solo se alimenta si los dos núcleos siguen vivos.
 //
-// LED de la Pico 2 W:
+// LED de la Pico 2 W (montada en el Zumo normalmente no hay monitor serial):
 //   parpadeo rápido   = conectando al WiFi
 //   encendido fijo    = WiFi conectado, esperando poses de la cámara
 //   parpadea con cada pose = la pose salió por CAN y el Zumo la confirmó (ACK)
 //   apagado con WiFi  = llegan poses pero nadie da ACK (revisar bus CAN / Zumo)
 //
-// Pines (PCB): GP16 MISO, GP17 CS, GP18 SCK (puente al pin 6 del módulo), GP19 MOSI, GP20 INT.
+// La red WiFi se configura en wifi_config.h (no se sube al repo).
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "pico/multicore.h"
+#include "pico/util/queue.h"
 #include "hardware/watchdog.h"
 #include "lwip/udp.h"
 #include "lwip/pbuf.h"
-#include "lwip/raw.h"
 #include "lwip/etharp.h"
-#include "lwip/prot/ip4.h"
-#include "lwip/prot/udp.h"
 #include "mcp2515.h"
 #include "wifi_config.h"   // WIFI_SSID y WIFI_PASSWORD (copiar de wifi_config.example.h)
 
@@ -41,6 +42,7 @@
 #define MARKER_ID 4   // marcador del Zumo
 #define LP_POSE_ID  0x100
 #define LP_POSE_DLC 6
+#define POSE_QUEUE_LEN 8      // la cámara manda ráfagas de 4-5 poses tras un hueco de WiFi
 
 typedef struct {
     float x;      // m
@@ -48,9 +50,12 @@ typedef struct {
     float angle;  // grados
 } pose_t;
 
-static pose_t pose;
-static volatile bool pose_ready = false;
-static uint32_t n_rx = 0, n_ok = 0, n_fail = 0, n_nomarker = 0;
+static queue_t pose_q;   // núcleo 0 -> núcleo 1
+
+// Contadores acumulados. Cada uno lo escribe un solo núcleo.
+static volatile uint32_t n_rx, n_nomarker;          // núcleo 0
+static volatile uint32_t n_ok, n_fail, core1_alive; // núcleo 1
+static volatile bool can_ok;                        // núcleo 1
 
 static bool get_num(const char *obj, const char *key, float *out) {
     const char *k = strstr(obj, key);
@@ -89,34 +94,21 @@ static void on_udp_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     if (p == NULL) return;
 
     // static: el callback corre dentro de cyw43_arch_poll() y la pila del núcleo 0
-    // es chica (sscanf con float también usa bastante); 1 KB en la pila la desbordaba.
+    // es chica (strtof también usa bastante); 1 KB en la pila la desbordaba.
     static char json[1536];
     uint16_t len = pbuf_copy_partial(p, json, sizeof(json) - 1, 0);
     json[len] = '\0';
     pbuf_free(p);
 
     n_rx++;
-    if (parse_marker(json, &pose)) pose_ready = true;
-    else n_nomarker++;
-}
-
-// Diagnóstico: ve TODOS los paquetes UDP que llegan (cualquier puerto) sin consumirlos.
-static uint32_t n_any = 0;
-static char last_any[80] = "";
-static u8_t on_raw_udp(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr) {
-    (void)arg; (void)pcb;
-    if (p->len >= 28) {
-        const struct ip_hdr *ip = (const struct ip_hdr *)p->payload;
-        const struct udp_hdr *u = (const struct udp_hdr *)((const u8_t *)p->payload + IPH_HL_BYTES(ip));
-        n_any++;
-        char dst[16];
-        ip4_addr_t d;
-        memcpy(&d, (const u8_t *)p->payload + 16, sizeof d);   // destino del encabezado IP
-        ip4addr_ntoa_r(&d, dst, sizeof dst);
-        snprintf(last_any, sizeof last_any, "%s:%u -> %s:%u (%u bytes)",
-                 ipaddr_ntoa(addr), lwip_ntohs(u->src), dst, lwip_ntohs(u->dest), p->tot_len);
+    pose_t pose;
+    if (!parse_marker(json, &pose)) { n_nomarker++; return; }
+    // Cola llena (el núcleo 1 se atrasó): se tira la pose más vieja, nunca la nueva.
+    if (!queue_try_add(&pose_q, &pose)) {
+        pose_t old;
+        queue_try_remove(&pose_q, &old);
+        queue_try_add(&pose_q, &pose);
     }
-    return 0;   // 0 = no se consume; lwIP sigue entregándolo normalmente
 }
 
 static int16_t to_fixed(float value, float scale) {
@@ -144,22 +136,63 @@ static bool send_pose(const pose_t *p) {
     return sent;
 }
 
-// Diagnóstico: lista todas las redes con el SSID del laboratorio (puede haber más de
-// un hotspot "embedded" con la misma IP 192.168.12.1, uno por cada pista).
-static int scan_cb(void *env, const cyw43_ev_scan_result_t *r) {
-    (void)env;
-    if (r && r->ssid_len == strlen(WIFI_SSID) && memcmp(r->ssid, WIFI_SSID, r->ssid_len) == 0)
-        printf("  AP \"%s\" BSSID %02X:%02X:%02X:%02X:%02X:%02X  RSSI %d dBm  canal %u\n",
-               WIFI_SSID, r->bssid[0], r->bssid[1], r->bssid[2], r->bssid[3], r->bssid[4],
-               r->bssid[5], r->rssi, r->channel);
-    return 0;
+// ---------------------------------------------------------------- núcleo 1 ----
+
+static void core1_main(void) {
+    mcp2515_init(MCP2515_PINS_PICO2W);
+    can_ok = mcp2515_start();
+    printf("MCP2515: %s\n", can_ok ? "listo" : "no responde (se reintenta cada segundo)");
+    uint32_t last_retry = to_ms_since_boot(get_absolute_time());
+    while (true) {
+        core1_alive++;
+        uint32_t now = to_ms_since_boot(get_absolute_time());
+        if (!can_ok && now - last_retry >= 1000) {
+            last_retry = now;
+            can_ok = mcp2515_start();
+        }
+        pose_t p;
+        if (!queue_try_remove(&pose_q, &p)) { sleep_ms(1); continue; }
+        if (can_ok && send_pose(&p)) n_ok++;
+        else n_fail++;
+    }
 }
+
+// ---------------------------------------------------------------- núcleo 0 ----
 
 static void led(bool on) { cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, on); }
 
-static bool can_start(void) {
-    mcp2515_reset();
-    return mcp2515_set_bitrate_500kbps_8mhz() && mcp2515_set_mode(MCP2515_MODE_NORMAL);
+// Alimenta el watchdog solo si el núcleo 1 avanzó desde la última vez: si cualquiera
+// de los dos núcleos se cuelga, la Pico se reinicia sola.
+static void feed_watchdog(void) {
+    static uint32_t seen;
+    uint32_t alive = core1_alive;
+    if (alive != seen) { seen = alive; watchdog_update(); }
+}
+
+// LED según los resultados que reporta el núcleo 1.
+static void update_led(void) {
+    static uint32_t seen_ok, seen_fail;
+    uint32_t ok = n_ok, fail = n_fail;
+    if (ok != seen_ok) { seen_ok = ok; led(ok & 1); }
+    if (fail != seen_fail) { seen_fail = fail; led(false); }
+}
+
+// Resumen cada 2 s: sirve para medir cuántas poses por segundo manda la cámara.
+static void print_status(const ip_addr_t *server) {
+    static uint32_t p_rx, p_nomarker, p_ok, p_fail;
+    uint32_t rx = n_rx, nomarker = n_nomarker, ok = n_ok, fail = n_fail;
+    printf("# 2 s: UDP=%lu sin_marcador4=%lu CAN_ok=%lu CAN_fallo=%lu MCP2515=%s\n",
+           (unsigned long)(rx - p_rx), (unsigned long)(nomarker - p_nomarker),
+           (unsigned long)(ok - p_ok), (unsigned long)(fail - p_fail),
+           can_ok ? "ok" : "NO RESPONDE");
+    if (rx == p_rx) {
+        // No llegó nada: ¿la Pico ve al servidor de la cámara?
+        struct eth_addr *mac; const ip4_addr_t *ipr;
+        bool arp = etharp_find_addr(netif_list, ip_2_ip4(server), &mac, &ipr) >= 0;
+        printf("#   no llega UDP; ARP del servidor %s\n",
+               arp ? "OK (la red funciona, revisar la camara)" : "SIN respuesta (no hay comunicacion)");
+    }
+    p_rx = rx; p_nomarker = nomarker; p_ok = ok; p_fail = fail;
 }
 
 int main(void) {
@@ -174,22 +207,13 @@ int main(void) {
     }
     cyw43_arch_enable_sta_mode();
 
-    // CAN primero: así se puede revisar el bus aunque el WiFi tarde.
-    mcp2515_init();
-    bool can_ok = can_start();
-    printf("MCP2515: %s\n", can_ok ? "listo" : "no responde (se reintenta)");
+    // CAN primero (núcleo 1): así se puede revisar el bus aunque el WiFi tarde.
+    queue_init(&pose_q, sizeof(pose_t), POSE_QUEUE_LEN);
+    multicore_launch_core1(core1_main);
 
     // Si algo se cuelga más de 3 s, la Pico se reinicia sola en vez de quedarse muerta.
     watchdog_enable(3000, true);
 
-    printf("Buscando redes \"%s\"...\n", WIFI_SSID);
-    cyw43_wifi_scan_options_t opts = {0};
-    if (cyw43_wifi_scan(&cyw43_state, &opts, NULL, scan_cb) == 0) {
-        absolute_time_t t_end = make_timeout_time_ms(6000);
-        while (cyw43_wifi_scan_active(&cyw43_state) && !time_reached(t_end)) {
-            cyw43_arch_poll(); sleep_ms(10); watchdog_update();
-        }
-    }
     printf("Conectando a \"%s\"...\n", WIFI_SSID);
     cyw43_arch_wifi_connect_async(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK);
     bool blink = false;
@@ -201,16 +225,16 @@ int main(void) {
         }
         led(blink = !blink);
         for (int i = 0; i < 20; i++) { cyw43_arch_poll(); sleep_ms(5); }
-        watchdog_update();
+        feed_watchdog();
     }
-    printf("Conectado, IP: %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
     {
         uint8_t b[6] = {0};
         cyw43_wifi_get_bssid(&cyw43_state, b);
         int32_t rssi = 0;
         cyw43_wifi_get_rssi(&cyw43_state, &rssi);
-        printf("Conectado al AP %02X:%02X:%02X:%02X:%02X:%02X, RSSI %ld dBm\n",
-               b[0], b[1], b[2], b[3], b[4], b[5], (long)rssi);
+        printf("Conectado, IP %s, AP %02X:%02X:%02X:%02X:%02X:%02X, RSSI %ld dBm\n",
+               ip4addr_ntoa(netif_ip4_addr(netif_list)), b[0], b[1], b[2], b[3], b[4], b[5],
+               (long)rssi);
     }
     led(true);
 
@@ -219,24 +243,19 @@ int main(void) {
     struct udp_pcb *pcb = udp_new();
     udp_bind(pcb, IP_ADDR_ANY, TELEMETRY_PORT);
     udp_recv(pcb, on_udp_packet, NULL);
-    struct raw_pcb *rpcb = raw_new(IP_PROTO_UDP);
-    raw_recv(rpcb, on_raw_udp, NULL);
-    printf("IP %s, ", ip4addr_ntoa(netif_ip4_addr(netif_list)));
     printf("servidor %s, escuchando UDP %d\n", ip4addr_ntoa(netif_ip4_gw(netif_list)), TELEMETRY_PORT);
 
     // El servidor de la cámara manda broadcast al 5000, pero ese broadcast puede no
     // salir por el hotspot. También acepta suscripciones en UDP 5001: le mandamos un
-    // paquete (desde nuestro puerto 5000) y registra nuestra IP para enviarnos directo. Se repite cada 2 s
-    // por si el servidor reinicia o expira la suscripción.
+    // paquete (desde nuestro puerto 5000) y registra nuestra IP para enviarnos directo.
+    // Se repite cada 2 s por si el servidor reinicia o expira la suscripción.
     ip_addr_t server = *netif_ip4_gw(netif_list);
     absolute_time_t next_sub = get_absolute_time();
-
     absolute_time_t next_status = make_timeout_time_ms(2000);
     while (true) {
-        watchdog_update();
+        feed_watchdog();
         cyw43_arch_poll();
-
-        if (!can_ok && time_reached(next_status)) can_ok = can_start();
+        update_led();
 
         if (time_reached(next_sub)) {
             next_sub = make_timeout_time_ms(2000);
@@ -248,29 +267,9 @@ int main(void) {
                 pbuf_free(sp);
             }
         }
-
-        if (pose_ready) {
-            pose_ready = false;
-            if (can_ok && send_pose(&pose)) { n_ok++; led(n_ok & 1); }
-            else { n_fail++; led(false); }
-        }
-
-        // Resumen cada 2 s: sirve para medir cuántas poses por segundo manda la cámara.
         if (time_reached(next_status)) {
             next_status = make_timeout_time_ms(2000);
-            printf("# 2 s: UDP=%lu sin_marcador4=%lu CAN_ok=%lu CAN_fallo=%lu MCP2515=%s\n",
-                   (unsigned long)n_rx, (unsigned long)n_nomarker, (unsigned long)n_ok,
-                   (unsigned long)n_fail, can_ok ? "ok" : "NO RESPONDE");
-            {
-                struct eth_addr *mac; const ip4_addr_t *ipr;
-                ssize_t idx = etharp_find_addr(netif_list, ip_2_ip4(&server), &mac, &ipr);
-                if (idx >= 0) printf("#   ARP del servidor OK: %02X:%02X:%02X:%02X:%02X:%02X (la Pico si recibe de el)\n",
-                                     mac->addr[0], mac->addr[1], mac->addr[2], mac->addr[3], mac->addr[4], mac->addr[5]);
-                else printf("#   ARP del servidor SIN respuesta (no hay comunicacion con 192.168.12.1)\n");
-            }
-            if (n_any) printf("#   UDP de cualquier puerto: %lu, ultimo: %s\n", (unsigned long)n_any, last_any);
-            else printf("#   no llega ningun paquete UDP (ningun puerto)\n");
-            n_rx = n_nomarker = n_ok = n_fail = n_any = 0;
+            print_status(&server);
         }
         cyw43_arch_wait_for_work_until(make_timeout_time_ms(1));
     }

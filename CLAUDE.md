@@ -94,7 +94,7 @@ Requisitos completos: `docs/Final_Evidence_TE2004B_AD26.pdf`. El reporte final d
 | 2 | Lazo cerrado con encoders (p. ej. distancia/cuadrado) | No hay código de encoders en el repo | Diagrama 2, unitaria sugerida |
 | 3 | Estimación de radio en el Zumo | Solo en PC (`alpha_radius`) con 3 radios; Stage1 imprime tiempos crudos | Integración 1 |
 | 4 | Estimación de α en el Zumo | Solo en PC (`alpha/`); faltan radios de calibración reales | Integración 2 |
-| 5 | Multinúcleo / hilos con sincronización | Nada; todo corre en un núcleo | Integración 3 |
+| 5 | Multinúcleo / hilos con sincronización | Implementado (Zumo y Pico 2 W, colas `queue_t`; ver "Reparto entre núcleos" en `SecondDelivery/README.md`); falta probarlo en el laboratorio | Integración 3 |
 | 6 | Micrófono: muestreo, filtrado de ruido, reconocer tonos y mandar la acción por CAN al Zumo | Nada (micrófono en GP26/ADC0 de la Pico 2 W) | Sistema 2 |
 | 7 | Función innovadora (sugerida: waypoints en la zona gris con reflectancia + LP) | Nada; requiere aprobación del profesor antes | Sistema 3 |
 | 8 | Pruebas unitarias con criterio pass/fail | `alpha_test.c` y `sim/` existen pero no son pruebas unitarias formales | Unitarias (≥2) |

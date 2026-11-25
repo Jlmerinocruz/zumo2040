@@ -7,6 +7,7 @@ Reto: el Zumo 2040 da una vuelta completa a la pista en serpentina siguiendo 14 
 | `PicoLPBridge/` | Firmware de la Pico 2 W: recibe la pose por WiFi (UDP) y la manda por CAN | Pico 2 W (en la PCB) |
 | `ZumoPartA50cm/` | Parte A: avanzar 50 cm en y con la cámara, ya con la PCB | Zumo 2040 |
 | `ZumoWaypointFollower/` | Firmware del Zumo: recibe la pose por CAN y sigue la ruta | Zumo 2040 |
+| `common/` | Driver del MCP2515 que comparten la Pico 2 W y el Zumo (solo cambian los pines) | Pico 2 W y Zumo 2040 |
 | `sim/` | Simulador del seguidor; compila **el mismo** `follower.c` | PC |
 | `analysis/` | Mapa de waypoints, gráfica de ruta deseada vs medida y análisis por tramo de los logs | PC (Python) |
 | `alpha/` | Parte E: método y código para α, con su prueba | PC (portable al Zumo) |
@@ -42,6 +43,21 @@ Si el Zumo imprime `MCP2515 no responde`, revisar el switch en ON (sin él la PC
 5. **Entre poses** (`follower_tick`, cada 20 ms): la pose se estima integrando (v, ω) y el control se recalcula. Por el WiFi, en ~40 % de la vuelta pasan más de 250 ms sin pose; antes el Zumo seguía a ciegas con el último comando.
 6. **Ganancias medidas con la cámara:** el Zumo no hace lo que se le manda. En las vueltas del 17/11 avanzaba ~1.3 veces la v mandada en rectas y giraba solo ~0.3 veces la ω mandada en los arcos (las orugas patinan de lado), por eso se abría 15–25 mm hacia afuera en **todos** los arcos. Con cada pose se compara lo que avanzó y giró (cámara) contra lo que se mandó a las orugas en ese intervalo (desplazado por el retardo) y se ajustan g_v y g_ω con un cociente de sumas con olvido (~2 s de memoria). El comando a las orugas es v/g_v y ω/g_ω. Al terminar la vuelta se imprimen los valores medidos.
 7. Se detiene al cerrar la vuelta en P14. Si pasan 800 ms sin pose se pausa, y si pasan 3 s termina.
+
+## Reparto entre núcleos (multinúcleo)
+
+Las dos placas usan sus dos núcleos. Cada recurso tiene un solo dueño y los núcleos solo se comunican por colas `queue_t` del Pico SDK (FIFO protegidas por un spinlock de hardware, que nunca bloquean al otro núcleo).
+
+| Placa | Núcleo 0 | Núcleo 1 | Entre núcleos |
+|---|---|---|---|
+| Zumo 2040 (`ZumoWaypointFollower/`) | Lazo de control (`follower.c`), motores, botones, calibración, pausa/paro por pérdida de pose | MCP2515 por SPI0 (la interrupción en INT/GP28 anota la hora de llegada de cada pose), revisión del modo CAN y toda la salida serial | Cola de poses 1→0 (el control usa solo la más reciente); cola de telemetría 0→1 (muestras `L,...` y texto) |
+| Pico 2 W (`PicoLPBridge/`) | WiFi/lwIP, parseo del JSON, LED, watchdog y resumen cada 2 s | MCP2515: envío por CAN con su espera de ACK e impresión de cada pose | Cola de poses 0→1; contadores con un solo escritor cada uno |
+
+Detalles:
+- **Zumo:** un `printf` por USB o una espera del SPI ya no pueden retrasar el comando a los motores. El programa corre desde RAM (`copy_to_ram`): leer el botón B desconecta un instante la flash (comparte pin con su CS) y el otro núcleo no puede estar ejecutando desde ella en ese momento.
+- **Zumo:** al terminar o detener una vuelta imprime la evidencia para la prueba de integración multinúcleo: `# nucleo 0: … calculo max … us, edad de la pose al usarla prom … ms / max … ms` y `# colas: … poses reemplazadas …, … mensajes de log perdidos`.
+- **Pico 2 W:** el chip WiFi y lwIP solo se usan desde el núcleo 0. El watchdog (3 s) solo se alimenta si el núcleo 1 también avanza, así que se reinicia si cualquiera de los dos se cuelga.
+- **MCP2515:** lectura y escritura de cada mensaje en una sola transacción SPI (`READ RX BUFFER` / `LOAD TX BUFFER`) y rollover de RXB0 a RXB1, para no perder poses cuando llegan en ráfaga.
 
 ## Uso
 
@@ -99,6 +115,7 @@ Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen
 - [x] Formato CAN de la Pico 2 W (reporte Wireless): `LP_POSE`, ID 0x100, DLC 6, **big-endian**, x/y en mm y ángulo en **décimas** de grado. Se probó `lp_decode()` con los mensajes reales del reporte.
 - [x] PCB fabricada, corregida (bus SPI compartido) y validada: SPI de cada micro en loopback y CAN Pico↔Zumo 10/10 en las dos direcciones, también solo con pilas.
 - [ ] Parte A: fotos de las dos caras de la PCB y de los cortes, Zumo con PCB y marcador (foto) y video de los 50 cm (`ZumoPartA50cm/`).
+- [ ] Probar la versión multinúcleo en el laboratorio (Pico 2 W y Zumo): que la vuelta salga igual que antes y guardar las líneas `# nucleo 0` y `# colas` para el reporte.
 - [ ] Medir VCC_CAN con pilas, con el Zumo quieto y con motores andando (para el reporte).
 - [ ] Calibración con el botón B → `MOTOR_K`, `MOTOR_DEAD`, `WHEEL_BASE` y `CAM_LATENCY`.
 - [ ] Vueltas en pista: subir velocidades poco a poco (parte D), 3 tiempos, video y gráfica medida.
