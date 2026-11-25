@@ -33,7 +33,10 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(ZumoWaypointFollower main.c mcp2515.c lp_can.c follower.c goto_wp.c waypoints.c)
+add_executable(ZumoWaypointFollower main.c comm.c lp_can.c follower.c goto_wp.c waypoints.c ../common/mcp2515.c)
+
+# Todo el programa corre desde RAM (ver el comentario al inicio de main.c).
+pico_set_binary_type(ZumoWaypointFollower copy_to_ram)
 
 # Librería de Pololu (motores y botones del Zumo)
 add_subdirectory(../../zumo-2040-robot/c/pololu_zumo_2040_robot pololu_zumo_2040_robot)
@@ -49,11 +52,15 @@ pico_enable_stdio_usb(ZumoWaypointFollower 1)
 target_link_libraries(ZumoWaypointFollower
         pico_stdlib
         hardware_spi
+        pico_multicore
         pololu_zumo_2040_robot)
 
 # Add the standard include files to the build
 target_include_directories(ZumoWaypointFollower PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/../common
 )
+# El núcleo 1 formatea con printf (floats): pila de 4 KB en vez de 2 KB.
+target_compile_definitions(ZumoWaypointFollower PRIVATE PICO_CORE1_STACK_SIZE=0x1000)
 target_compile_options(ZumoWaypointFollower PRIVATE -Wall -Wextra)
 pico_add_extra_outputs(ZumoWaypointFollower)

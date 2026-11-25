@@ -2,7 +2,7 @@
 //
 // Es el programa de la parte 2 del reporte "Experiment Wireless Interfacing"
 // (allí dio 503 mm medidos contra 49.6 cm con cinta), con estos cambios:
-//   - Usa el driver MCP2515 corregido y lp_decode() de ZumoWaypointFollower.
+//   - Usa el driver MCP2515 común (../common) y lp_decode() de ZumoWaypointFollower.
 //   - Si el MCP2515 no responde (switch del Zumo en OFF: la PCB no tiene energía),
 //     reintenta cada segundo en vez de quedarse sin CAN.
 //   - Imprime el estado del bus si se pierde la pose.
@@ -33,14 +33,9 @@ typedef enum { WAIT_BUTTON, DRIVING } state_t;
 
 static uint32_t now_ms(void) { return to_ms_since_boot(get_absolute_time()); }
 
-static bool can_start(void) {
-    mcp2515_reset();
-    return mcp2515_set_bitrate_500kbps_8mhz() && mcp2515_set_mode(MCP2515_MODE_NORMAL);
-}
-
 static void print_can_errors(void) {
-    printf("CAN: EFLG=0x%02X TEC=%u REC=%u\n", mcp2515_read_register(0x2D),
-           mcp2515_read_register(0x1C), mcp2515_read_register(0x1D));
+    printf("CAN: EFLG=0x%02X TEC=%u REC=%u\n", mcp2515_read_register(MCP2515_EFLG),
+           mcp2515_read_register(MCP2515_TEC), mcp2515_read_register(MCP2515_REC));
 }
 
 int main(void) {
@@ -52,8 +47,8 @@ int main(void) {
     sleep_ms(2000);
 
     printf("\n--- Zumo parte A: avanzar %d mm en y ---\n", TARGET_DY_MM);
-    mcp2515_init();
-    bool can_ok = can_start();
+    mcp2515_init(MCP2515_PINS_ZUMO);
+    bool can_ok = mcp2515_start();
 
     state_t state = WAIT_BUTTON;
     bool have_pose = false, paused = false, a_was = false;
@@ -65,7 +60,7 @@ int main(void) {
         if (!can_ok) {
             if (now_ms() - last_print > 1000) {
                 last_print = now_ms();
-                can_ok = can_start();
+                can_ok = mcp2515_start();
                 printf(can_ok ? "MCP2515 listo\n"
                               : "MCP2515 no responde: switch del Zumo en ON? header SPI?\n");
             }
@@ -78,22 +73,20 @@ int main(void) {
         static uint32_t last_check = 0;
         if (now_ms() - last_check > 1000) {
             last_check = now_ms();
-            uint8_t st = mcp2515_read_register(MCP2515_CANSTAT);
-            if ((st & 0xE0) != MCP2515_MODE_NORMAL) {
-                printf("MCP2515 fuera de modo normal (CANSTAT=0x%02X): reconfigurando\n", st);
-                can_ok = can_start();
+            if (!mcp2515_in_normal_mode()) {
+                printf("MCP2515 fuera de modo normal (CANSTAT=0x%02X): reconfigurando\n",
+                       mcp2515_read_register(MCP2515_CANSTAT));
+                can_ok = mcp2515_start();
                 if (!can_ok) continue;
             }
         }
 
         bool fresh = false;
-        if (mcp2515_message_available()) {
-            can_frame_t rx;
-            if (mcp2515_read_message(&rx) && lp_decode(&rx, &p)) {
-                fresh = true;
-                have_pose = true;
-                last_rx = now_ms();
-            }
+        can_frame_t rx;
+        if (mcp2515_read_message(&rx) && lp_decode(&rx, &p)) {
+            fresh = true;
+            have_pose = true;
+            last_rx = now_ms();
         }
         int y_mm = (int)lroundf(p.y * 1000.0f);
         bool pose_valid = have_pose && now_ms() - last_rx < LP_TIMEOUT_MS;
@@ -109,10 +102,10 @@ int main(void) {
                 if (pose_valid) printf("pose: x=%d y=%d mm ang=%.1f bat=%u mV (A = arrancar)\n",
                                        (int)lroundf(p.x * 1000.0f), y_mm, p.theta * 57.2958f,
                                        battery_get_level_millivolts());
-                else printf("esperando pose por CAN (ID 0x%03X)... bat=%u mV CANSTAT=0x%02X EFLG=0x%02X TEC=%u REC=%u INTF=0x%02X\n",
-                            LP_CAN_ID, battery_get_level_millivolts(), mcp2515_read_register(MCP2515_CANSTAT), mcp2515_read_register(0x2D),
-                            mcp2515_read_register(0x1C), mcp2515_read_register(0x1D),
-                            mcp2515_read_register(MCP2515_CANINTF));
+                else printf("esperando pose por CAN (ID 0x%03X)... bat=%u mV CANSTAT=0x%02X EFLG=0x%02X TEC=%u REC=%u\n",
+                            LP_CAN_ID, battery_get_level_millivolts(), mcp2515_read_register(MCP2515_CANSTAT),
+                            mcp2515_read_register(MCP2515_EFLG), mcp2515_read_register(MCP2515_TEC),
+                            mcp2515_read_register(MCP2515_REC));
             }
             if (a_clicked) {
                 if (!pose_valid) {
