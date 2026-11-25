@@ -72,7 +72,8 @@ CAN 2.0A (11 bits), **big-endian**, cristal de 8 MHz. Ejemplo real: x=0.176, y=0
 
 Detalle de `SecondDelivery/` (ver su `README.md`, la fuente más completa):
 - `follower.c`: arma 7 rectas + 5 arcos de 180° + 2 de 90° (R ≈ 7 cm) a partir de los waypoints; compensa el retardo de cámara; ω = v/R + k_θ·(rumbo ref − θ), con rumbo ref = tangente − atan(k_e·e_y) y k_e ajustada para ζ constante.
-- Constantes actuales en `ZumoWaypointFollower/main.c`: `MOTOR_K 7000`, `MOTOR_DEAD 850`, `WHEEL_BASE 0.085`, `CAM_LATENCY 0.12`, `V_STRAIGHT 0.08`, `V_ARC 0.06` m/s, `POSE_TIMEOUT_MS 800`.
+- Constantes actuales en `ZumoWaypointFollower/main.c`: `MOTOR_K 7000`, `MOTOR_DEAD 850`, `WHEEL_BASE 0.085`, `CAM_LATENCY 0.16`, `V_STRAIGHT 0.12`, `V_ARC 0.08` m/s, `POSE_TIMEOUT_MS 800` (las vueltas de la tabla de abajo se corrieron con `CAM_LATENCY 0.12` y 0.08/0.06 m/s).
+- Desde el 25-nov el seguidor también corre entre poses (`follower_tick`, cada 20 ms) y ajusta con la cámara las ganancias reales g_v y g_ω (en pista el Zumo giraba ~0.3 veces la ω mandada y se abría 15–25 mm en todos los arcos). Ver "Cómo funciona el seguidor" en `SecondDelivery/README.md`.
 - Botón A = vuelta desde P14 mirando a +y; botón B = calibración (fuera de vuelta) o paro (durante la vuelta).
 - `alpha/`: parte E, método para estimar α con los sensores de reflectancia (pendiente cargar mediciones reales t_i(r)).
 - `analysis/plot_route.py` (con `uv run`): mapa de waypoints y ruta deseada vs. medida a partir del log serial (líneas `L,...`).

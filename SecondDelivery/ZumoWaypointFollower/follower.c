@@ -34,6 +34,7 @@ follower_params_t follower_default_params(void) {
         .wheel_base = 0.085f,
         .wheel_max  = 0.60f,
         .latency    = 0.05f,
+        .adapt      = true,
     };
     return p;
 }
@@ -95,9 +96,16 @@ void follower_init(follower_t *f, const follower_params_t *p,
     }
     f->cur = 0;
     f->done = false;
-    f->v_cmd = 0.0f;
-    f->omega_cmd = 0.0f;
+    f->v_cmd = f->omega_cmd = f->v_mot = f->w_mot = 0.0f;
     f->t = f->e_y = f->e_theta = 0.0f;
+    f->x = f->y = f->th = 0.0f;
+    f->est_ok = f->cam_ok = false;
+    f->clock = f->cum_v = f->cum_w = 0.0f;
+    f->h_i = f->h_n = 0;
+    // Arranca en ganancia 1 con un peso equivalente a unos cuantos intervalos.
+    f->nv = f->dv = FOLLOWER_PRIOR_V;
+    f->nw = f->dw = FOLLOWER_PRIOR_W;
+    f->g_v = f->g_w = 1.0f;
 }
 
 // Proyecta la pose sobre el tramo: avance t, error lateral e_y y rumbo de la tangente.
@@ -122,32 +130,66 @@ void follower_project(const segment_t *s, float x, float y,
     }
 }
 
-bool follower_update(follower_t *f, const pose_t *pose, float dt,
-                     float *v_left, float *v_right) {
-    *v_left = *v_right = 0.0f;
-    if (f->done) return false;
-
-    // Compensación de retardo: se adelanta la pose con el último comando.
-    float x = pose->x, y = pose->y, th = pose->theta;
-    if (f->p.latency > 0.0f) {
-        float L = f->p.latency;
-        th += f->omega_cmd * L * 0.5f;
-        x += f->v_cmd * cosf(th) * L;
-        y += f->v_cmd * sinf(th) * L;
-        th += f->omega_cmd * L * 0.5f;
+// Valor de las integrales de comando en el instante t (interpolando el historial).
+static void hist_at(const follower_t *f, float t, float *cv, float *cw) {
+    int n = f->h_n, newest = (f->h_i + FOLLOWER_HIST - 1) % FOLLOWER_HIST;
+    *cv = f->hist[newest].v; *cw = f->hist[newest].w;
+    for (int k = 1; k < n; k++) {
+        const hist_t *b = &f->hist[(f->h_i + FOLLOWER_HIST - k) % FOLLOWER_HIST];
+        const hist_t *a = &f->hist[(f->h_i + FOLLOWER_HIST - k - 1) % FOLLOWER_HIST];
+        if (a->t <= t) {
+            float u = (b->t > a->t) ? clampf((t - a->t) / (b->t - a->t), 0.0f, 1.0f) : 1.0f;
+            *cv = a->v + u * (b->v - a->v);
+            *cw = a->w + u * (b->w - a->w);
+            return;
+        }
+        *cv = a->v; *cw = a->w;
     }
+}
 
+// Avanza el reloj dt segundos: integra la pose estimada con lo que el robot está
+// haciendo (v_cmd, ω_cmd) y acumula lo que se mandó a las orugas (para el ajuste).
+static void advance(follower_t *f, float dt) {
+    f->clock += dt;
+    float th = f->th + f->omega_cmd * dt * 0.5f;
+    f->x += f->v_cmd * cosf(th) * dt;
+    f->y += f->v_cmd * sinf(th) * dt;
+    f->th = follower_wrap_pi(f->th + f->omega_cmd * dt);
+    f->cum_v += f->v_mot * dt;
+    f->cum_w += f->w_mot * dt;
+    hist_t *h = &f->hist[f->h_i];
+    h->t = f->clock; h->v = f->cum_v; h->w = f->cum_w;
+    f->h_i = (f->h_i + 1) % FOLLOWER_HIST;
+    if (f->h_n < FOLLOWER_HIST) f->h_n++;
+}
+
+// Cociente de sumas con olvido: real ≈ g·mandado. Devuelve la ganancia estimada.
+// Se suman los intervalos (con el signo de lo mandado) en vez de pesarlos por
+// mínimos cuadrados: así, si el instante de una foto se estima mal, lo que le
+// sobra a un intervalo le falta al siguiente y el error se cancela.
+// Intervalos con muy poco mandado (ω en una recta) solo traerían ruido de la cámara.
+static float fit_gain(float *num, float *den, float real, float sent, float min_sent, float g_min) {
+    if (fabsf(sent) >= min_sent) {
+        float sg = (sent > 0.0f) ? 1.0f : -1.0f;
+        *num = FOLLOWER_FORGET * *num + real * sg;
+        *den = FOLLOWER_FORGET * *den + sent * sg;
+    }
+    return clampf(*num / *den, g_min, FOLLOWER_GAIN_MAX);
+}
+
+// Control a partir de la pose estimada (f->x, f->y, f->th).
+static bool control(follower_t *f, float dt, float *v_left, float *v_right) {
     // Localizar en el tramo y avanzar mientras se haya pasado el final.
     float t, e_y, path_th;
     const segment_t *s;
     for (;;) {
         s = &f->seg[f->cur];
-        follower_project(s, x, y, &t, &e_y, &path_th);
+        follower_project(s, f->x, f->y, &t, &e_y, &path_th);
         if (t < 1.0f) break;
         f->cur++;
         if (f->cur >= f->n_seg) {           // llegó al waypoint final
             f->done = true;
-            f->v_cmd = f->omega_cmd = 0.0f;
+            f->v_cmd = f->omega_cmd = f->v_mot = f->w_mot = 0.0f;
             f->t = 1.0f;
             return false;
         }
@@ -170,18 +212,72 @@ bool follower_update(follower_t *f, const pose_t *pose, float dt,
     float k_e = f->p.k_theta / (4.0f * f->p.zeta * f->p.zeta * fmaxf(v, 0.05f));
     if (k_e > f->p.k_e_max) k_e = f->p.k_e_max;
     float th_ref = path_th - atanf(k_e * e_y);
-    float e_th = follower_wrap_pi(th_ref - th);
+    float e_th = follower_wrap_pi(th_ref - f->th);
     float omega_ff = (s->type == SEG_ARC) ? s->dir * v / s->r : 0.0f;
     float omega = clampf(omega_ff + f->p.k_theta * e_th, -f->p.omega_max, f->p.omega_max);
     f->omega_cmd = omega;
 
-    // (v, ω) → orugas. Si una satura, se escalan ambas para conservar la curvatura.
-    float vl = v - omega * f->p.wheel_base * 0.5f;
-    float vr = v + omega * f->p.wheel_base * 0.5f;
+    // Lo que hay que mandarle a las orugas para que el robot haga (v, ω), según las
+    // ganancias medidas con la cámara. (v, ω) → orugas; si una satura, se escalan
+    // ambas para conservar la curvatura.
+    float vm = v / f->g_v, wm = omega / f->g_w;
+    float vl = vm - wm * f->p.wheel_base * 0.5f;
+    float vr = vm + wm * f->p.wheel_base * 0.5f;
     float m = fmaxf(fabsf(vl), fabsf(vr));
-    if (m > f->p.wheel_max) { vl *= f->p.wheel_max / m; vr *= f->p.wheel_max / m; }
+    if (m > f->p.wheel_max) {
+        float k = f->p.wheel_max / m;
+        vl *= k; vr *= k; vm *= k; wm *= k;
+        f->v_cmd = vm * f->g_v; f->omega_cmd = wm * f->g_w;
+    }
+    f->v_mot = vm; f->w_mot = wm;
 
     f->t = t; f->e_y = e_y; f->e_theta = e_th;
     *v_left = vl; *v_right = vr;
     return true;
+}
+
+bool follower_update(follower_t *f, const pose_t *pose, float dt,
+                     float *v_left, float *v_right) {
+    *v_left = *v_right = 0.0f;
+    if (f->done) return false;
+    advance(f, dt);
+
+    // Ganancias reales: lo que la cámara vio moverse entre dos fotos contra lo que
+    // se mandó a las orugas en ese mismo intervalo (desplazado por el retardo).
+    float cv, cw;
+    hist_at(f, f->clock - f->p.latency, &cv, &cw);
+    if (f->cam_ok && f->p.adapt) {
+        float d_th = follower_wrap_pi(pose->theta - f->cam.theta);
+        float th_m = f->cam.theta + 0.5f * d_th;
+        float d_s = (pose->x - f->cam.x) * cosf(th_m) + (pose->y - f->cam.y) * sinf(th_m);
+        f->g_v = fit_gain(&f->nv, &f->dv, d_s, cv - f->cam_cv, FOLLOWER_MIN_V, FOLLOWER_GV_MIN);
+        f->g_w = fit_gain(&f->nw, &f->dw, d_th, cw - f->cam_cw, FOLLOWER_MIN_W, FOLLOWER_GW_MIN);
+    }
+    f->cam = *pose;
+    f->cam_cv = cv; f->cam_cw = cw;
+    f->cam_ok = true;
+
+    // Compensación de retardo: se adelanta la pose con el último comando.
+    float L = f->p.latency;
+    f->th = pose->theta + f->omega_cmd * L * 0.5f;
+    f->x = pose->x + f->v_cmd * cosf(f->th) * L;
+    f->y = pose->y + f->v_cmd * sinf(f->th) * L;
+    f->th = follower_wrap_pi(f->th + f->omega_cmd * L * 0.5f);
+    f->est_ok = true;
+
+    return control(f, dt, v_left, v_right);
+}
+
+bool follower_tick(follower_t *f, float dt, float *v_left, float *v_right) {
+    *v_left = *v_right = 0.0f;
+    if (f->done) return false;
+    advance(f, dt);
+    if (!f->est_ok) return true;            // aún no llega la primera pose
+    return control(f, dt, v_left, v_right);
+}
+
+void follower_resume(follower_t *f) {
+    f->v_cmd = f->omega_cmd = f->v_mot = f->w_mot = 0.0f;
+    f->cam_ok = false;                       // no ajustar con un intervalo detenido
+    f->est_ok = false;
 }

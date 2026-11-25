@@ -29,14 +29,20 @@
 // vuelta (≈0.06 m/s) quedaría parada.
 #define MOTOR_K        7000.0f  // cuentas por m/s, arriba de la zona muerta
 #define MOTOR_DEAD     850.0f   // cuentas para vencer la fricción
-#define WHEEL_BASE     0.085f   // m, separación efectiva entre orugas
-#define CAM_LATENCY    0.12f    // s, retardo efectivo cámara→motor (lo imprime la calibración)
+// Ya no hace falta que MOTOR_K y WHEEL_BASE sean exactos: el seguidor mide con la
+// cámara cuánto avanza y gira el Zumo de verdad (g_v, g_w) y corrige el comando.
+#define WHEEL_BASE     0.085f   // m, separación geométrica entre orugas
+// Retardo cámara + arranque del motor. En el simulador 0.16 s funcionó mejor que 0.12
+// (sirve entre 0.12 y 0.20); la calibración (botón B) imprime el valor medido.
+#define CAM_LATENCY    0.16f    // s
 // ---- Velocidades (parte D: subirlas poco a poco cuando la vuelta salga completa) ----
 // Prueba 17/11: a 0.20 m/s la cámara dejó de reconocer el marcador en cuanto el Zumo
 // se movió (imagen movida). En la parte A (~0.05 m/s) sí lo seguía. Se empieza lento
-// y se sube poco a poco mientras la cámara lo siga viendo.
-#define V_STRAIGHT     0.08f    // m/s en rectas
-#define V_ARC          0.06f    // m/s en las vueltas
+// y se sube poco a poco mientras la cámara lo siga viendo. Ojo: antes el Zumo iba
+// ~1.3 veces más rápido de lo mandado en rectas (0.08 → ~0.10 m/s reales) y ahora va
+// a lo que se manda. Siguiente paso sugerido si la cámara lo sigue viendo: 0.15 / 0.10.
+#define V_STRAIGHT     0.12f    // m/s en rectas
+#define V_ARC          0.08f    // m/s en las vueltas
 // ---- Seguridad y calibración ----
 // En el laboratorio la cámara manda ~9.5 poses/s (una cada ~105 ms), pero por WiFi
 // llegan en ráfagas: cada ~0.8 s hay un hueco de ~450 ms y luego 4-5 poses atrasadas
@@ -47,6 +53,7 @@
 #define POSE_TIMEOUT_MS 800
 #define BURST_GAP_MS   250      // hueco a partir del cual se espera la ráfaga completa
 #define BURST_WAIT_MS  20       // tiempo para juntar la ráfaga y usar solo la última pose
+#define TICK_MS        20       // periodo del control entre poses (follower_tick)
 #define POSE_ABORT_MS  3000
 // Distancia máxima a P14 para aceptar el arranque (evita arrancar mal colocado).
 #define START_TOL_M    0.10f
@@ -231,29 +238,35 @@ static void run_lap(void) {
     sleep_ms(1000);
     printf("L,t_ms,x,y,theta_deg,seg,t,ey_mm,vl,vr\n");
 
-    uint32_t t0 = now_ms(), prev = t0;
+    uint32_t t0 = now_ms(), prev = t0, prev_pose = t0;
     int last_seg = -1;
     bool paused = false;
     while (true) {
-        if (poll_pose()) {
-            uint32_t t = now_ms();
-            if (t - prev > BURST_GAP_MS) {         // tras un hueco llegan varias poses viejas
+        bool fresh = poll_pose();
+        uint32_t t = now_ms();
+        if (fresh || (!paused && t - prev >= TICK_MS)) {
+            if (fresh && t - prev_pose > BURST_GAP_MS) {  // tras un hueco llegan varias poses viejas
                 while (now_ms() - t < BURST_WAIT_MS) { poll_pose(); sleep_ms(1); }
                 t = now_ms();                      // last_pose = la más reciente de la ráfaga
             }
-            if (paused) {                          // volvió la pose: arrancar desde cero
+            if (fresh) prev_pose = t;
+            if (fresh && paused) {                 // volvió la pose: arrancar desde cero
                 printf("# pose recuperada, sigue\n");
                 paused = false;
-                f.v_cmd = 0.0f;
+                follower_resume(&f);
                 prev = t;
             }
-            float vl, vr;
-            bool running = follower_update(&f, &last_pose, (t - prev) / 1000.0f, &vl, &vr);
+            // Con pose nueva se corrige con la cámara; entre poses se sigue con la
+            // pose estimada, para no ir a ciegas durante los huecos del WiFi.
+            float vl, vr, dt = (t - prev) / 1000.0f;
+            bool running = fresh ? follower_update(&f, &last_pose, dt, &vl, &vr)
+                                 : follower_tick(&f, dt, &vl, &vr);
             prev = t;
             set_wheels(vl, vr);
-            printf("L,%lu,%.3f,%.3f,%.1f,%d,%.2f,%.0f,%.3f,%.3f\n",
-                   (unsigned long)(t - t0), last_pose.x, last_pose.y, last_pose.theta * 57.2958f,
-                   f.cur, f.t, f.e_y * 1000.0f, vl, vr);
+            if (fresh)
+                printf("L,%lu,%.3f,%.3f,%.1f,%d,%.2f,%.0f,%.3f,%.3f\n",
+                       (unsigned long)(t - t0), last_pose.x, last_pose.y, last_pose.theta * 57.2958f,
+                       f.cur, f.t, f.e_y * 1000.0f, vl, vr);
             if (running && f.cur != last_seg) {
                 const segment_t *s = &f.seg[f.cur];
                 printf("# tramo %d: P%d -> P%d (%s)\n", f.cur, s->from + 1, s->to + 1,
@@ -262,8 +275,8 @@ static void run_lap(void) {
             }
             if (!running) {
                 motors_set_speeds(0, 0);
-                printf("# FIN en P%d. Tiempo de vuelta: %.2f s\n", WAYPOINT_START + 1,
-                       (t - t0) / 1000.0f);
+                printf("# FIN en P%d. Tiempo de vuelta: %.2f s. Ganancias medidas: g_v=%.2f g_w=%.2f\n",
+                       WAYPOINT_START + 1, (t - t0) / 1000.0f, f.g_v, f.g_w);
                 return;
             }
         }
