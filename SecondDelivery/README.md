@@ -41,7 +41,7 @@ Si el Zumo imprime `MCP2515 no responde`, revisar el switch en ON (sin él la PC
 3. **Giro:** ω = v/R (solo en arcos) + k_θ·(rumbo ref − θ), donde el rumbo de referencia es la tangente − atan(k_e·e_y). k_e se ajusta con la velocidad para mantener el amortiguamiento ζ constante. Si fuera fija, el Zumo serpentea al acelerar.
 4. **Velocidad:** `v_recta` en las rectas, con frenado para llegar a `v_arco` justo al entrar a cada vuelta.
 5. **Entre poses** (`follower_tick`, cada 20 ms): la pose se estima integrando (v, ω) y el control se recalcula. Por el WiFi, en ~40 % de la vuelta pasan más de 250 ms sin pose; antes el Zumo seguía a ciegas con el último comando.
-6. **Ganancias medidas con la cámara:** el Zumo no hace lo que se le manda. En las vueltas del 17/11 avanzaba ~1.3 veces la v mandada en rectas y giraba solo ~0.3 veces la ω mandada en los arcos (las orugas patinan de lado), por eso se abría 15–25 mm hacia afuera en **todos** los arcos. Con cada pose se compara lo que avanzó y giró (cámara) contra lo que se mandó a las orugas en ese intervalo (desplazado por el retardo) y se ajustan g_v y g_ω con un cociente de sumas con olvido (~2 s de memoria). El comando a las orugas es v/g_v y ω/g_ω. Al terminar la vuelta se imprimen los valores medidos.
+6. **Ganancias medidas con la cámara:** el Zumo no hace lo que se le manda. En las vueltas del 17/11 avanzaba ~1.3 veces la v mandada en rectas y giraba solo ~0.3 veces la ω mandada en los arcos, por eso se abría 15–25 mm hacia afuera en **todos** los arcos. Se compara lo que avanzó y giró (cámara) contra lo que se mandó a las orugas (desplazado por el retardo) y se ajustan g_v y g_ω con un cociente de sumas con olvido. Los intervalos entre poses se juntan hasta tener ~1 cm o ~0.1 rad mandados, porque las poses llegan en grupos y un intervalo suelto no cuadra con su comando. g_ω solo se ajusta en los arcos y no baja de 0.25. El comando a las orugas es v/g_v y ω/g_ω. Al terminar la vuelta se imprimen los valores medidos. `ADAPT_GAINS` en `main.c` lo apaga.
 7. Se detiene al cerrar la vuelta en P14. Si pasan 800 ms sin pose se pausa, y si pasan 3 s termina.
 
 ## Reparto entre núcleos (multinúcleo)
@@ -69,6 +69,7 @@ cd sim && make
 K_TH=5 ZETA=0.7 ./sim_follower 0.15 0.10            # probar otras ganancias
 ADAPT=0 TICK=0 LAT=0.12 ./sim_follower 0.08 0.06    # como el firmware del 17/11
 IDEAL=1 ./sim_follower 0.15 0.10                    # planta ideal (modelo anterior)
+PARES=1 HOLD=0.02 DZ=0.12 WB_REAL=0.17 GAIN=1.0 ./sim_follower 0.12 0.08   # como la prueba del 25/11
 ```
 
 ### Gráficas (PC, con `uv`)
@@ -107,6 +108,12 @@ Promedio de 5 corridas con ruido distinto (`SEED=1..5`); el máximo es el peor d
 A la misma velocidad mandada, el firmware anterior da vueltas más cortas porque en rectas el Zumo iba más rápido de lo que se mandaba; el nuevo va a lo que se manda.
 
 Ninguno de los cambios depende de conocer la planta. A 0.15 / 0.10 m/s, con separación efectiva de 0.20 o 0.41 m, con orugas exactas (ganancia 1.0) o con la planta ideal, el RMS queda entre 4.1 y 4.9 mm. Con 200 ms de retardo de cámara (compensando 160 ms) queda en ~9 mm. El retardo a compensar (`CAM_LATENCY`) funciona entre 0.12 y 0.20 s, y lo mejor fue 0.16 s (cámara + medio tiempo de respuesta del motor). k_θ = 4 y ζ = 0.8 siguen siendo buenos: con 3 o 5 cambia poco.
+
+**Prueba en pista del 25/11 (0.12 / 0.08 m/s):** las rectas salieron bien (|e_y| < 35 mm), pero en los arcos las orugas se saturaban y el rumbo oscilaba. Había dos causas, y las dos se reprodujeron en el simulador:
+- las poses llegaban de dos en dos cada 200 ms, así que g_v y g_ω se estimaban a la mitad;
+- en las rectas, las correcciones caían en la zona muerta del giro, y eso bajaba g_ω al mínimo.
+
+Se corrigió así: los intervalos se juntan, g_ω se ajusta solo en arcos con un mínimo de 0.25, y `main.c` espera 20 ms después de cada pose para usar solo la más reciente del grupo. Con poses en pares y una zona muerta de giro de 0.12 m/s (`PARES=1 HOLD=0.02 DZ=0.12 WB_REAL=0.17 GAIN=1.0`), a 0.12 / 0.08 m/s el simulador da RMS 14.8 mm. Con el control del 17/11 da 37.4 mm, y con la versión que falló en pista, 33.5 mm.
 
 Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen movida (pasó a 0.20 m/s mandados, que en realidad eran ~0.26 m/s), el arrastre extra de las orugas al girar (en pista los arcos tardan más) y la caída de las pilas.
 
