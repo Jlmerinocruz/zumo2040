@@ -23,6 +23,7 @@ typedef struct {
 #define MCP2515_REC         0x1D   // contador de errores de recepción
 #define MCP2515_EFLG        0x2D   // banderas de error
 #define MCP2515_CANSTAT     0x0E
+#define MCP2515_CNF2        0x29   // 0x90 tras mcp2515_start(); si se lee 0x00 el SPI no responde
 
 #define MCP2515_MODE_NORMAL 0x00
 #define MCP2515_MODE_CONFIG 0x80
