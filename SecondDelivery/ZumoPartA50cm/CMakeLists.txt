@@ -33,7 +33,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(ZumoPartA50cm main.c ../ZumoWaypointFollower/mcp2515.c ../ZumoWaypointFollower/lp_can.c)
+add_executable(ZumoPartA50cm main.c ../common/mcp2515.c ../ZumoWaypointFollower/lp_can.c)
 
 # Librería de Pololu (motores y botones del Zumo)
 add_subdirectory(../../zumo-2040-robot/c/pololu_zumo_2040_robot pololu_zumo_2040_robot)
@@ -55,6 +55,7 @@ target_link_libraries(ZumoPartA50cm
 target_include_directories(ZumoPartA50cm PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/../ZumoWaypointFollower
+        ${CMAKE_CURRENT_LIST_DIR}/../common
 )
 target_compile_options(ZumoPartA50cm PRIVATE -Wall -Wextra)
 pico_add_extra_outputs(ZumoPartA50cm)
