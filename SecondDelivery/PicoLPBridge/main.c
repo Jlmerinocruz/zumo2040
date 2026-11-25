@@ -48,6 +48,7 @@ typedef struct {
     float x;      // m
     float y;      // m
     float angle;  // grados
+    uint32_t t_us; // llegada del paquete UDP (time_us_32), para medir huecos y ráfagas
 } pose_t;
 
 static queue_t pose_q;   // núcleo 0 -> núcleo 1
@@ -103,6 +104,7 @@ static void on_udp_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     n_rx++;
     pose_t pose;
     if (!parse_marker(json, &pose)) { n_nomarker++; return; }
+    pose.t_us = time_us_32();
     // Cola llena (el núcleo 1 se atrasó): se tira la pose más vieja, nunca la nueva.
     if (!queue_try_add(&pose_q, &pose)) {
         pose_t old;
@@ -129,7 +131,11 @@ static bool send_pose(const pose_t *p) {
 
     bool sent = mcp2515_send_message(&frame);
 
-    printf("LP x=%.3f y=%.3f ang=%.1f | TX ID=0x%03X DLC=%d Data=",
+    // t = llegada por WiFi; cola = espera hasta salir por CAN. Si dos poses llegan
+    // con t casi igual, la ráfaga viene del WiFi; si t está separado y la cola es
+    // grande, el retraso es de la Pico.
+    printf("LP t=%lu ms cola=%lu us x=%.3f y=%.3f ang=%.1f | TX ID=0x%03X DLC=%d Data=",
+           (unsigned long)(p->t_us / 1000u), (unsigned long)(time_us_32() - p->t_us),
            p->x, p->y, p->angle, (unsigned)frame.id, frame.dlc);
     for (int i = 0; i < frame.dlc; i++) printf("%02X ", frame.data[i]);
     printf("%s\n", sent ? "OK" : "FALLO (sin ACK)");
