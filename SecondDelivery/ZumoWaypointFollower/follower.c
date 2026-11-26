@@ -41,6 +41,10 @@ follower_params_t follower_default_params(void) {
         .blend      = 0.04f,
         .alpha_max  = 8.0f,
         .adapt      = true,
+        // g_ω solo se ajusta en arcos: arrancar en 1 dejaba la primera recta (P14 → P1)
+        // con correcciones que no alcanzaban (e_y de 5 a 32 mm). En pista, sin el lazo de
+        // velocidad de las orugas, midió 0.25–0.28.
+        .g_w0       = 0.27f,
     };
     return p;
 }
@@ -111,9 +115,9 @@ void follower_init(follower_t *f, const follower_params_t *p,
     // Valor inicial con un peso equivalente a unos cuantos intervalos.
     f->nv = f->dv = FOLLOWER_PRIOR_V;
     f->dw = FOLLOWER_PRIOR_W;
-    f->nw = FOLLOWER_GW0 * FOLLOWER_PRIOR_W;
+    f->nw = p->g_w0 * FOLLOWER_PRIOR_W;
     f->g_v = 1.0f;
-    f->g_w = FOLLOWER_GW0;
+    f->g_w = p->g_w0;
 }
 
 // Proyecta la pose sobre el tramo: avance t, error lateral e_y y rumbo de la tangente.

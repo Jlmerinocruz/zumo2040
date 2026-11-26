@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
     if (getenv("BLEND")) p.blend = atof(getenv("BLEND"));
     if (getenv("ALFA")) p.alpha_max = atof(getenv("ALFA"));
     if (getenv("ADAPT")) p.adapt = atoi(getenv("ADAPT"));
+    if (getenv("GW0"))  p.g_w0 = atof(getenv("GW0"));
     // TICK=0 reproduce el firmware anterior: control solo cuando llega una pose.
     const float tick = getenv("TICK") ? atof(getenv("TICK")) : 0.02f;
     // Planta "como en pista" (valores ajustados a logs/vuelta4.txt). IDEAL=1 vuelve al
