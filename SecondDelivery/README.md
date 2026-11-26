@@ -63,7 +63,7 @@ Durante un recorrido (vuelta con A o GOTO de la GUI), si el sensor de proximidad
 
 - **Cómo mide:** los LEDs IR del frente se prenden con 6 brillos (pulsos de 56 kHz) y se cuenta con cuántos el TSSP770 del frente ve el reflejo: nivel 0 = nada, 6 = muy cerca. Frena con 2 lecturas seguidas (cada 50 ms) en `OBST_STOP_LEVEL` o más.
 - **Núcleo 1:** mide el sensor y maneja intermitentes y buzzer, porque los LEDs RGB comparten SPI0 y GP3 con el MCP2515; tras cada escritura a los LEDs se repone la configuración del SPI del CAN. El núcleo 0 solo lee la bandera de obstáculo y decide frenar.
-- **Calibrar (`OBST_STOP_LEVEL` en `obstacle.h`, ahora 5):** con el Zumo en reposo el serial imprime `frente: nivel N de 6` cada vez que cambia. Poner un objeto a 12 cm y usar ese N.
+- **Calibrar (`OBST_STOP_LEVEL` en `obstacle.h`, ahora 6: con 5 frenaba demasiado lejos en la prueba del 26/11):** con el Zumo en reposo el serial imprime `frente: nivel N de 6` cada vez que cambia. Poner un objeto a 12 cm y usar ese N.
 
 ## Cómo funciona el seguidor (`follower.c`)
 

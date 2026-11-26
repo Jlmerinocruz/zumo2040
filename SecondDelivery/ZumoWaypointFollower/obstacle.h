@@ -16,7 +16,7 @@
 // ---- A calibrar en el lab ----
 // Nivel a partir del cual se frena. Poner un objeto a ~12 cm frente al Zumo en reposo
 // y leer en el serial "frente: nivel N"; usar ese N. Más alto = frena más cerca.
-#define OBST_STOP_LEVEL  5
+#define OBST_STOP_LEVEL  6
 #define OBST_PERIOD_MS   50     // una lectura cada 50 ms (cada lectura tarda ~7 ms)
 #define OBST_CONFIRM     2      // lecturas seguidas arriba del umbral para frenar
 #define OBST_CLEAR_MS    500    // tiempo sin obstáculo para seguir (evita arrancones)
