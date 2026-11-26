@@ -11,6 +11,10 @@
 //     y contesta "OK GOTO n" / "OK STOP" si el Zumo dio ACK, o "ERR CAN" si no.
 //   CAN WP_STATUS ID 0x111 DLC 2 (estado, waypoint) -> UDP "ESTADO e n" a la GUI
 //     (la dirección que mandó el último comando).
+//   UDP 5002 "HOLA" -> solo registra la dirección de la GUI (la manda cada 2 s), para que
+//     le lleguen los mensajes aunque la vuelta se haya arrancado con el botón A.
+//   CAN FLOOR ID 0x112 DLC 5 (5 sensores de reflectancia) -> UDP "PISO b1 b2 b3 b4 b5"
+//     (mapa de calor del suelo en la GUI).
 //
 // Reparto entre núcleos:
 //   núcleo 0: WiFi y lwIP (cyw43_arch_poll), parseo del JSON, LED y watchdog. El chip
@@ -55,6 +59,8 @@
 #define WP_GOTO_DLC   1
 #define WP_STATUS_ID  0x111
 #define WP_STATUS_DLC 2
+#define FLOOR_ID      0x112
+#define FLOOR_DLC     5
 #define WAYPOINT_COUNT 14
 #define GUI_QUEUE_LEN 4
 #define MAX_RX_FRAMES 4       // por pasada, como en el Zumo
@@ -70,7 +76,7 @@ static queue_t pose_q;   // núcleo 0 -> núcleo 1
 static queue_t goto_q;   // núcleo 0 -> núcleo 1, byte del WP_GOTO (0 = alto)
 static queue_t reply_q;  // núcleo 1 -> núcleo 0, texto para la GUI
 
-typedef struct { char text[24]; } gui_reply_t;
+typedef struct { char text[32]; } gui_reply_t;
 
 // Contadores acumulados. Cada uno lo escribe un solo núcleo.
 static volatile uint32_t n_rx, n_nomarker;          // núcleo 0
@@ -145,14 +151,16 @@ static void on_cmd_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     text[len] = '\0';
     pbuf_free(p);
 
-    int n;
-    if (strcmp(text, "STOP") == 0) n = 0;
-    else if (sscanf(text, "GOTO %d", &n) != 1 || n < 1 || n > WAYPOINT_COUNT) {
+    bool hello = strcmp(text, "HOLA") == 0;
+    int n = 0;
+    if (!hello && strcmp(text, "STOP") != 0 &&
+        (sscanf(text, "GOTO %d", &n) != 1 || n < 1 || n > WAYPOINT_COUNT)) {
         printf("GUI: comando desconocido \"%s\"\n", text);
         return;
     }
     ip_addr_copy(gui_addr, *addr);
     gui_port = port;
+    if (hello) return;
     uint8_t wp = (uint8_t)n;
     if (!queue_try_add(&goto_q, &wp)) printf("GUI: cola de comandos llena, se descarta\n");
 }
@@ -219,13 +227,17 @@ static void send_goto(uint8_t wp) {
     push_reply(text);
 }
 
-// WP_STATUS del Zumo hacia la GUI.
-static void read_status(void) {
+// WP_STATUS y FLOOR del Zumo hacia la GUI.
+static void read_zumo(void) {
     can_frame_t rx;
     for (int n = 0; n < MAX_RX_FRAMES && mcp2515_read_message(&rx); n++) {
-        if (rx.id != WP_STATUS_ID || rx.dlc < WP_STATUS_DLC) continue;
-        char text[24];
-        snprintf(text, sizeof text, "ESTADO %u %u", rx.data[0], rx.data[1]);
+        char text[32];
+        if (rx.id == WP_STATUS_ID && rx.dlc >= WP_STATUS_DLC)
+            snprintf(text, sizeof text, "ESTADO %u %u", rx.data[0], rx.data[1]);
+        else if (rx.id == FLOOR_ID && rx.dlc >= FLOOR_DLC)
+            snprintf(text, sizeof text, "PISO %u %u %u %u %u", rx.data[0], rx.data[1],
+                     rx.data[2], rx.data[3], rx.data[4]);
+        else continue;
         push_reply(text);
     }
 }
@@ -244,7 +256,7 @@ static void core1_main(void) {
         }
         uint8_t wp;
         if (queue_try_remove(&goto_q, &wp)) send_goto(wp);
-        if (can_ok && !gpio_get(MCP2515_PINS_PICO2W.irq)) read_status();
+        if (can_ok && !gpio_get(MCP2515_PINS_PICO2W.irq)) read_zumo();
         pose_t p;
         if (!queue_try_remove(&pose_q, &p)) { sleep_ms(1); continue; }
         if (can_ok && send_pose(&p)) n_ok++;

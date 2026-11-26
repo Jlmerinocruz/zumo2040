@@ -57,6 +57,23 @@ GUI (PC) <--UDP "ESTADO e n"--------- Pico 2 W <--CAN 0x111 WP_STATUS-- Zumo
 3. `python gui/elegir_waypoint.py --pico <IP de la Pico>` (sin `--pico` manda broadcast). Clic en un punto = ir; **Alto** = detener. La GUI también se suscribe a la cámara y dibuja al Zumo en vivo.
 4. Prueba unitaria en la PC: `cd sim && make test` (6 casos con PASS/FAIL, incluye 42 trayectos simulados en lazo cerrado que deben detenerse a menos de 40 mm del destino).
 
+### Mapa de calor del suelo (cámara + reflectancia)
+
+Junta dos sensores distintos: la cámara del techo dice **dónde** está el Zumo y sus 5 sensores de reflectancia dicen **qué tan oscuro** es el piso ahí. Durante cualquier recorrido (vuelta con A o GOTO) el Zumo lee los sensores 10 veces por segundo y la GUI los pinta sobre la pista, de amarillo (claro) a morado (oscuro). Con hojas de colores sobre la pista se ven como manchas en el mapa.
+
+```
+Zumo (line_sensors_read, núcleo 0) --cola--> núcleo 1 --CAN 0x112 FLOOR--> Pico 2 W --UDP "PISO b1..b5"--> GUI
+```
+
+| ID | Nombre | Emisor → Receptor | DLC | Bytes 0–4 |
+|---|---|---|---|---|
+| 0x112 | FLOOR | Zumo → Pico 2 W | 5 | tiempo de descarga de S1..S5 en unidades de 4 µs (uint8, 255 = 1020 µs o más; S1 = izquierda) |
+
+- Es un frame de 5 bytes cada 100 ms y solo durante un recorrido (≈0.2 % del bus a 500 kbps). La lectura usa el PIO de la librería de Pololu y tarda 1 ms como máximo.
+- La GUI manda `HOLA` a la Pico cada 2 s para recibir los `PISO` aunque la vuelta se arranque con el botón A.
+- Cada lectura se pinta con la pose de la cámara que llega 0.12 s después (`FLOOR_DELAY_S`), 4 cm adelante del marcador (`SENSOR_AHEAD_M`, aproximado: medirlo) y con la posición lateral de cada sensor.
+- La escala es automática por sensor (mínimo y máximo vistos), porque con el mismo piso S1 y S5 tardan casi el doble que S3. **Borrar mapa** reinicia la escala.
+
 ## Cómo funciona el seguidor (`follower.c`)
 
 1. **La ruta se arma a partir de los waypoints.** Entre dos waypoints con el mismo rumbo hay una recta. Entre dos con rumbo distinto hay un arco: su centro y su radio se calculan con los dos puntos medidos, y el sentido de giro con un producto cruz. Así se obtienen 7 rectas, 5 arcos de 180° y 2 de 90°, todos de R ≈ 7 cm.
@@ -157,5 +174,6 @@ Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen
 - [ ] Calibración con el botón B → `MOTOR_K`, `MOTOR_DEAD`, `WHEEL_BASE` y `CAM_LATENCY`.
 - [ ] Vueltas en pista: subir velocidades poco a poco (parte D), 3 tiempos, video y gráfica medida.
 - [ ] Probar en pista `follower_tick` + ganancias medidas, primero a 0.12 / 0.08 m/s y luego a 0.15 / 0.10. Comparar con `analysis/analizar_vueltas.py` contra la línea base (vuelta 4: 89.0 s, máx 92 mm, RMS 21.3 mm) y anotar los `g_v`, `g_w` que imprime al final.
+- [ ] Mapa de calor del suelo: vuelta con hojas de colores sobre la pista, captura de la GUI y video. Medir `SENSOR_AHEAD_M` (distancia del centro del marcador a la fila de sensores) y revisar que S1 quede a la izquierda en el mapa.
 - [ ] GUI de waypoints en pista: comprobar UDP 5002 con la Pico, que el Zumo llegue a varios puntos y definir `on_arrival()`.
 - [ ] Parte E: medir t_i(r) con α = 0 en 5–7 radios (por ejemplo 0.25, 0.5, 0.75, 1.0, 1.25, 1.5 y 1.75 m) y cargarlos en la tabla de `alpha_test.c`. Opcional: validar con α = 45° y 90° en r = 1.5 m.

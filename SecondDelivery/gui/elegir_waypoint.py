@@ -5,19 +5,26 @@ Uso (desde SecondDelivery/, conectado al WiFi del laboratorio):
     python gui/elegir_waypoint.py            # sin --pico: broadcast
 
 Clic en un waypoint = el Zumo va hacia allá siguiendo la pista. "Alto" lo detiene.
+Mapa de calor del suelo: durante cualquier recorrido (vuelta con el botón A o GOTO) el
+Zumo manda sus 5 sensores de reflectancia y la GUI los pinta sobre la pista, de claro
+(amarillo) a oscuro (morado). "Borrar mapa" empieza uno nuevo.
 
 Comandos (texto por UDP al puerto 5002 de la Pico 2 W):
     GOTO n   (n = 1..14)   ->  Pico: CAN 0x110 WP_GOTO con el byte n
     STOP                   ->  Pico: CAN 0x110 WP_GOTO con el byte 0
+    HOLA (cada 2 s)        ->  solo registra esta dirección para recibir las respuestas
 Respuestas de la Pico a la dirección que mandó el último comando:
     OK GOTO n / OK STOP    el Zumo confirmó el frame por CAN (ACK)
     ERR CAN                nadie dio ACK (revisar bus o Zumo)
     ESTADO e n             reenvío de CAN 0x111 WP_STATUS (e = código, n = destino)
+    PISO b1 b2 b3 b4 b5    reenvío de CAN 0x112 FLOOR (tiempo de descarga de S1..S5
+                           en unidades de 4 µs; S1 = izquierda del Zumo)
 
 Además se suscribe a la cámara (como la Pico) para dibujar al Zumo en vivo.
 Solo usa la biblioteca estándar de Python (tkinter incluido).
 """
 import argparse
+import collections
 import json
 import math
 import queue
@@ -34,6 +41,20 @@ CAMERA_PORT = 5000
 SUBSCRIBE_PORT = 5001
 MARKER_ID = 4
 POSE_TIMEOUT_S = 1.0
+HELLO_PERIOD_MS = 2000
+
+# Mapa de calor del suelo. La lectura de los sensores llega casi al instante y la pose
+# de la cámara ~0.12 s después de tomada la foto, así que cada lectura se pinta con la
+# primera pose que llegue FLOOR_DELAY_S después de ella.
+FLOOR_DELAY_S = 0.12
+FLOOR_MAX_WAIT_S = 1.0          # sin pose en ese tiempo, la lectura se descarta
+# Posición de los sensores respecto al marcador: SENSOR_AHEAD_M hacia el frente (aprox.,
+# medir con regla en el Zumo) y hacia la izquierda S1..S5 (medido, ver CLAUDE.md).
+SENSOR_AHEAD_M = 0.04
+SENSOR_LEFT_M = (0.045, 0.010, 0.0, -0.010, -0.045)
+DOT_PX = 3
+# De claro a oscuro (paleta tipo viridis invertida).
+HEAT_COLORS = ((253, 231, 37), (94, 201, 98), (33, 145, 140), (59, 82, 139), (68, 1, 84))
 
 # Códigos del byte 0 de WP_STATUS (ver goto en ZumoWaypointFollower/main.c).
 STATUS = {
@@ -92,6 +113,15 @@ def route_points(waypoints):
     return pts
 
 
+def heat_color(v):
+    """Color de la paleta para v en [0, 1] (0 = claro, 1 = oscuro)."""
+    v = min(max(v, 0.0), 1.0) * (len(HEAT_COLORS) - 1)
+    k = min(int(v), len(HEAT_COLORS) - 2)
+    a, b = HEAT_COLORS[k], HEAT_COLORS[k + 1]
+    f = v - k
+    return "#%02x%02x%02x" % tuple(round(a[j] + (b[j] - a[j]) * f) for j in range(3))
+
+
 def to_px(x, y):
     return MARGIN + (x - X_MIN) * SCALE, MARGIN + (Y_MAX - y) * SCALE
 
@@ -115,6 +145,10 @@ class App:
         self.target = None
         self.pose = None
         self.pose_time = 0.0
+        self.floor_pending = collections.deque()   # (hora, 5 lecturas) sin pintar
+        self.floor_dots = []                       # (item del canvas, sensor, lectura)
+        self.floor_min = [None] * 5                # escala automática de cada sensor
+        self.floor_max = [None] * 5
 
         root.title("AgroZumo: elegir waypoint")
         w = MARGIN * 2 + (X_MAX - X_MIN) * SCALE
@@ -133,6 +167,7 @@ class App:
         self.status.grid(row=3, column=1, sticky="nw", pady=8)
         self.log = tk.Text(root, width=34, height=16, state="disabled")
         self.log.grid(row=4, column=1, sticky="nw", padx=(0, 8))
+        self.make_legend(root).grid(row=5, column=1, sticky="nw", pady=8)
 
         self.waypoints = load_waypoints()
         self.draw_map()
@@ -143,6 +178,29 @@ class App:
         threading.Thread(target=self.rx_pico, daemon=True).start()
         threading.Thread(target=self.rx_camera, args=(server_ip,), daemon=True).start()
         self.root.after(50, self.process_events)
+        self.say_hello()
+
+    def make_legend(self, root):
+        frame = tk.Frame(root)
+        tk.Label(frame, text="Mapa de calor del suelo (reflectancia)").pack(anchor="w")
+        bar = tk.Canvas(frame, width=230, height=16, highlightthickness=0)
+        for k in range(230):
+            bar.create_line(k, 0, k, 16, fill=heat_color(k / 229))
+        bar.pack(anchor="w")
+        tk.Label(frame, text="claro" + " " * 44 + "oscuro").pack(anchor="w")
+        tk.Label(frame, text="Escala automática: mínimo y máximo vistos por cada sensor",
+                 fg="#666", wraplength=230, justify="left").pack(anchor="w")
+        tk.Button(frame, text="Borrar mapa", command=self.clear_floor).pack(anchor="w", pady=4)
+        return frame
+
+    def say_hello(self):
+        """Registra la GUI en la Pico para recibir PISO aunque no se haya mandado un comando."""
+        ip = self.pico_entry.get().strip() or "255.255.255.255"
+        try:
+            self.cmd_sock.sendto(b"HOLA", (ip, PICO_PORT))
+        except OSError:
+            pass
+        self.root.after(HELLO_PERIOD_MS, self.say_hello)
 
     def draw_map(self):
         c = self.canvas
@@ -176,7 +234,8 @@ class App:
     def rx_pico(self):
         while True:
             data, addr = self.cmd_sock.recvfrom(256)
-            self.events.put(("pico", (data.decode(errors="replace").strip(), addr[0])))
+            self.events.put(("pico", (data.decode(errors="replace").strip(), addr[0],
+                                      time.monotonic())))
 
     def rx_camera(self, server_ip):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -203,13 +262,14 @@ class App:
                 continue
             pose = parse_pose(data)
             if pose:
-                self.events.put(("pose", pose))
+                self.events.put(("pose", (pose, time.monotonic())))
 
     def process_events(self):
         while not self.events.empty():
             kind, value = self.events.get()
             if kind == "pose":
-                self.pose, self.pose_time = value, time.monotonic()
+                self.pose, self.pose_time = value
+                self.paint_floor()
             elif kind == "info":
                 self.add_log(value)
             else:
@@ -217,9 +277,12 @@ class App:
         self.draw_zumo()
         self.root.after(50, self.process_events)
 
-    def on_pico(self, text, ip):
-        self.add_log(f"<- {ip}: {text}")
+    def on_pico(self, text, ip, t):
         parts = text.split()
+        if parts[:1] == ["PISO"] and len(parts) == 6 and all(p.isdigit() for p in parts[1:]):
+            self.floor_pending.append((t, [int(p) for p in parts[1:]]))
+            return
+        self.add_log(f"<- {ip}: {text}")
         if parts[:1] == ["ESTADO"] and len(parts) == 3 and parts[1].isdigit() and parts[2].isdigit():
             code, n = int(parts[1]), int(parts[2])
             self.status.configure(text="Zumo " + STATUS.get(code, f"estado {code}").format(n=n))
@@ -227,6 +290,43 @@ class App:
                 self.canvas.itemconfigure(f"wp{n}&&wp", fill="#27ae60")
         elif text == "ERR CAN":
             self.status.configure(text="La Pico no recibió ACK del Zumo por CAN")
+
+    def paint_floor(self):
+        """Pinta con la pose actual las lecturas tomadas cuando se tomó su foto."""
+        x, y, ang = self.pose
+        th = math.radians(ang)
+        rescale = False
+        while self.floor_pending and self.pose_time - self.floor_pending[0][0] >= FLOOR_DELAY_S:
+            t, values = self.floor_pending.popleft()
+            if self.pose_time - t > FLOOR_MAX_WAIT_S:
+                continue
+            for i, b in enumerate(values):
+                if self.floor_min[i] is None or b < self.floor_min[i]:
+                    self.floor_min[i], rescale = b, True
+                if self.floor_max[i] is None or b > self.floor_max[i]:
+                    self.floor_max[i], rescale = b, True
+                left = SENSOR_LEFT_M[i]
+                px, py = to_px(x + SENSOR_AHEAD_M * math.cos(th) - left * math.sin(th),
+                               y + SENSOR_AHEAD_M * math.sin(th) + left * math.cos(th))
+                item = self.canvas.create_rectangle(px - DOT_PX, py - DOT_PX, px + DOT_PX,
+                                                    py + DOT_PX, outline="", tags="piso",
+                                                    fill=self.floor_color(i, b))
+                self.canvas.tag_lower(item, "wp")
+                self.floor_dots.append((item, i, b))
+        if rescale:
+            for item, i, b in self.floor_dots:
+                self.canvas.itemconfigure(item, fill=self.floor_color(i, b))
+
+    def floor_color(self, i, b):
+        span = self.floor_max[i] - self.floor_min[i]
+        return heat_color((b - self.floor_min[i]) / span if span else 0.5)
+
+    def clear_floor(self):
+        self.canvas.delete("piso")
+        self.floor_dots.clear()
+        self.floor_pending.clear()
+        self.floor_min = [None] * 5
+        self.floor_max = [None] * 5
 
     def draw_zumo(self):
         self.canvas.delete("zumo")

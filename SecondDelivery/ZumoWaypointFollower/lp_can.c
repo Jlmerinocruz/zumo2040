@@ -27,3 +27,12 @@ can_frame_t wp_status_frame(wp_state_t state, uint8_t waypoint) {
     frame.data[1] = waypoint;
     return frame;
 }
+
+can_frame_t floor_frame(const uint16_t t_us[FLOOR_DLC]) {
+    can_frame_t frame = { .id = FLOOR_ID, .dlc = FLOOR_DLC };
+    for (int i = 0; i < FLOOR_DLC; i++) {
+        uint16_t b = t_us[i] / 4u;
+        frame.data[i] = (uint8_t)(b > 255u ? 255u : b);
+    }
+    return frame;
+}

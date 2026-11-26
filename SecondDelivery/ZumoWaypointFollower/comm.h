@@ -8,7 +8,7 @@
 //   núcleo 1 --(cola de poses, con la hora de llegada)--> núcleo 0
 //   núcleo 1 --(cola de WP_GOTO de la GUI)--------------> núcleo 0
 //   núcleo 0 --(cola de telemetría: muestras y texto)----> núcleo 1 --> printf
-//   núcleo 0 --(cola de frames CAN a enviar: WP_STATUS)--> núcleo 1 --> MCP2515
+//   núcleo 0 --(cola de frames CAN a enviar: WP_STATUS, FLOOR)--> núcleo 1 --> MCP2515
 #ifndef COMM_H
 #define COMM_H
 
@@ -48,6 +48,10 @@ bool comm_take_goto(uint8_t *waypoint);
 // Manda WP_STATUS por CAN (lo envía el núcleo 1). Nunca bloquea: con la cola llena
 // se descarta y el núcleo 1 lo avisa por serial.
 void comm_send_status(wp_state_t state, uint8_t waypoint);
+
+// Manda FLOOR por CAN (mapa de calor del suelo). Con la cola llena se descarta sin
+// avisar: perder una muestra solo deja un hueco en el mapa.
+void comm_send_floor(const uint16_t t_us[FLOOR_DLC]);
 
 // Telemetría desde el núcleo 0. Nunca bloquea: si la cola está llena el mensaje se
 // descarta y se cuenta (comm_dropped_logs).
