@@ -118,6 +118,7 @@ Se corrigió así: los intervalos se juntan, g_ω se ajusta solo en arcos con un
 **Vueltas 6 y 7 del 25/11 (0.12 / 0.08 m/s), ya con ese arreglo:**
 - La vuelta 6 salió completa en 62.8 s, pero los arcos P3–P4 y P7–P8 iban en zigzag, con las orugas en ±0.6 m/s. Por eso se agregó `diff_max`.
 - La vuelta 7 salió completa en 63.0 s, sin zigzag (g_v = 1.19, g_ω = 0.26). Lo peor fue la primera recta: e_y crece de 5 a 32 mm porque g_ω todavía no se ajustaba. Ahora g_ω arranca en 0.27 (`FOLLOWER_GW0`). En el resto de los tramos, |e_y| ≤ 18 mm. La línea base era la vuelta 4: 89.0 s, con máximo de 92 mm.
+- La vuelta 8 del 26/11, a 0.15 / 0.10 m/s y con g_ω inicial de 0.27, salió completa en 50.8 s (g_v = 0.90, g_ω = 0.25, sin pausas). La primera recta quedó con |e_y| ≤ 9 mm. El peor error fue de 28 mm hacia afuera en el arco P13–P14, y el resto de los tramos quedó en ≤ 22 mm. El equipo se quedó con estas velocidades.
 
 Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen movida (pasó a 0.20 m/s mandados, que en realidad eran ~0.26 m/s), el arrastre extra de las orugas al girar (en pista los arcos tardan más) y la caída de las pilas.
 
@@ -130,5 +131,6 @@ Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen
 - [ ] Medir VCC_CAN con pilas, con el Zumo quieto y con motores andando (para el reporte).
 - [ ] Calibración con el botón B → `MOTOR_K`, `MOTOR_DEAD`, `WHEEL_BASE` y `CAM_LATENCY`.
 - [ ] Vueltas en pista: subir velocidades poco a poco (parte D), 3 tiempos, video y gráfica medida.
-- [ ] Probar en pista `follower_tick` + ganancias medidas, primero a 0.12 / 0.08 m/s y luego a 0.15 / 0.10. Comparar con `analysis/analizar_vueltas.py` contra la línea base (vuelta 4: 89.0 s, máx 92 mm, RMS 21.3 mm) y anotar los `g_v`, `g_w` que imprime al final.
+- [x] Probar en pista `follower_tick` + ganancias medidas (vueltas 6–8 del 25 y 26/11; ver "Resultados del simulador").
+- [ ] Guardar en `logs/` los seriales de las vueltas 6–8 y sacar el RMS con `analysis/analizar_vueltas.py`.
 - [ ] Parte E: medir t_i(r) con α = 0 en 5–7 radios (por ejemplo 0.25, 0.5, 0.75, 1.0, 1.25, 1.5 y 1.75 m) y cargarlos en la tabla de `alpha_test.c`. Opcional: validar con α = 45° y 90° en r = 1.5 m.
