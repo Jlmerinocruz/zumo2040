@@ -24,6 +24,7 @@ Además se suscribe a la cámara (como la Pico) para dibujar al Zumo en vivo.
 Solo usa la biblioteca estándar de Python (tkinter incluido).
 """
 import argparse
+import bisect
 import collections
 import json
 import math
@@ -53,6 +54,13 @@ FLOOR_MAX_WAIT_S = 1.0          # sin pose en ese tiempo, la lectura se descarta
 SENSOR_AHEAD_M = 0.04
 SENSOR_LEFT_M = (0.045, 0.010, 0.0, -0.010, -0.045)
 DOT_PX = 3
+# Escala de cada sensor: del percentil 5 al 95 de lo visto, no del mínimo al máximo.
+# En la prueba del 26/11 S1 y S5 cruzaban la línea negra en las vueltas y esas pocas
+# lecturas estiraban la escala: todas las parcelas salían del mismo amarillo.
+# FLOOR_MIN_SPAN (unidades de 4 µs) evita pintar como contraste el ruido de un piso parejo.
+FLOOR_LOW_PCT, FLOOR_HIGH_PCT = 0.05, 0.95
+FLOOR_MIN_SPAN = 8
+FLOOR_RESCALE_MS = 1000
 # De claro a oscuro (paleta tipo viridis invertida).
 HEAT_COLORS = ((253, 231, 37), (94, 201, 98), (33, 145, 140), (59, 82, 139), (68, 1, 84))
 
@@ -147,8 +155,8 @@ class App:
         self.pose_time = 0.0
         self.floor_pending = collections.deque()   # (hora, 5 lecturas) sin pintar
         self.floor_dots = []                       # (item del canvas, sensor, lectura)
-        self.floor_min = [None] * 5                # escala automática de cada sensor
-        self.floor_max = [None] * 5
+        self.floor_values = [[] for _ in range(5)]  # lecturas ordenadas de cada sensor
+        self.floor_scale = [(0, FLOOR_MIN_SPAN)] * 5  # (claro, oscuro) de cada sensor
 
         root.title("AgroZumo: elegir waypoint")
         w = MARGIN * 2 + (X_MAX - X_MIN) * SCALE
@@ -179,6 +187,7 @@ class App:
         threading.Thread(target=self.rx_camera, args=(server_ip,), daemon=True).start()
         self.root.after(50, self.process_events)
         self.say_hello()
+        self.rescale_floor()
 
     def make_legend(self, root):
         frame = tk.Frame(root)
@@ -188,7 +197,7 @@ class App:
             bar.create_line(k, 0, k, 16, fill=heat_color(k / 229))
         bar.pack(anchor="w")
         tk.Label(frame, text="claro" + " " * 44 + "oscuro").pack(anchor="w")
-        tk.Label(frame, text="Escala automática: mínimo y máximo vistos por cada sensor",
+        tk.Label(frame, text="Escala automática: percentiles 5 y 95 de cada sensor",
                  fg="#666", wraplength=230, justify="left").pack(anchor="w")
         tk.Button(frame, text="Borrar mapa", command=self.clear_floor).pack(anchor="w", pady=4)
         return frame
@@ -295,16 +304,12 @@ class App:
         """Pinta con la pose actual las lecturas tomadas cuando se tomó su foto."""
         x, y, ang = self.pose
         th = math.radians(ang)
-        rescale = False
         while self.floor_pending and self.pose_time - self.floor_pending[0][0] >= FLOOR_DELAY_S:
             t, values = self.floor_pending.popleft()
             if self.pose_time - t > FLOOR_MAX_WAIT_S:
                 continue
             for i, b in enumerate(values):
-                if self.floor_min[i] is None or b < self.floor_min[i]:
-                    self.floor_min[i], rescale = b, True
-                if self.floor_max[i] is None or b > self.floor_max[i]:
-                    self.floor_max[i], rescale = b, True
+                bisect.insort(self.floor_values[i], b)
                 left = SENSOR_LEFT_M[i]
                 px, py = to_px(x + SENSOR_AHEAD_M * math.cos(th) - left * math.sin(th),
                                y + SENSOR_AHEAD_M * math.sin(th) + left * math.cos(th))
@@ -313,20 +318,32 @@ class App:
                                                     fill=self.floor_color(i, b))
                 self.canvas.tag_lower(item, "wp")
                 self.floor_dots.append((item, i, b))
-        if rescale:
+
+    def rescale_floor(self):
+        """Recalcula la escala de cada sensor (1 vez por segundo) y repinta si cambió."""
+        scale = []
+        for vals in self.floor_values:
+            if not vals:
+                scale.append((0, FLOOR_MIN_SPAN))
+                continue
+            lo = vals[int(FLOOR_LOW_PCT * (len(vals) - 1))]
+            hi = vals[int(FLOOR_HIGH_PCT * (len(vals) - 1))]
+            scale.append((lo, max(hi, lo + FLOOR_MIN_SPAN)))
+        if scale != self.floor_scale:
+            self.floor_scale = scale
             for item, i, b in self.floor_dots:
                 self.canvas.itemconfigure(item, fill=self.floor_color(i, b))
+        self.root.after(FLOOR_RESCALE_MS, self.rescale_floor)
 
     def floor_color(self, i, b):
-        span = self.floor_max[i] - self.floor_min[i]
-        return heat_color((b - self.floor_min[i]) / span if span else 0.5)
+        lo, hi = self.floor_scale[i]
+        return heat_color((b - lo) / (hi - lo))
 
     def clear_floor(self):
         self.canvas.delete("piso")
         self.floor_dots.clear()
         self.floor_pending.clear()
-        self.floor_min = [None] * 5
-        self.floor_max = [None] * 5
+        self.floor_values = [[] for _ in range(5)]
 
     def draw_zumo(self):
         self.canvas.delete("zumo")

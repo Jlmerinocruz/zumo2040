@@ -72,7 +72,8 @@ Zumo (line_sensors_read, núcleo 0) --cola--> núcleo 1 --CAN 0x112 FLOOR--> Pic
 - Es un frame de 5 bytes cada 100 ms y solo durante un recorrido (≈0.2 % del bus a 500 kbps). La lectura usa el PIO de la librería de Pololu y tarda 1 ms como máximo.
 - La GUI manda `HOLA` a la Pico cada 2 s para recibir los `PISO` aunque la vuelta se arranque con el botón A.
 - Cada lectura se pinta con la pose de la cámara que llega 0.12 s después (`FLOOR_DELAY_S`), 4 cm adelante del marcador (`SENSOR_AHEAD_M`, aproximado: medirlo) y con la posición lateral de cada sensor.
-- La escala es automática por sensor (mínimo y máximo vistos), porque con el mismo piso S1 y S5 tardan casi el doble que S3. **Borrar mapa** reinicia la escala.
+- La escala es automática por sensor, porque con el mismo piso S1 y S5 tardan casi el doble que S3. Va del percentil 5 al 95 de lo visto (no del mínimo al máximo): en la prueba del 26/11 las pocas lecturas de S1 y S5 sobre la línea negra estiraban la escala y todas las parcelas salían del mismo color. **Borrar mapa** reinicia la escala.
+- En la pista de la vuelta (sobre la foto aérea de cultivos), S2–S4 van sobre la línea negra y S1/S5 sobre las parcelas.
 
 ## Cómo funciona el seguidor (`follower.c`)
 
