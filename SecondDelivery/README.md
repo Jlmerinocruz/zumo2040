@@ -76,7 +76,8 @@ Durante un recorrido (vuelta con A o GOTO de la GUI), si el sensor de proximidad
 4. **Velocidad:** `v_recta` en las rectas, con frenado para llegar a `v_arco` justo al entrar a cada vuelta.
 5. **Entre poses** (`follower_tick`, cada 20 ms): la pose se estima integrando (v, ω) y el control se recalcula. Por el WiFi, en ~40 % de la vuelta pasan más de 250 ms sin pose; antes el Zumo seguía a ciegas con el último comando.
 6. **Ganancias medidas con la cámara:** el Zumo no hace lo que se le manda. En las vueltas del 17/11 avanzaba ~1.3 veces la v mandada en rectas y giraba solo ~0.3 veces la ω mandada en los arcos, por eso se abría 15–25 mm hacia afuera en **todos** los arcos. Se compara lo que avanzó y giró (cámara) contra lo que se mandó a las orugas (desplazado por el retardo) y se ajustan g_v y g_ω con un cociente de sumas con olvido. Los intervalos entre poses se juntan hasta tener ~1 cm o ~0.1 rad mandados, porque las poses llegan en grupos y un intervalo suelto no cuadra con su comando. g_ω solo se ajusta en los arcos y no baja de 0.25. La diferencia entre orugas se limita a 0.4 m/s (`diff_max`): con las orugas en ±0.6 m/s, en la vuelta 6 del 25/11 el Zumo pivoteaba en zigzag en los arcos. El comando a las orugas es v/g_v y ω/g_ω. Al terminar la vuelta se imprimen los valores medidos. `ADAPT_GAINS` en `main.c` lo apaga.
-7. Se detiene al cerrar la vuelta en P14. Si pasan 800 ms sin pose se pausa, y si pasan 3 s termina.
+7. **Suavidad:** la curvatura no salta de 0 a 1/R en cada unión recta–arco, sino que cambia en una rampa de 4 cm (`blend`). ω cambia a lo más 8 rad/s por segundo (`alpha_max`), y el frenado también tiene rampa. En el simulador (`BLEND=0 ALFA=1000` para comparar), el pico de aceleración angular baja a la mitad (30 → 15 rad/s² con zona muerta de giro) a cambio de ~2 mm más de RMS.
+8. Se detiene al cerrar la vuelta en P14. Si pasan 800 ms sin pose se pausa, y si pasan 3 s termina.
 
 ## Reparto entre núcleos (multinúcleo)
 

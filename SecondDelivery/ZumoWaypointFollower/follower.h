@@ -70,6 +70,8 @@ typedef struct {
     float wheel_base;   // m     separación entre orugas (medir en el Zumo)
     float wheel_max;    // m/s   velocidad máxima de una oruga
     float diff_max;     // m/s   diferencia máxima entre orugas (limita el pivoteo)
+    float blend;        // m     largo de la rampa de curvatura en cada unión recta–arco
+    float alpha_max;    // rad/s² cambio máximo de ω por segundo
     float latency;      // s     retardo de la cámara a compensar (0 = no compensar)
     bool adapt;         // ajustar g_v y g_ω con la cámara
 } follower_params_t;

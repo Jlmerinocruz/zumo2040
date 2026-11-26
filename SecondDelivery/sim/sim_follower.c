@@ -12,7 +12,7 @@
 //     además las poses llegan en ráfagas: cada 0.8 s hay un hueco de ~450 ms.
 //
 // Uso:   ./sim_follower [v_recta v_arco [hz_camara retardo_s]] > vuelta.csv
-// Variables de entorno opcionales: K_TH, ZETA, ACC, WB, LAT (ganancias y parámetros del
+// Variables de entorno opcionales: K_TH, ZETA, ACC, WB, LAT, BLEND, ALFA (parámetros del
 // seguidor), ADAPT=0 (sin ajuste de ganancias), TICK=0 (control solo con pose nueva,
 // como el firmware anterior), IDEAL=1, GAIN, WB_REAL, DZ (planta), PARES=1 (poses de
 // dos en dos), HOLD (s que se espera para usar solo la última pose) y SEED (ruido).
@@ -84,6 +84,8 @@ int main(int argc, char **argv) {
     if (getenv("K_TH")) p.k_theta = atof(getenv("K_TH"));
     if (getenv("ACC"))  p.accel = p.decel = atof(getenv("ACC"));
     if (getenv("WB"))   p.wheel_base = atof(getenv("WB"));
+    if (getenv("BLEND")) p.blend = atof(getenv("BLEND"));
+    if (getenv("ALFA")) p.alpha_max = atof(getenv("ALFA"));
     if (getenv("ADAPT")) p.adapt = atoi(getenv("ADAPT"));
     // TICK=0 reproduce el firmware anterior: control solo cuando llega una pose.
     const float tick = getenv("TICK") ? atof(getenv("TICK")) : 0.02f;
@@ -117,6 +119,8 @@ int main(int argc, char **argv) {
     enum { QN = 64 };
     pose_t q[QN]; float qt[QN]; int qh = 0, qn = 0;
     float next_cam = 0.0f, last_upd = 0.0f, max_err = 0.0f, sum_err2 = 0.0f;
+    // Suavidad: aceleración angular real del Zumo (rad/s²) y cambios de comando.
+    float w_prev = 0.0f, sum_a2 = 0.0f, max_a = 0.0f, cl_prev = 0.0f, cr_prev = 0.0f, sum_dcmd = 0.0f;
     long n_err = 0;
     int last_seg = -1;
 
@@ -166,6 +170,12 @@ int main(int argc, char **argv) {
         // DZ: zona muerta del giro (m/s de diferencia entre orugas que no giran nada).
         float dv = vr - vl, dv_eff = (fabsf(dv) > dz) ? dv - copysignf(dz, dv) : 0.0f;
         float v = 0.5f * (vl + vr), w = dv_eff / wb_real;
+        float a = (w - w_prev) / dt;
+        w_prev = w;
+        sum_a2 += a * a;
+        if (fabsf(a) > max_a) max_a = fabsf(a);
+        sum_dcmd += fabsf(cl - cl_prev) + fabsf(cr - cr_prev);
+        cl_prev = cl; cr_prev = cr;
         x += v * cosf(th) * dt;
         y += v * sinf(th) * dt;
         th += w * dt;
@@ -188,5 +198,9 @@ int main(int argc, char **argv) {
             max_err * 1000, sqrtf(sum_err2 / (n_err ? n_err : 1)) * 1000);
     fprintf(stderr, "  distancia final a P14: %.1f mm\n", sqrtf(dx * dx + dy * dy) * 1000);
     fprintf(stderr, "  ganancias estimadas: g_v=%.2f g_w=%.2f\n", f.g_v, f.g_w);
+    // Recorrido total de los comandos de oruga por segundo: cuánto "se mueven las
+    // orugas" de un lado a otro. Más bajo = más suave.
+    fprintf(stderr, "  suavidad: aceleracion angular RMS %.1f rad/s2, max %.0f rad/s2, "
+            "cambio de comandos %.2f (m/s)/s\n", sqrtf(sum_a2 / (t / dt)), max_a, sum_dcmd / t);
     return f.done ? 0 : 1;
 }

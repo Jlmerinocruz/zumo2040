@@ -35,6 +35,11 @@ follower_params_t follower_default_params(void) {
         .wheel_max  = 0.60f,
         .latency    = 0.05f,
         .diff_max   = 0.40f,
+        // Suavidad (25/11): rampa de curvatura de 4 cm en cada unión recta–arco y ω que
+        // cambia a lo más 8 rad/s por segundo. En el simulador bajan a la mitad el pico
+        // de aceleración angular a cambio de ~2 mm más de RMS.
+        .blend      = 0.04f,
+        .alpha_max  = 8.0f,
         .adapt      = true,
     };
     return p;
@@ -177,6 +182,28 @@ static float fit_gain(float *num, float *den, float real, float sent, float g_mi
     return clampf(*num / *den, g_min, FOLLOWER_GAIN_MAX);
 }
 
+// Curvatura de un tramo (1/m, + = izquierda); 0 fuera de la ruta.
+static float curvature(const follower_t *f, int i) {
+    if (i < 0 || i >= f->n_seg || f->seg[i].type != SEG_ARC) return 0.0f;
+    return f->seg[i].dir / f->seg[i].r;
+}
+
+// Curvatura que se sigue en la posición t del tramo actual. En cada unión recta–arco
+// la curvatura salta de 0 a 1/R (≈14 1/m): las orugas cambiarían de golpe. Se reparte
+// el cambio en una rampa de largo p.blend centrada en la unión (empieza a girar un
+// poco antes del arco y termina de enderezar un poco después).
+static float blended_curvature(const follower_t *f, const segment_t *s, float t) {
+    float k = curvature(f, f->cur), half = 0.5f * f->p.blend;
+    if (half <= 0.0f) return k;
+    float from_start = clampf(t, 0.0f, 1.0f) * s->length;
+    float to_end = s->length - from_start;
+    if (to_end < half)                       // acercándose al siguiente tramo
+        k += (curvature(f, f->cur + 1) - k) * 0.5f * (1.0f - to_end / half);
+    else if (from_start < half)              // saliendo del tramo anterior
+        k += (curvature(f, f->cur - 1) - k) * 0.5f * (1.0f - from_start / half);
+    return k;
+}
+
 // Control a partir de la pose estimada (f->x, f->y, f->th).
 static bool control(follower_t *f, float dt, float *v_left, float *v_right) {
     // Localizar en el tramo y avanzar mientras se haya pasado el final.
@@ -204,8 +231,10 @@ static bool control(follower_t *f, float dt, float *v_left, float *v_right) {
         float v_brake = sqrtf(f->p.v_arc * f->p.v_arc + 2.0f * f->p.decel * remain);
         v_target = fminf(f->p.v_straight, v_brake);
     }
+    // Acelera y frena con rampa. El frenado puede ser el doble de fuerte que el del
+    // perfil, para que alcance aunque la cámara muestre de golpe que ya está más cerca.
     if (v_target > f->v_cmd) f->v_cmd = fminf(v_target, f->v_cmd + f->p.accel * dt);
-    else                     f->v_cmd = v_target;   // frenar es inmediato
+    else                     f->v_cmd = fmaxf(v_target, f->v_cmd - 2.0f * f->p.decel * dt);
     float v = f->v_cmd;
 
     // Dirección: rumbo de referencia = tangente − atan(k_e·e_y).
@@ -213,9 +242,11 @@ static bool control(follower_t *f, float dt, float *v_left, float *v_right) {
     if (k_e > f->p.k_e_max) k_e = f->p.k_e_max;
     float th_ref = path_th - atanf(k_e * e_y);
     float e_th = follower_wrap_pi(th_ref - f->th);
-    float omega_ff = (s->type == SEG_ARC) ? s->dir * v / s->r : 0.0f;
+    float omega_ff = v * blended_curvature(f, s, t);
     float omega = clampf(omega_ff + f->p.k_theta * e_th, -f->p.omega_max, f->p.omega_max);
-    f->omega_cmd = omega;
+    // Límite a la aceleración angular: un giro no empieza ni se corrige de golpe.
+    float dw = f->p.alpha_max * dt;
+    f->omega_cmd = omega = clampf(omega, f->omega_cmd - dw, f->omega_cmd + dw);
 
     // Lo que hay que mandarle a las orugas para que el robot haga (v, ω), según las
     // ganancias medidas con la cámara. (v, ω) → orugas; si una satura, se escalan
