@@ -6,8 +6,9 @@ Uso (desde SecondDelivery/, conectado al WiFi del laboratorio):
 
 Clic en un waypoint = el Zumo va hacia allá siguiendo la pista. "Alto" lo detiene.
 Mapa de calor del suelo: durante cualquier recorrido (vuelta con el botón A o GOTO) el
-Zumo manda sus 5 sensores de reflectancia y la GUI los pinta sobre la pista, de claro
-(amarillo) a oscuro (morado). "Borrar mapa" empieza uno nuevo.
+Zumo manda los sensores de reflectancia de las orillas (S1 y S5, 40 lecturas/s) y la GUI
+los pinta sobre la pista, de claro (amarillo) a oscuro (morado). "Borrar mapa" empieza
+uno nuevo.
 
 Comandos (texto por UDP al puerto 5002 de la Pico 2 W):
     GOTO n   (n = 1..14)   ->  Pico: CAN 0x110 WP_GOTO con el byte n
@@ -17,8 +18,8 @@ Respuestas de la Pico a la dirección que mandó el último comando:
     OK GOTO n / OK STOP    el Zumo confirmó el frame por CAN (ACK)
     ERR CAN                nadie dio ACK (revisar bus o Zumo)
     ESTADO e n             reenvío de CAN 0x111 WP_STATUS (e = código, n = destino)
-    PISO b1 b2 b3 b4 b5    reenvío de CAN 0x112 FLOOR (tiempo de descarga de S1..S5
-                           en unidades de 4 µs; S1 = izquierda del Zumo)
+    PISO b0 ... b7         reenvío de CAN 0x112 FLOOR: 4 lecturas (S1, S5) cada 25 ms,
+                           la más vieja primero, en unidades de 4 µs; S1 = izquierda
 
 Además se suscribe a la cámara (como la Pico) para dibujar al Zumo en vivo.
 Solo usa la biblioteca estándar de Python (tkinter incluido).
@@ -49,10 +50,16 @@ HELLO_PERIOD_MS = 2000
 # primera pose que llegue FLOOR_DELAY_S después de ella.
 FLOOR_DELAY_S = 0.12
 FLOOR_MAX_WAIT_S = 1.0          # sin pose en ese tiempo, la lectura se descarta
+# Cada PISO trae 4 lecturas tomadas en los 100 ms anteriores. Se reparten entre la pose
+# con la que se pintó el PISO anterior y la actual, salvo que el Zumo haya saltado más
+# de FLOOR_JUMP_M (pose perdida): entonces van todas en la pose actual.
+FLOOR_READS = 4
+FLOOR_JUMP_M = 0.05
 # Posición de los sensores respecto al marcador: SENSOR_AHEAD_M hacia el frente (aprox.,
-# medir con regla en el Zumo) y hacia la izquierda S1..S5 (medido, ver CLAUDE.md).
+# medir con regla en el Zumo) y hacia la izquierda S1 y S5 (medido, ver CLAUDE.md). Los
+# del centro van sobre la línea negra y el Zumo no los manda.
 SENSOR_AHEAD_M = 0.04
-SENSOR_LEFT_M = (0.045, 0.010, 0.0, -0.010, -0.045)
+SENSOR_LEFT_M = (0.045, -0.045)
 DOT_PX = 3
 # Escala de cada sensor: del percentil 5 al 95 de lo visto, no del mínimo al máximo.
 # En la prueba del 26/11 S1 y S5 cruzaban la línea negra en las vueltas y esas pocas
@@ -153,10 +160,11 @@ class App:
         self.target = None
         self.pose = None
         self.pose_time = 0.0
-        self.floor_pending = collections.deque()   # (hora, 5 lecturas) sin pintar
+        self.floor_pending = collections.deque()   # (hora, bytes del PISO) sin pintar
+        self.floor_prev = None                     # pose con la que se pintó el último
         self.floor_dots = []                       # (item del canvas, sensor, lectura)
-        self.floor_values = [[] for _ in range(5)]  # lecturas ordenadas de cada sensor
-        self.floor_scale = [(0, FLOOR_MIN_SPAN)] * 5  # (claro, oscuro) de cada sensor
+        self.floor_values = [[] for _ in SENSOR_LEFT_M]  # lecturas ordenadas por sensor
+        self.floor_scale = [(0, FLOOR_MIN_SPAN)] * len(SENSOR_LEFT_M)  # (claro, oscuro)
 
         root.title("AgroZumo: elegir waypoint")
         w = MARGIN * 2 + (X_MAX - X_MIN) * SCALE
@@ -288,7 +296,8 @@ class App:
 
     def on_pico(self, text, ip, t):
         parts = text.split()
-        if parts[:1] == ["PISO"] and len(parts) == 6 and all(p.isdigit() for p in parts[1:]):
+        n_floor = 1 + FLOOR_READS * len(SENSOR_LEFT_M)
+        if parts[:1] == ["PISO"] and len(parts) == n_floor and all(p.isdigit() for p in parts[1:]):
             self.floor_pending.append((t, [int(p) for p in parts[1:]]))
             return
         self.add_log(f"<- {ip}: {text}")
@@ -303,21 +312,34 @@ class App:
     def paint_floor(self):
         """Pinta con la pose actual las lecturas tomadas cuando se tomó su foto."""
         x, y, ang = self.pose
-        th = math.radians(ang)
+        cur = (x, y, math.radians(ang))
         while self.floor_pending and self.pose_time - self.floor_pending[0][0] >= FLOOR_DELAY_S:
             t, values = self.floor_pending.popleft()
             if self.pose_time - t > FLOOR_MAX_WAIT_S:
+                self.floor_prev = None
                 continue
-            for i, b in enumerate(values):
-                bisect.insort(self.floor_values[i], b)
-                left = SENSOR_LEFT_M[i]
-                px, py = to_px(x + SENSOR_AHEAD_M * math.cos(th) - left * math.sin(th),
-                               y + SENSOR_AHEAD_M * math.sin(th) + left * math.cos(th))
-                item = self.canvas.create_rectangle(px - DOT_PX, py - DOT_PX, px + DOT_PX,
-                                                    py + DOT_PX, outline="", tags="piso",
-                                                    fill=self.floor_color(i, b))
-                self.canvas.tag_lower(item, "wp")
-                self.floor_dots.append((item, i, b))
+            prev = self.floor_prev
+            if prev is None or math.hypot(x - prev[0], y - prev[1]) > FLOOR_JUMP_M:
+                prev = cur
+            n = len(SENSOR_LEFT_M)
+            for k in range(FLOOR_READS):
+                f = (k + 1) / FLOOR_READS
+                pose = (prev[0] + (x - prev[0]) * f, prev[1] + (y - prev[1]) * f,
+                        prev[2] + wrap_pi(cur[2] - prev[2]) * f)
+                for i, b in enumerate(values[k * n:(k + 1) * n]):
+                    self.add_floor_dot(pose, i, b)
+            self.floor_prev = cur
+
+    def add_floor_dot(self, pose, i, b):
+        x, y, th = pose
+        bisect.insort(self.floor_values[i], b)
+        left = SENSOR_LEFT_M[i]
+        px, py = to_px(x + SENSOR_AHEAD_M * math.cos(th) - left * math.sin(th),
+                       y + SENSOR_AHEAD_M * math.sin(th) + left * math.cos(th))
+        item = self.canvas.create_rectangle(px - DOT_PX, py - DOT_PX, px + DOT_PX, py + DOT_PX,
+                                            outline="", tags="piso", fill=self.floor_color(i, b))
+        self.canvas.tag_lower(item, "wp")
+        self.floor_dots.append((item, i, b))
 
     def rescale_floor(self):
         """Recalcula la escala de cada sensor (1 vez por segundo) y repinta si cambió."""
@@ -343,7 +365,8 @@ class App:
         self.canvas.delete("piso")
         self.floor_dots.clear()
         self.floor_pending.clear()
-        self.floor_values = [[] for _ in range(5)]
+        self.floor_prev = None
+        self.floor_values = [[] for _ in SENSOR_LEFT_M]
 
     def draw_zumo(self):
         self.canvas.delete("zumo")

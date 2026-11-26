@@ -13,7 +13,7 @@
 //     (la dirección que mandó el último comando).
 //   UDP 5002 "HOLA" -> solo registra la dirección de la GUI (la manda cada 2 s), para que
 //     le lleguen los mensajes aunque la vuelta se haya arrancado con el botón A.
-//   CAN FLOOR ID 0x112 DLC 5 (5 sensores de reflectancia) -> UDP "PISO b1 b2 b3 b4 b5"
+//   CAN FLOOR ID 0x112 DLC 8 (4 lecturas de S1 y S5) -> UDP "PISO b0 ... b7"
 //     (mapa de calor del suelo en la GUI).
 //
 // Reparto entre núcleos:
@@ -60,7 +60,7 @@
 #define WP_STATUS_ID  0x111
 #define WP_STATUS_DLC 2
 #define FLOOR_ID      0x112
-#define FLOOR_DLC     5
+#define FLOOR_DLC     8
 #define WAYPOINT_COUNT 14
 #define GUI_QUEUE_LEN 4
 #define MAX_RX_FRAMES 4       // por pasada, como en el Zumo
@@ -76,7 +76,7 @@ static queue_t pose_q;   // núcleo 0 -> núcleo 1
 static queue_t goto_q;   // núcleo 0 -> núcleo 1, byte del WP_GOTO (0 = alto)
 static queue_t reply_q;  // núcleo 1 -> núcleo 0, texto para la GUI
 
-typedef struct { char text[32]; } gui_reply_t;
+typedef struct { char text[48]; } gui_reply_t;
 
 // Contadores acumulados. Cada uno lo escribe un solo núcleo.
 static volatile uint32_t n_rx, n_nomarker;          // núcleo 0
@@ -231,12 +231,12 @@ static void send_goto(uint8_t wp) {
 static void read_zumo(void) {
     can_frame_t rx;
     for (int n = 0; n < MAX_RX_FRAMES && mcp2515_read_message(&rx); n++) {
-        char text[32];
+        char text[48];
         if (rx.id == WP_STATUS_ID && rx.dlc >= WP_STATUS_DLC)
             snprintf(text, sizeof text, "ESTADO %u %u", rx.data[0], rx.data[1]);
         else if (rx.id == FLOOR_ID && rx.dlc >= FLOOR_DLC)
-            snprintf(text, sizeof text, "PISO %u %u %u %u %u", rx.data[0], rx.data[1],
-                     rx.data[2], rx.data[3], rx.data[4]);
+            snprintf(text, sizeof text, "PISO %u %u %u %u %u %u %u %u", rx.data[0], rx.data[1],
+                     rx.data[2], rx.data[3], rx.data[4], rx.data[5], rx.data[6], rx.data[7]);
         else continue;
         push_reply(text);
     }

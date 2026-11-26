@@ -19,8 +19,9 @@
 //
 // GUI de la PC (función innovadora): CAN WP_GOTO (0x110) = ir a un waypoint siguiendo
 // la pista o alto; el Zumo responde con WP_STATUS (0x111). Ver lp_can.h y ../gui/.
-// Mapa de calor del suelo: durante cualquier recorrido el Zumo lee sus 5 sensores de
-// reflectancia y los manda por CAN FLOOR (0x112); la GUI los pinta sobre la pista.
+// Mapa de calor del suelo: durante cualquier recorrido el Zumo lee los sensores de
+// reflectancia de las orillas (S1 y S5) y los manda por CAN FLOOR (0x112); la GUI los
+// pinta sobre la pista.
 //
 // Salida serial: líneas "L,..." en CSV para graficar la trayectoria
 // (ver ../analysis/plot_route.py).
@@ -70,9 +71,10 @@
 #define BURST_WAIT_US  20000u   // tiempo para juntar la ráfaga y usar solo la última pose
 #define TICK_US        20000u   // periodo del control entre poses (follower_tick)
 #define POSE_ABORT_MS  3000
-// Mapa de calor del suelo: 10 lecturas/s (a 0.15 m/s, una cada 1.5 cm). Cada lectura
-// tarda 1 ms como máximo (TIMEOUT de la librería de Pololu) y es un solo frame CAN.
-#define FLOOR_PERIOD_US 100000u
+// Mapa de calor del suelo: 40 lecturas/s (a 0.15 m/s, una cada 4 mm). Cada lectura
+// tarda 1 ms como máximo (TIMEOUT de la librería de Pololu). Se juntan 4 lecturas en
+// un frame CAN, así el bus sigue con 10 frames/s.
+#define FLOOR_PERIOD_US 25000u
 // Distancia máxima a P14 para aceptar el arranque (evita arrancar mal colocado).
 #define START_TOL_M    0.10f
 #define CAL_C1         1500     // dos velocidades para obtener K y la zona muerta
@@ -259,6 +261,8 @@ static bool run_route(follower_t *f, float *t_s) {
     uint32_t t0 = time_us_32(), call_us = t0, floor_us = t0;
     lap_stats_t st = { .replaced0 = comm_replaced_poses(), .dropped0 = comm_dropped_logs() };
     int last_seg = -1;
+    uint8_t floor_buf[FLOOR_DLC];
+    int floor_n = 0;
     bool pending = false, paused = false;
     while (true) {
         pending |= update_pose();
@@ -310,7 +314,9 @@ static bool run_route(follower_t *f, float *t_s) {
         if (!paused && time_us_32() - floor_us >= FLOOR_PERIOD_US) {
             floor_us = time_us_32();
             line_sensors_read();                   // tiempos de descarga en µs, S1..S5
-            comm_send_floor(line_sensors);
+            floor_buf[floor_n++] = floor_byte(line_sensors[0]);
+            floor_buf[floor_n++] = floor_byte(line_sensors[4]);
+            if (floor_n == FLOOR_DLC) { comm_send_floor(floor_buf); floor_n = 0; }
         }
         uint32_t lost = pose_age_ms();
         if (lost > POSE_TIMEOUT_MS && !paused) {

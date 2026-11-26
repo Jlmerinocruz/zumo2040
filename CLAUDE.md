@@ -59,7 +59,7 @@ JSON de la cámara: `{"timestamp", "board_detected", "markers":[{"id","x","y","a
 | 0x100 | LP_POSE | Pico 2 W → Zumo | 6 | x [mm] int16 | y [mm] int16 | ángulo [0.1°] int16 |
 | 0x110 | WP_GOTO | Pico 2 W → Zumo | 1 | byte 0: waypoint destino 1–14, 0 = alto | — | — |
 | 0x111 | WP_STATUS | Zumo → Pico 2 W | 2 | byte 0: estado (0 espera, 1 en camino, 2 llegó, 3 rechazado, 4 detenido) · byte 1: destino | — | — |
-| 0x112 | FLOOR | Zumo → Pico 2 W | 5 | bytes 0–4: descarga de S1..S5 en unidades de 4 µs (uint8, 255 = saturado); 10 Hz solo durante un recorrido | — | — |
+| 0x112 | FLOOR | Zumo → Pico 2 W | 8 | 4 lecturas cada 25 ms (la más vieja primero): bytes 2k, 2k+1 = S1, S5 de la lectura k, descarga en unidades de 4 µs (uint8, 255 = saturado); 10 frames/s solo durante un recorrido | — | — |
 
 CAN 2.0A (11 bits), **big-endian**, cristal de 8 MHz. Ejemplo real: x=0.176, y=0.079, ángulo=−69.0 → `00 B0 00 4F FD 4E`. Si se agregan mensajes nuevos, documentarlos en esta tabla y en el README.
 

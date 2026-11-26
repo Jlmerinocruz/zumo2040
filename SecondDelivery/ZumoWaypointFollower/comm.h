@@ -51,7 +51,7 @@ void comm_send_status(wp_state_t state, uint8_t waypoint);
 
 // Manda FLOOR por CAN (mapa de calor del suelo). Con la cola llena se descarta sin
 // avisar: perder una muestra solo deja un hueco en el mapa.
-void comm_send_floor(const uint16_t t_us[FLOOR_DLC]);
+void comm_send_floor(const uint8_t data[FLOOR_DLC]);
 
 // Telemetría desde el núcleo 0. Nunca bloquea: si la cola está llena el mensaje se
 // descarta y se cuenta (comm_dropped_logs).

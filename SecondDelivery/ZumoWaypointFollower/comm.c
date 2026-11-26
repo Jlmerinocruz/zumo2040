@@ -61,8 +61,8 @@ void comm_send_status(wp_state_t state, uint8_t waypoint) {
     if (!queue_try_add(&tx_q, &frame)) log_printf("# WP_STATUS descartado: cola CAN llena\n");
 }
 
-void comm_send_floor(const uint16_t t_us[FLOOR_DLC]) {
-    can_frame_t frame = floor_frame(t_us);
+void comm_send_floor(const uint8_t data[FLOOR_DLC]) {
+    can_frame_t frame = floor_frame(data);
     queue_try_add(&tx_q, &frame);
 }
 

@@ -59,21 +59,20 @@ GUI (PC) <--UDP "ESTADO e n"--------- Pico 2 W <--CAN 0x111 WP_STATUS-- Zumo
 
 ### Mapa de calor del suelo (cámara + reflectancia)
 
-Junta dos sensores distintos: la cámara del techo dice **dónde** está el Zumo y sus 5 sensores de reflectancia dicen **qué tan oscuro** es el piso ahí. Durante cualquier recorrido (vuelta con A o GOTO) el Zumo lee los sensores 10 veces por segundo y la GUI los pinta sobre la pista, de amarillo (claro) a morado (oscuro). Con hojas de colores sobre la pista se ven como manchas en el mapa.
+Junta dos sensores distintos: la cámara del techo dice **dónde** está el Zumo y los sensores de reflectancia de las orillas (S1 y S5) dicen **qué tan oscuro** es el piso ahí. Durante cualquier recorrido (vuelta con A o GOTO) el Zumo los lee 40 veces por segundo (una lectura cada 4 mm a 0.15 m/s) y la GUI los pinta sobre la pista como dos franjas, de amarillo (claro) a morado (oscuro). En la pista de la vuelta, que va sobre la foto aérea de cultivos, las franjas muestran las parcelas a los dos lados del Zumo. Los sensores del centro (S2–S4) van sobre la línea negra y no se mandan.
 
 ```
-Zumo (line_sensors_read, núcleo 0) --cola--> núcleo 1 --CAN 0x112 FLOOR--> Pico 2 W --UDP "PISO b1..b5"--> GUI
+Zumo (line_sensors_read, núcleo 0) --cola--> núcleo 1 --CAN 0x112 FLOOR--> Pico 2 W --UDP "PISO b0..b7"--> GUI
 ```
 
 | ID | Nombre | Emisor → Receptor | DLC | Bytes 0–4 |
 |---|---|---|---|---|
-| 0x112 | FLOOR | Zumo → Pico 2 W | 5 | tiempo de descarga de S1..S5 en unidades de 4 µs (uint8, 255 = 1020 µs o más; S1 = izquierda) |
+| 0x112 | FLOOR | Zumo → Pico 2 W | 8 | 4 lecturas, una cada 25 ms y la más vieja primero; bytes 2k y 2k+1 = S1 (izquierda) y S5 (derecha) de la lectura k, en unidades de 4 µs (uint8, 255 = 1020 µs o más) |
 
-- Es un frame de 5 bytes cada 100 ms y solo durante un recorrido (≈0.2 % del bus a 500 kbps). La lectura usa el PIO de la librería de Pololu y tarda 1 ms como máximo.
+- Se juntan 4 lecturas por frame: un frame de 8 bytes cada 100 ms y solo durante un recorrido (≈0.3 % del bus a 500 kbps), la misma cantidad de frames que con una lectura por frame. La lectura usa el PIO de la librería de Pololu y tarda 1 ms como máximo (≈4 % del núcleo 0).
 - La GUI manda `HOLA` a la Pico cada 2 s para recibir los `PISO` aunque la vuelta se arranque con el botón A.
-- Cada lectura se pinta con la pose de la cámara que llega 0.12 s después (`FLOOR_DELAY_S`), 4 cm adelante del marcador (`SENSOR_AHEAD_M`, aproximado: medirlo) y con la posición lateral de cada sensor.
-- La escala es automática por sensor, porque con el mismo piso S1 y S5 tardan casi el doble que S3. Va del percentil 5 al 95 de lo visto (no del mínimo al máximo): en la prueba del 26/11 las pocas lecturas de S1 y S5 sobre la línea negra estiraban la escala y todas las parcelas salían del mismo color. **Borrar mapa** reinicia la escala.
-- En la pista de la vuelta (sobre la foto aérea de cultivos), S2–S4 van sobre la línea negra y S1/S5 sobre las parcelas.
+- Cada `PISO` se pinta con la pose de la cámara que llega 0.12 s después (`FLOOR_DELAY_S`); sus 4 lecturas se reparten entre esa pose y la del `PISO` anterior. Van 4 cm adelante del marcador (`SENSOR_AHEAD_M`, aproximado: medirlo) y a ±4.5 cm a los lados.
+- La escala es automática por sensor, porque los sensores no tienen la misma sensibilidad. Va del percentil 5 al 95 de lo visto (no del mínimo al máximo): en la prueba del 26/11 las pocas lecturas de S1 y S5 sobre la línea negra estiraban la escala y todas las parcelas salían del mismo color. **Borrar mapa** reinicia la escala.
 
 ## Cómo funciona el seguidor (`follower.c`)
 
