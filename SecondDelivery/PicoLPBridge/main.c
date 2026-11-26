@@ -6,13 +6,20 @@
 //   LP_POSE  ID 0x100  DLC 6  big-endian
 //     bytes 0-1: x [mm] int16 | bytes 2-3: y [mm] int16 | bytes 4-5: ángulo [0.1°] int16
 //
+// También es el puente de la GUI de la PC para ir a un waypoint (../gui/):
+//   UDP 5002 "GOTO n" (n = 1..14) o "STOP" -> CAN WP_GOTO  ID 0x110 DLC 1 (byte 0 = n, 0 = alto)
+//     y contesta "OK GOTO n" / "OK STOP" si el Zumo dio ACK, o "ERR CAN" si no.
+//   CAN WP_STATUS ID 0x111 DLC 2 (estado, waypoint) -> UDP "ESTADO e n" a la GUI
+//     (la dirección que mandó el último comando).
+//
 // Reparto entre núcleos:
 //   núcleo 0: WiFi y lwIP (cyw43_arch_poll), parseo del JSON, LED y watchdog. El chip
 //             WiFi y lwIP solo se usan desde este núcleo (no son seguros entre núcleos).
 //   núcleo 1: MCP2515 (envío por CAN con su espera de ACK de hasta 10 ms) e impresión
 //             de cada pose enviada. Así el ACK y el printf no detienen la recepción WiFi.
-// Sincronización: una cola queue_t (spinlock de hardware) lleva las poses del núcleo 0
-// al 1. Los contadores los escribe un solo núcleo y el otro solo los lee.
+// Sincronización: colas queue_t (spinlock de hardware). Del núcleo 0 al 1 van las poses
+// y los WP_GOTO de la GUI; del 1 al 0, las respuestas para la GUI (texto) que solo el
+// núcleo 0 puede mandar por UDP. Los contadores los escribe un solo núcleo y el otro solo los lee.
 // El watchdog (3 s) solo se alimenta si los dos núcleos siguen vivos.
 //
 // LED de la Pico 2 W (montada en el Zumo normalmente no hay monitor serial):
@@ -43,14 +50,27 @@
 #define LP_POSE_ID  0x100
 #define LP_POSE_DLC 6
 #define POSE_QUEUE_LEN 8      // la cámara manda ráfagas de 4-5 poses tras un hueco de WiFi
+#define WP_CMD_PORT   5002
+#define WP_GOTO_ID    0x110
+#define WP_GOTO_DLC   1
+#define WP_STATUS_ID  0x111
+#define WP_STATUS_DLC 2
+#define WAYPOINT_COUNT 14
+#define GUI_QUEUE_LEN 4
+#define MAX_RX_FRAMES 4       // por pasada, como en el Zumo
 
 typedef struct {
     float x;      // m
     float y;      // m
     float angle;  // grados
+    uint32_t t_us; // llegada del paquete UDP (time_us_32), para medir huecos y ráfagas
 } pose_t;
 
 static queue_t pose_q;   // núcleo 0 -> núcleo 1
+static queue_t goto_q;   // núcleo 0 -> núcleo 1, byte del WP_GOTO (0 = alto)
+static queue_t reply_q;  // núcleo 1 -> núcleo 0, texto para la GUI
+
+typedef struct { char text[24]; } gui_reply_t;
 
 // Contadores acumulados. Cada uno lo escribe un solo núcleo.
 static volatile uint32_t n_rx, n_nomarker;          // núcleo 0
@@ -103,11 +123,51 @@ static void on_udp_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     n_rx++;
     pose_t pose;
     if (!parse_marker(json, &pose)) { n_nomarker++; return; }
+    pose.t_us = time_us_32();
     // Cola llena (el núcleo 1 se atrasó): se tira la pose más vieja, nunca la nueva.
     if (!queue_try_add(&pose_q, &pose)) {
         pose_t old;
         queue_try_remove(&pose_q, &old);
         queue_try_add(&pose_q, &pose);
+    }
+}
+
+// Dirección de la GUI (la del último comando); solo la usa el núcleo 0.
+static ip_addr_t gui_addr;
+static u16_t gui_port = 0;   // 0 = la GUI todavía no manda nada
+
+static void on_cmd_packet(void *arg, struct udp_pcb *pcb, struct pbuf *p,
+                          const ip_addr_t *addr, u16_t port) {
+    (void)arg; (void)pcb;
+    if (p == NULL) return;
+    char text[16];
+    uint16_t len = pbuf_copy_partial(p, text, sizeof(text) - 1, 0);
+    text[len] = '\0';
+    pbuf_free(p);
+
+    int n;
+    if (strcmp(text, "STOP") == 0) n = 0;
+    else if (sscanf(text, "GOTO %d", &n) != 1 || n < 1 || n > WAYPOINT_COUNT) {
+        printf("GUI: comando desconocido \"%s\"\n", text);
+        return;
+    }
+    ip_addr_copy(gui_addr, *addr);
+    gui_port = port;
+    uint8_t wp = (uint8_t)n;
+    if (!queue_try_add(&goto_q, &wp)) printf("GUI: cola de comandos llena, se descarta\n");
+}
+
+// Manda a la GUI las respuestas que dejó el núcleo 1.
+static void send_gui_replies(struct udp_pcb *pcb) {
+    gui_reply_t r;
+    while (queue_try_remove(&reply_q, &r)) {
+        if (gui_port == 0) continue;
+        size_t len = strlen(r.text);
+        struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
+        if (!p) continue;
+        memcpy(p->payload, r.text, len);
+        udp_sendto(pcb, p, &gui_addr, gui_port);
+        pbuf_free(p);
     }
 }
 
@@ -129,7 +189,11 @@ static bool send_pose(const pose_t *p) {
 
     bool sent = mcp2515_send_message(&frame);
 
-    printf("LP x=%.3f y=%.3f ang=%.1f | TX ID=0x%03X DLC=%d Data=",
+    // t = llegada por WiFi; cola = espera hasta salir por CAN. Si dos poses llegan
+    // con t casi igual, la ráfaga viene del WiFi; si t está separado y la cola es
+    // grande, el retraso es de la Pico.
+    printf("LP t=%lu ms cola=%lu us x=%.3f y=%.3f ang=%.1f | TX ID=0x%03X DLC=%d Data=",
+           (unsigned long)(p->t_us / 1000u), (unsigned long)(time_us_32() - p->t_us),
            p->x, p->y, p->angle, (unsigned)frame.id, frame.dlc);
     for (int i = 0; i < frame.dlc; i++) printf("%02X ", frame.data[i]);
     printf("%s\n", sent ? "OK" : "FALLO (sin ACK)");
@@ -137,6 +201,34 @@ static bool send_pose(const pose_t *p) {
 }
 
 // ---------------------------------------------------------------- núcleo 1 ----
+
+static void push_reply(const char *text) {
+    gui_reply_t r;
+    snprintf(r.text, sizeof r.text, "%s", text);
+    printf("-> GUI: %s\n", r.text);
+    queue_try_add(&reply_q, &r);
+}
+
+// WP_GOTO de la GUI hacia el Zumo; contesta si dio ACK.
+static void send_goto(uint8_t wp) {
+    can_frame_t frame = { .id = WP_GOTO_ID, .dlc = WP_GOTO_DLC, .data = { wp } };
+    char text[24];
+    if (!(can_ok && mcp2515_send_message(&frame))) snprintf(text, sizeof text, "ERR CAN");
+    else if (wp == 0) snprintf(text, sizeof text, "OK STOP");
+    else snprintf(text, sizeof text, "OK GOTO %u", wp);
+    push_reply(text);
+}
+
+// WP_STATUS del Zumo hacia la GUI.
+static void read_status(void) {
+    can_frame_t rx;
+    for (int n = 0; n < MAX_RX_FRAMES && mcp2515_read_message(&rx); n++) {
+        if (rx.id != WP_STATUS_ID || rx.dlc < WP_STATUS_DLC) continue;
+        char text[24];
+        snprintf(text, sizeof text, "ESTADO %u %u", rx.data[0], rx.data[1]);
+        push_reply(text);
+    }
+}
 
 static void core1_main(void) {
     mcp2515_init(MCP2515_PINS_PICO2W);
@@ -150,6 +242,9 @@ static void core1_main(void) {
             last_retry = now;
             can_ok = mcp2515_start();
         }
+        uint8_t wp;
+        if (queue_try_remove(&goto_q, &wp)) send_goto(wp);
+        if (can_ok && !gpio_get(MCP2515_PINS_PICO2W.irq)) read_status();
         pose_t p;
         if (!queue_try_remove(&pose_q, &p)) { sleep_ms(1); continue; }
         if (can_ok && send_pose(&p)) n_ok++;
@@ -209,6 +304,8 @@ int main(void) {
 
     // CAN primero (núcleo 1): así se puede revisar el bus aunque el WiFi tarde.
     queue_init(&pose_q, sizeof(pose_t), POSE_QUEUE_LEN);
+    queue_init(&goto_q, sizeof(uint8_t), GUI_QUEUE_LEN);
+    queue_init(&reply_q, sizeof(gui_reply_t), GUI_QUEUE_LEN);
     multicore_launch_core1(core1_main);
 
     // Si algo se cuelga más de 3 s, la Pico se reinicia sola en vez de quedarse muerta.
@@ -243,7 +340,11 @@ int main(void) {
     struct udp_pcb *pcb = udp_new();
     udp_bind(pcb, IP_ADDR_ANY, TELEMETRY_PORT);
     udp_recv(pcb, on_udp_packet, NULL);
-    printf("servidor %s, escuchando UDP %d\n", ip4addr_ntoa(netif_ip4_gw(netif_list)), TELEMETRY_PORT);
+    struct udp_pcb *cmd_pcb = udp_new();
+    udp_bind(cmd_pcb, IP_ADDR_ANY, WP_CMD_PORT);
+    udp_recv(cmd_pcb, on_cmd_packet, NULL);
+    printf("servidor %s, escuchando UDP %d (camara) y %d (GUI de waypoints)\n",
+           ip4addr_ntoa(netif_ip4_gw(netif_list)), TELEMETRY_PORT, WP_CMD_PORT);
 
     // El servidor de la cámara manda broadcast al 5000, pero ese broadcast puede no
     // salir por el hotspot. También acepta suscripciones en UDP 5001: le mandamos un
@@ -256,6 +357,7 @@ int main(void) {
         feed_watchdog();
         cyw43_arch_poll();
         update_led();
+        send_gui_replies(cmd_pcb);
 
         if (time_reached(next_sub)) {
             next_sub = make_timeout_time_ms(2000);

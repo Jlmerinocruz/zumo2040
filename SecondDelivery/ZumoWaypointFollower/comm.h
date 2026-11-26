@@ -2,17 +2,25 @@
 //
 // Es el único que usa el MCP2515 (SPI0) y el único que escribe al serial USB, así
 // que ni la espera del SPI ni un printf lento pueden frenar el lazo de control del
-// núcleo 0. Los dos núcleos se comunican solo por dos colas queue_t del SDK
+// núcleo 0. Los dos núcleos se comunican por colas queue_t del SDK
 // (FIFO protegidas por un spinlock de hardware, sin bloquear al otro núcleo):
 //
 //   núcleo 1 --(cola de poses, con la hora de llegada)--> núcleo 0
+//   núcleo 1 --(cola de WP_GOTO de la GUI)--------------> núcleo 0
 //   núcleo 0 --(cola de telemetría: muestras y texto)----> núcleo 1 --> printf
+//   núcleo 0 --(cola de frames CAN a enviar: WP_STATUS)--> núcleo 1 --> MCP2515
+//
+// El núcleo 1 también mide el sensor de proximidad del frente (obstacle.h) y prende
+// intermitentes y buzzer: los LEDs RGB comparten SPI0 con el MCP2515, así que solo
+// los toca el núcleo que usa el SPI. Ahí bastan banderas de un byte con un solo
+// escritor (obstáculo: núcleo 1 → 0; alerta: núcleo 0 → 1).
 #ifndef COMM_H
 #define COMM_H
 
 #include <stdbool.h>
 #include <stdint.h>
 #include "follower.h"
+#include "lp_can.h"
 
 typedef struct {
     pose_t pose;
@@ -37,6 +45,21 @@ bool comm_take_pose(pose_msg_t *out);
 
 // Poses que no se usaron porque llegó una más nueva antes de procesarlas.
 uint32_t comm_replaced_poses(void);
+
+// Último WP_GOTO de la GUI (1..14 = destino, 0 = alto); false si no llegó ninguno
+// desde la llamada anterior.
+bool comm_take_goto(uint8_t *waypoint);
+
+// Manda WP_STATUS por CAN (lo envía el núcleo 1). Nunca bloquea: con la cola llena
+// se descarta y el núcleo 1 lo avisa por serial.
+void comm_send_status(wp_state_t state, uint8_t waypoint);
+
+// Obstáculo al frente (con histéresis, ver obstacle.h) y el último nivel medido.
+bool comm_obstacle(void);
+uint8_t comm_front_level(void);
+
+// Prende o apaga los intermitentes y el buzzer (los maneja el núcleo 1).
+void comm_set_alert(bool on);
 
 // Telemetría desde el núcleo 0. Nunca bloquea: si la cola está llena el mensaje se
 // descarta y se cuenta (comm_dropped_logs).

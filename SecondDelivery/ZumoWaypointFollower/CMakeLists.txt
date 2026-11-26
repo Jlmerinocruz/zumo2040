@@ -33,7 +33,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(ZumoWaypointFollower main.c comm.c lp_can.c follower.c waypoints.c ../common/mcp2515.c)
+add_executable(ZumoWaypointFollower main.c comm.c lp_can.c follower.c goto_wp.c obstacle.c waypoints.c ../common/mcp2515.c)
 
 # Todo el programa corre desde RAM (ver el comentario al inicio de main.c).
 pico_set_binary_type(ZumoWaypointFollower copy_to_ram)
@@ -52,6 +52,7 @@ pico_enable_stdio_usb(ZumoWaypointFollower 1)
 target_link_libraries(ZumoWaypointFollower
         pico_stdlib
         hardware_spi
+        hardware_pwm
         pico_multicore
         pololu_zumo_2040_robot)
 
