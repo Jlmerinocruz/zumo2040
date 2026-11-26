@@ -78,7 +78,10 @@ typedef struct {
 #define FOLLOWER_HIST     32      // historial de comandos (≥ retardo a la tasa de follower_tick)
 #define FOLLOWER_FORGET   0.95f   // olvido por pose (~20 poses ≈ 2 s de memoria)
 #define FOLLOWER_PRIOR_V  0.01f   // peso inicial de g_v = 1 (m)
-#define FOLLOWER_PRIOR_W  0.1f    // peso inicial de g_ω = 1 (rad)
+#define FOLLOWER_PRIOR_W  0.1f    // peso inicial de g_ω = FOLLOWER_GW0 (rad)
+// g_ω solo se ajusta en arcos: arrancar en 1 dejaba la primera recta (P14 → P1) con
+// correcciones que no alcanzaban (e_y de 5 a 32 mm). En pista el 25/11 midió 0.26–0.28.
+#define FOLLOWER_GW0      0.27f
 #define FOLLOWER_MIN_V    0.01f   // m   avance mandado que junta un intervalo de ajuste
 #define FOLLOWER_MIN_W    0.1f    // rad giro mandado que junta un intervalo de ajuste
 // Límites de las ganancias. g_v no baja de 0.5 para que, si el Zumo se atora y no
