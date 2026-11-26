@@ -53,9 +53,10 @@
 // se movió (imagen movida). En la parte A (~0.05 m/s) sí lo seguía. Se empieza lento
 // y se sube poco a poco mientras la cámara lo siga viendo. Ojo: antes el Zumo iba
 // ~1.3 veces más rápido de lo mandado en rectas (0.08 → ~0.10 m/s reales) y ahora va
-// a lo que se manda. Siguiente paso sugerido si la cámara lo sigue viendo: 0.15 / 0.10.
-#define V_STRAIGHT     0.12f    // m/s en rectas
-#define V_ARC          0.08f    // m/s en las vueltas
+// a lo que se manda. Prueba 26/11 a 0.15 / 0.10: vuelta de 50.8 s sin perder la pose;
+// el equipo se quedó con esta velocidad.
+#define V_STRAIGHT     0.15f    // m/s en rectas
+#define V_ARC          0.10f    // m/s en las vueltas
 // ---- Seguridad y calibración ----
 // En el laboratorio la cámara manda ~9.5 poses/s (una cada ~105 ms), pero por WiFi
 // llegan en ráfagas: cada ~0.8 s hay un hueco de ~450 ms y luego 4-5 poses atrasadas
