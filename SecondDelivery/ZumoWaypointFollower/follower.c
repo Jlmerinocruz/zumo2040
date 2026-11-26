@@ -103,10 +103,12 @@ void follower_init(follower_t *f, const follower_params_t *p,
     f->est_ok = f->cam_ok = false;
     f->clock = f->cum_v = f->cum_w = 0.0f;
     f->h_i = f->h_n = 0;
-    // Arranca en ganancia 1 con un peso equivalente a unos cuantos intervalos.
+    // Valor inicial con un peso equivalente a unos cuantos intervalos.
     f->nv = f->dv = FOLLOWER_PRIOR_V;
-    f->nw = f->dw = FOLLOWER_PRIOR_W;
-    f->g_v = f->g_w = 1.0f;
+    f->dw = FOLLOWER_PRIOR_W;
+    f->nw = FOLLOWER_GW0 * FOLLOWER_PRIOR_W;
+    f->g_v = 1.0f;
+    f->g_w = FOLLOWER_GW0;
 }
 
 // Proyecta la pose sobre el tramo: avance t, error lateral e_y y rumbo de la tangente.

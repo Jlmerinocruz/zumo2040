@@ -141,6 +141,10 @@ Ninguno de los cambios depende de conocer la planta. A 0.15 / 0.10 m/s, con sepa
 
 Se corrigió así: los intervalos se juntan, g_ω se ajusta solo en arcos con un mínimo de 0.25, y `main.c` espera 20 ms después de cada pose para usar solo la más reciente del grupo. Con poses en pares y una zona muerta de giro de 0.12 m/s (`PARES=1 HOLD=0.02 DZ=0.12 WB_REAL=0.17 GAIN=1.0`), a 0.12 / 0.08 m/s el simulador da RMS 14.8 mm. Con el control del 17/11 da 37.4 mm, y con la versión que falló en pista, 33.5 mm.
 
+**Vueltas 6 y 7 del 25/11 (0.12 / 0.08 m/s), ya con ese arreglo:**
+- La vuelta 6 salió completa en 62.8 s, pero los arcos P3–P4 y P7–P8 iban en zigzag, con las orugas en ±0.6 m/s. Por eso se agregó `diff_max`.
+- La vuelta 7 salió completa en 63.0 s, sin zigzag (g_v = 1.19, g_ω = 0.26). Lo peor fue la primera recta: e_y crece de 5 a 32 mm porque g_ω todavía no se ajustaba. Ahora g_ω arranca en 0.27 (`FOLLOWER_GW0`). En el resto de los tramos, |e_y| ≤ 18 mm. La línea base era la vuelta 4: 89.0 s, con máximo de 92 mm.
+
 Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen movida (pasó a 0.20 m/s mandados, que en realidad eran ~0.26 m/s), el arrastre extra de las orugas al girar (en pista los arcos tardan más) y la caída de las pilas.
 
 ## Pendiente (requiere hardware o datos)
