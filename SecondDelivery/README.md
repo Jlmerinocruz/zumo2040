@@ -152,6 +152,8 @@ Se corrigió así: los intervalos se juntan, g_ω se ajusta solo en arcos con un
 **Vueltas 6 y 7 del 25/11 (0.12 / 0.08 m/s), ya con ese arreglo:**
 - La vuelta 6 salió completa en 62.8 s, pero los arcos P3–P4 y P7–P8 iban en zigzag, con las orugas en ±0.6 m/s. Por eso se agregó `diff_max`.
 - La vuelta 7 salió completa en 63.0 s, sin zigzag (g_v = 1.19, g_ω = 0.26). Lo peor fue la primera recta: e_y crece de 5 a 32 mm porque g_ω todavía no se ajustaba. Ahora g_ω arranca en 0.27 (`FOLLOWER_GW0`). En el resto de los tramos, |e_y| ≤ 18 mm. La línea base era la vuelta 4: 89.0 s, con máximo de 92 mm.
+- La vuelta 8 del 26/11, a 0.15 / 0.10 m/s y con g_ω inicial de 0.27, salió completa en 50.8 s (g_v = 0.90, g_ω = 0.25, sin pausas). La primera recta quedó con |e_y| ≤ 9 mm. El peor error fue de 28 mm hacia afuera en el arco P13–P14, y el resto de los tramos quedó en ≤ 22 mm. El equipo se quedó con estas velocidades.
+- Después se probaron y **descartaron** (26/11) una entrada y salida graduales de los arcos y un PI de velocidad por oruga con los encoders: no mejoraron la vuelta de 50.8 s (la vuelta 9, `logs/vuelta9_zumo.txt`, salió en 52.7 s con máximo de 43 mm, y con el PI el Zumo serpenteaba). El código de esta rama es el de la vuelta 8.
 
 Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen movida (pasó a 0.20 m/s mandados, que en realidad eran ~0.26 m/s), el arrastre extra de las orugas al girar (en pista los arcos tardan más) y la caída de las pilas.
 
@@ -160,11 +162,12 @@ Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen
 - [x] Formato CAN de la Pico 2 W (reporte Wireless): `LP_POSE`, ID 0x100, DLC 6, **big-endian**, x/y en mm y ángulo en **décimas** de grado. Se probó `lp_decode()` con los mensajes reales del reporte.
 - [x] PCB fabricada, corregida (bus SPI compartido) y validada: SPI de cada micro en loopback y CAN Pico↔Zumo 10/10 en las dos direcciones, también solo con pilas.
 - [ ] Parte A: fotos de las dos caras de la PCB y de los cortes, Zumo con PCB y marcador (foto) y video de los 50 cm (`ZumoPartA50cm/`).
-- [ ] Probar la versión multinúcleo en el laboratorio (Pico 2 W y Zumo): que la vuelta salga igual que antes y guardar las líneas `# nucleo 0` y `# colas` para el reporte.
+- [x] Probar la versión multinúcleo en el laboratorio (Pico 2 W y Zumo): las vueltas 6–8 ya corrieron con ella. Falta copiar las líneas `# nucleo 0` y `# colas` al reporte.
 - [ ] Medir VCC_CAN con pilas, con el Zumo quieto y con motores andando (para el reporte).
 - [ ] Calibración con el botón B → `MOTOR_K`, `MOTOR_DEAD`, `WHEEL_BASE` y `CAM_LATENCY`.
-- [ ] Vueltas en pista: subir velocidades poco a poco (parte D), 3 tiempos, video y gráfica medida.
-- [ ] Probar en pista `follower_tick` + ganancias medidas, primero a 0.12 / 0.08 m/s y luego a 0.15 / 0.10. Comparar con `analysis/analizar_vueltas.py` contra la línea base (vuelta 4: 89.0 s, máx 92 mm, RMS 21.3 mm) y anotar los `g_v`, `g_w` que imprime al final.
-- [ ] GUI de waypoints en pista: comprobar UDP 5002 con la Pico, que el Zumo llegue a varios puntos y definir `on_arrival()`.
-- [ ] Obstáculos: calibrar `OBST_STOP_LEVEL` a ~12 cm, revisar que los LEDs D y F sean los del frente y que el CAN siga bien después de los intermitentes (sin `ERR CAN`).
+- [ ] Vueltas en pista a 0.15 / 0.10 m/s (parte D): 3 tiempos, video y gráfica medida.
+- [x] Probar en pista `follower_tick` + ganancias medidas (vueltas 6–8 del 25 y 26/11; ver "Resultados del simulador").
+- [ ] Guardar en `logs/` los seriales de las vueltas 7 y 8 y sacar el RMS con `analysis/analizar_vueltas.py`.
+- [x] GUI de waypoints en pista (26/11): GOTO, llegada, Alto y el dibujo del Zumo funcionan. Falta definir `on_arrival()`.
+- [x] Obstáculos en pista (26/11): frena bien con `OBST_STOP_LEVEL` 6 (el máximo). Si frena demasiado lejos, bajar la potencia de los LEDs IR.
 - [ ] Parte E: medir t_i(r) con α = 0 en 5–7 radios (por ejemplo 0.25, 0.5, 0.75, 1.0, 1.25, 1.5 y 1.75 m) y cargarlos en la tabla de `alpha_test.c`. Opcional: validar con α = 45° y 90° en r = 1.5 m.
