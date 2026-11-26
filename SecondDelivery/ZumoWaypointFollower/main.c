@@ -17,6 +17,10 @@
 //       Imprime K (cuentas de motor por m/s) y la separación efectiva de orugas.
 //       Copiar esos valores a MOTOR_K y WHEEL_BASE.
 //
+// Obstáculos (función innovadora): si el sensor de proximidad del frente ve algo a
+// ~10-15 cm durante un recorrido (vuelta o GOTO), el Zumo frena, prende los
+// intermitentes del frente y pita; cuando se quita, sigue la ruta. Umbral en obstacle.h.
+//
 // GUI de la PC (función innovadora): CAN WP_GOTO (0x110) = ir a un waypoint siguiendo
 // la pista o alto; el Zumo responde con WP_STATUS (0x111). Ver lp_can.h y ../gui/.
 //
@@ -28,6 +32,7 @@
 #include "comm.h"
 #include "follower.h"
 #include "goto_wp.h"
+#include "obstacle.h"
 #include "waypoints.h"
 
 // ---- Parámetros a calibrar en pista (botón B) ----
@@ -73,10 +78,6 @@
 #define CAL_C1         1500     // dos velocidades para obtener K y la zona muerta
 #define CAL_C2         3000
 #define CAL_MS         1500
-// GP3 es el MOSI del MCP2515 y también los datos de los LEDs RGB. Con el reloj de
-// los LEDs (GP6) en bajo, el tráfico SPI no les cambia el color.
-#define RGB_CLOCK_PIN  6
-
 static float motor_k = MOTOR_K;
 static float motor_dead = MOTOR_DEAD;
 static float wheel_base = WHEEL_BASE;
@@ -244,20 +245,38 @@ static follower_params_t route_params(void) {
     return p;
 }
 
-// Recorre los tramos ya armados en f. Devuelve true si llegó al final y false si se
-// detuvo antes: botón B, sin pose de la cámara o un WP_GOTO nuevo (alto u otro destino,
-// que el lazo principal atiende al regresar). *t_s = duración del recorrido.
-static bool run_route(follower_t *f, float *t_s) {
+// Recorre los tramos ya armados en f hacia el waypoint dest (1..14). Devuelve true si
+// llegó al final y false si se detuvo antes: botón B, sin pose de la cámara o un
+// WP_GOTO nuevo (alto u otro destino, que el lazo principal atiende al regresar).
+// Con un obstáculo al frente espera detenido. *t_s = duración del recorrido.
+static bool run_route(follower_t *f, uint8_t dest, float *t_s) {
     log_printf("L,t_ms,x,y,theta_deg,seg,t,ey_mm,vl,vr\n");
 
     update_pose();                                 // descarta lo que llegó durante la espera
     uint32_t t0 = time_us_32(), call_us = t0;
     lap_stats_t st = { .replaced0 = comm_replaced_poses(), .dropped0 = comm_dropped_logs() };
     int last_seg = -1;
-    bool pending = false, paused = false;
+    bool pending = false, paused = false, blocked = false;
+    uint32_t clear_us = t0;                        // cuándo se quitó el último obstáculo
     while (true) {
         pending |= update_pose();
         update_goto();
+        if (comm_obstacle() != blocked) {
+            blocked = !blocked;
+            comm_set_alert(blocked);
+            if (blocked) {
+                motors_set_speeds(0, 0);
+                paused = true;                     // al quitarlo arranca con la siguiente pose
+                log_printf("# OBSTACULO al frente (nivel %u de %d, tramo %d): detenido\n",
+                           comm_front_level(), OBST_LEVELS, f->cur);
+                comm_send_status(WP_OBSTACLE, dest);
+            } else {
+                clear_us = time_us_32();
+                log_printf("# obstaculo retirado\n");
+                comm_send_status(WP_MOVING, dest);
+            }
+        }
+        if (blocked) pending = false;              // no usar poses de mientras estaba detenido
         // Las poses llegan juntas: en ráfagas tras un hueco del WiFi y, en la prueba del
         // 25/11, de dos en dos (5 ms entre ellas) cada 200 ms. La primera de cada grupo
         // es más vieja de lo que supone la compensación de retardo, así que se espera
@@ -302,14 +321,16 @@ static bool run_route(follower_t *f, float *t_s) {
             set_wheels(vl, vr);
             if (!running) { finish_route(f, now - t0, &st, t_s); return true; }
         }
-        uint32_t lost = pose_age_ms();
+        // La cámara puede perder el marcador mientras se quita el obstáculo: el plazo
+        // para abortar cuenta desde que se quitó.
+        uint32_t lost = pose_age_ms(), since_clear = (time_us_32() - clear_us) / 1000u;
         if (lost > POSE_TIMEOUT_MS && !paused) {
             motors_set_speeds(0, 0);
             paused = true;
             log_printf("# PAUSA: sin pose de la camara por %d ms (tramo %d), esperando...\n",
                        POSE_TIMEOUT_MS, f->cur);
         }
-        if (lost > POSE_ABORT_MS) {
+        if (!blocked && lost > POSE_ABORT_MS && since_clear > POSE_ABORT_MS) {
             motors_set_speeds(0, 0);
             log_printf("# ALTO: sin pose de la camara por %d ms (tramo %d)\n", POSE_ABORT_MS, f->cur);
             print_lap_stats(&st);
@@ -317,6 +338,7 @@ static bool run_route(follower_t *f, float *t_s) {
         }
         if (button_b_is_pressed()) {              // paro de emergencia
             motors_set_speeds(0, 0);
+            comm_set_alert(false);
             log_printf("# ALTO: boton B\n");
             print_lap_stats(&st);
             wait_release_b();
@@ -324,6 +346,7 @@ static bool run_route(follower_t *f, float *t_s) {
         }
         if (goto_req >= 0) {                       // la GUI mandó alto u otro destino
             motors_set_speeds(0, 0);
+            comm_set_alert(false);
             log_printf("# ALTO: WP_GOTO %d desde la GUI\n", goto_req);
             print_lap_stats(&st);
             return false;
@@ -343,7 +366,7 @@ static void run_lap(void) {
                motor_k, motor_dead, wheel_base);
     sleep_ms(1000);
     float t_s;
-    if (run_route(&f, &t_s))
+    if (run_route(&f, WAYPOINT_START + 1, &t_s))
         log_printf("# FIN en P%d. Tiempo de vuelta: %.2f s\n", WAYPOINT_START + 1, t_s);
 }
 
@@ -387,7 +410,7 @@ static void run_goto(int waypoint) {
     log_printf("GOTO P%d: desde P%d, %d tramos.\n", waypoint, f.seg[0].from + 1, f.n_seg);
     comm_send_status(WP_MOVING, (uint8_t)waypoint);
     float t_s;
-    if (run_route(&f, &t_s)) {
+    if (run_route(&f, (uint8_t)waypoint, &t_s)) {
         log_printf("# FIN en P%d. Tiempo: %.2f s\n", waypoint, t_s);
         comm_send_status(WP_ARRIVED, (uint8_t)waypoint);
         on_arrival(waypoint);
@@ -399,9 +422,6 @@ static void run_goto(int waypoint) {
 int main(void) {
     stdio_init_all();
     motors_init();
-    gpio_init(RGB_CLOCK_PIN);
-    gpio_set_dir(RGB_CLOCK_PIN, GPIO_OUT);
-    gpio_put(RGB_CLOCK_PIN, 0);
     sleep_ms(2000);
 
     comm_start();
@@ -416,9 +436,14 @@ int main(void) {
 
     const waypoint_t *w0 = &WAYPOINTS[WAYPOINT_START];
     uint32_t last_print = 0;
+    uint8_t last_front = 0;
     while (true) {
         update_pose();
         update_goto();
+        if (comm_front_level() != last_front) {   // para calibrar OBST_STOP_LEVEL
+            last_front = comm_front_level();
+            log_printf("frente: nivel %u de %d\n", last_front, OBST_LEVELS);
+        }
         // Sin pose reciente el núcleo 1 avisa "esperando LPdata" con los errores CAN.
         if (now_ms() - last_print > 500) {
             last_print = now_ms();

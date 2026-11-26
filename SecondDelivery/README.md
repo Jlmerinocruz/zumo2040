@@ -44,7 +44,7 @@ GUI (PC) <--UDP "ESTADO e n"--------- Pico 2 W <--CAN 0x111 WP_STATUS-- Zumo
 | ID | Nombre | Emisor → Receptor | DLC | Byte 0 | Byte 1 |
 |---|---|---|---|---|---|
 | 0x110 | WP_GOTO | Pico 2 W → Zumo | 1 | destino 1–14, 0 = alto | — |
-| 0x111 | WP_STATUS | Zumo → Pico 2 W | 2 | estado: 0 en espera, 1 en camino, 2 llegó, 3 rechazado (sin pose o a más de 10 cm de la pista), 4 detenido (alto, botón B o sin pose) | destino 1–14 |
+| 0x111 | WP_STATUS | Zumo → Pico 2 W | 2 | estado: 0 en espera, 1 en camino, 2 llegó, 3 rechazado (sin pose o a más de 10 cm de la pista), 4 detenido (alto, botón B o sin pose), 5 obstáculo al frente (sigue al quitarlo) | destino 1–14 |
 
 - `ZumoWaypointFollower/goto_wp.c`: ubica al Zumo en su tramo y arma la ruta hasta el destino (C portable).
 - Multinúcleo: en el Zumo el núcleo 1 recibe el WP_GOTO y lo pasa al núcleo 0 por una cola; el WP_STATUS va del núcleo 0 al 1 por otra cola y lo envía el núcleo 1 (dueño único del SPI). En la Pico, el núcleo 0 recibe el UDP y encola el comando; el núcleo 1 lo manda por CAN, lee el WP_STATUS y devuelve el texto por una cola para que el núcleo 0 lo mande por UDP.
@@ -56,6 +56,14 @@ GUI (PC) <--UDP "ESTADO e n"--------- Pico 2 W <--CAN 0x111 WP_STATUS-- Zumo
 2. Ver la IP de la Pico 2 W en su monitor serial (`Conectado, IP: …`).
 3. `python gui/elegir_waypoint.py --pico <IP de la Pico>` (sin `--pico` manda broadcast). Clic en un punto = ir; **Alto** = detener. La GUI también se suscribe a la cámara y dibuja al Zumo en vivo.
 4. Prueba unitaria en la PC: `cd sim && make test` (6 casos con PASS/FAIL, incluye 42 trayectos simulados en lazo cerrado que deben detenerse a menos de 40 mm del destino).
+
+## Obstáculos al frente (`obstacle.c`)
+
+Durante un recorrido (vuelta con A o GOTO de la GUI), si el sensor de proximidad IR del frente ve algo a ~10–15 cm, el Zumo frena, prende los LEDs RGB del frente (D y F) en ámbar como intermitentes y pita con el buzzer; manda `WP_STATUS` 5 y la GUI lo muestra. Cuando el obstáculo se quita (500 ms sin verlo) sigue la ruta con la siguiente pose de la cámara. No lo rodea.
+
+- **Cómo mide:** los LEDs IR del frente se prenden con 6 brillos (pulsos de 56 kHz) y se cuenta con cuántos el TSSP770 del frente ve el reflejo: nivel 0 = nada, 6 = muy cerca. Frena con 2 lecturas seguidas (cada 50 ms) en `OBST_STOP_LEVEL` o más.
+- **Núcleo 1:** mide el sensor y maneja intermitentes y buzzer, porque los LEDs RGB comparten SPI0 y GP3 con el MCP2515; tras cada escritura a los LEDs se repone la configuración del SPI del CAN. El núcleo 0 solo lee la bandera de obstáculo y decide frenar.
+- **Calibrar (`OBST_STOP_LEVEL` en `obstacle.h`, ahora 5):** con el Zumo en reposo el serial imprime `frente: nivel N de 6` cada vez que cambia. Poner un objeto a 12 cm y usar ese N.
 
 ## Cómo funciona el seguidor (`follower.c`)
 
@@ -158,4 +166,5 @@ Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen
 - [ ] Vueltas en pista: subir velocidades poco a poco (parte D), 3 tiempos, video y gráfica medida.
 - [ ] Probar en pista `follower_tick` + ganancias medidas, primero a 0.12 / 0.08 m/s y luego a 0.15 / 0.10. Comparar con `analysis/analizar_vueltas.py` contra la línea base (vuelta 4: 89.0 s, máx 92 mm, RMS 21.3 mm) y anotar los `g_v`, `g_w` que imprime al final.
 - [ ] GUI de waypoints en pista: comprobar UDP 5002 con la Pico, que el Zumo llegue a varios puntos y definir `on_arrival()`.
+- [ ] Obstáculos: calibrar `OBST_STOP_LEVEL` a ~12 cm, revisar que los LEDs D y F sean los del frente y que el CAN siga bien después de los intermitentes (sin `ERR CAN`).
 - [ ] Parte E: medir t_i(r) con α = 0 en 5–7 radios (por ejemplo 0.25, 0.5, 0.75, 1.0, 1.25, 1.5 y 1.75 m) y cargarlos en la tabla de `alpha_test.c`. Opcional: validar con α = 45° y 90° en r = 1.5 m.

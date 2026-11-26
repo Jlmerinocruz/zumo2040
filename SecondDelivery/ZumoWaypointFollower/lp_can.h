@@ -37,6 +37,7 @@ typedef enum {
     WP_ARRIVED = 2,   // llegó al destino
     WP_REJECTED = 3,  // no arrancó: sin pose reciente o fuera de la pista
     WP_STOPPED = 4,   // se detuvo antes de llegar: alto (GUI o botón B) o sin pose
+    WP_OBSTACLE = 5,  // detenido por un obstáculo al frente; sigue cuando se quita
 } wp_state_t;
 
 // Devuelve true si el frame es de LPdata y lo pudo convertir a pose (m, m, rad).

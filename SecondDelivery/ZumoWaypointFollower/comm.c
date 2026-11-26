@@ -6,6 +6,7 @@
 #include "pico/util/queue.h"
 #include "mcp2515.h"
 #include "lp_can.h"
+#include "obstacle.h"
 
 #define POSE_QUEUE_LEN   8
 #define LOG_QUEUE_LEN    32
@@ -36,6 +37,11 @@ static queue_t tx_q;     // núcleo 0 -> núcleo 1, can_frame_t a enviar
 static volatile uint32_t pose_overflow;   // escribe el núcleo 1
 static uint32_t pose_replaced;            // escribe el núcleo 0
 static uint32_t log_dropped;              // escribe el núcleo 0
+// Obstáculo al frente: el núcleo 1 mide y avisa; el núcleo 0 decide si frena y
+// prende la alerta (solo durante un recorrido). Variables de un byte, un solo escritor.
+static volatile uint8_t front_level;      // escribe el núcleo 1
+static volatile bool obstacle;            // escribe el núcleo 1
+static volatile bool alert_on;            // escribe el núcleo 0
 
 // ---------------------------------------------------------------- núcleo 0 ----
 
@@ -49,6 +55,12 @@ bool comm_take_pose(pose_msg_t *out) {
 uint32_t comm_replaced_poses(void) { return pose_replaced + pose_overflow; }
 
 uint32_t comm_dropped_logs(void) { return log_dropped; }
+
+bool comm_obstacle(void) { return obstacle; }
+
+uint8_t comm_front_level(void) { return front_level; }
+
+void comm_set_alert(bool on) { alert_on = on; }
 
 bool comm_take_goto(uint8_t *waypoint) {
     bool got = false;
@@ -136,6 +148,7 @@ static void print_log(const log_msg_t *m) {
 }
 
 static void core1_main(void) {
+    obstacle_init();
     // En la PCB el MCP2515 se alimenta de VSW: con el switch del Zumo en OFF no
     // responde, así que el arranque se reintenta cada CHECK_PERIOD_MS.
     bool can_ready = mcp2515_start();
@@ -143,7 +156,7 @@ static void core1_main(void) {
         printf("MCP2515 no responde: revisar switch del Zumo en ON (alimenta la PCB) y el header SPI\n");
     gpio_set_irq_enabled_with_callback(PINS.irq, GPIO_IRQ_EDGE_FALL, true, on_can_irq);
 
-    uint32_t last_pose_ms = 0, last_check_ms = 0;
+    uint32_t last_pose_ms = 0, last_check_ms = 0, last_obst_ms = 0;
     while (true) {
         uint32_t now = to_ms_since_boot(get_absolute_time());
         if (can_ready && !gpio_get(PINS.irq) && read_frames()) last_pose_ms = now;
@@ -164,6 +177,13 @@ static void core1_main(void) {
                 print_can_errors();
             }
         }
+
+        if (now - last_obst_ms >= OBST_PERIOD_MS) {
+            last_obst_ms = now;
+            front_level = obstacle_front_level();
+            obstacle = obstacle_detect(front_level, now);
+        }
+        obstacle_alert(alert_on, now);
 
         can_frame_t tx;
         if (queue_try_remove(&tx_q, &tx) && !(can_ready && mcp2515_send_message(&tx)))

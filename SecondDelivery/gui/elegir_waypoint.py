@@ -42,6 +42,7 @@ STATUS = {
     2: "llegó a P{n}",
     3: "no arrancó hacia P{n}: sin pose o fuera de la pista",
     4: "detenido (alto o se perdió la pose)",
+    5: "detenido por un obstáculo al frente (va a P{n})",
 }
 
 # Área de la pista en metros y tamaño del mapa en pixeles.
