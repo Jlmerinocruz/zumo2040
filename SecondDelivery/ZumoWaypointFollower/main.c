@@ -57,10 +57,12 @@
 // PI de velocidad por oruga con los encoders (wheels.c). Con false queda el lazo
 // abierto de la vuelta 9 (26/11) para comparar.
 #define WHEEL_PI       true
-// g_ω inicial con el PI: con las orugas a la velocidad mandada solo falta el
-// derrape del giro. En la vuelta 9 (oruga interior parada) el Zumo giró sobre una
-// separación efectiva de ~0.14 m → 0.085 / 0.14 ≈ 0.6. El seguidor lo ajusta.
-#define GW0_PI         0.6f
+// Con el PI, g_ω solo corrige la parte de la curva (ω_ff), no la corrección de rumbo.
+// Vuelta 10 (27/11, PI con g_ω en todo el giro): las correcciones chicas, que antes
+// se perdían en la zona muerta, ahora sí se cumplen; divididas entre g_ω ≈ 0.5
+// salían al doble y el Zumo serpenteó en todas las rectas (±50 mm, rumbo ±40°).
+// g_ω arranca en lo que midió esa vuelta.
+#define GW0_PI         0.5f
 // ---- Velocidades (parte D: subirlas poco a poco cuando la vuelta salga completa) ----
 // Prueba 17/11: a 0.20 m/s la cámara dejó de reconocer el marcador en cuanto el Zumo
 // se movió (imagen movida). En la parte A (~0.05 m/s) sí lo seguía. Se empieza lento
@@ -242,7 +244,10 @@ static follower_params_t route_params(void) {
     p.adapt = ADAPT_GAINS;
     p.v_straight = V_STRAIGHT;
     p.v_arc = V_ARC;
-    if (WHEEL_PI) p.g_w0 = GW0_PI;
+    if (WHEEL_PI) {
+        p.g_w0 = GW0_PI;
+        p.gw_all = false;
+    }
     return p;
 }
 

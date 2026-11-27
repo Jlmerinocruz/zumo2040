@@ -45,6 +45,9 @@ follower_params_t follower_default_params(void) {
         // con correcciones que no alcanzaban (e_y de 5 a 32 mm). En pista, sin el lazo de
         // velocidad de las orugas, midió 0.25–0.28.
         .g_w0       = 0.27f,
+        // Sin el PI de las orugas, las correcciones chicas de rumbo caen en la zona
+        // muerta del giro, así que también se dividen entre g_ω.
+        .gw_all     = true,
     };
     return p;
 }
@@ -255,14 +258,18 @@ static bool control(follower_t *f, float dt, float *v_left, float *v_right) {
     // Lo que hay que mandarle a las orugas para que el robot haga (v, ω), según las
     // ganancias medidas con la cámara. (v, ω) → orugas; si una satura, se escalan
     // ambas para conservar la curvatura.
-    float vm = v / f->g_v, wm = omega / f->g_w;
+    // Con g_ω_ff solo se corrige la parte de la curva (ω_ff); la corrección de rumbo
+    // se divide entre g_fb (= g_ω, o 1 si gw_all es false).
+    float g_fb = f->p.gw_all ? f->g_w : 1.0f;
+    float ff_extra = omega_ff / f->g_w - omega_ff / g_fb;   // 0 si g_fb = g_ω
+    float vm = v / f->g_v, wm = omega / g_fb + ff_extra;
     // Límite a la diferencia entre orugas: con ±0.6 m/s (diferencia ~1 m/s) el Zumo
     // pivotea mucho más rápido de lo que predice g_ω y en la prueba del 25/11 los
     // arcos salían en zigzag. Los arcos que salieron bien usaban ~0.2–0.3 m/s.
     float w_lim = f->p.diff_max / f->p.wheel_base;
     if (fabsf(wm) > w_lim) {
         wm = copysignf(w_lim, wm);
-        f->omega_cmd = wm * f->g_w;
+        f->omega_cmd = (wm - ff_extra) * g_fb;
     }
     float vl = vm - wm * f->p.wheel_base * 0.5f;
     float vr = vm + wm * f->p.wheel_base * 0.5f;
@@ -270,7 +277,7 @@ static bool control(follower_t *f, float dt, float *v_left, float *v_right) {
     if (m > f->p.wheel_max) {
         float k = f->p.wheel_max / m;
         vl *= k; vr *= k; vm *= k; wm *= k;
-        f->v_cmd = vm * f->g_v; f->omega_cmd = wm * f->g_w;
+        f->v_cmd = vm * f->g_v; f->omega_cmd = (wm - ff_extra) * g_fb;
     }
     f->v_mot = vm; f->w_mot = wm;
 

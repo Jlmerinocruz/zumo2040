@@ -88,6 +88,7 @@ int main(int argc, char **argv) {
     if (getenv("ALFA")) p.alpha_max = atof(getenv("ALFA"));
     if (getenv("ADAPT")) p.adapt = atoi(getenv("ADAPT"));
     if (getenv("GW0"))  p.g_w0 = atof(getenv("GW0"));
+    if (getenv("GW_ALL")) p.gw_all = atoi(getenv("GW_ALL"));
     // TICK=0 reproduce el firmware anterior: control solo cuando llega una pose.
     const float tick = getenv("TICK") ? atof(getenv("TICK")) : 0.02f;
     // Planta "como en pista" (valores ajustados a logs/vuelta4.txt). IDEAL=1 vuelve al
@@ -103,7 +104,7 @@ int main(int argc, char **argv) {
 
     const float noise_xy = 0.005f;                    // σ = 5 mm (≈ ±1 cm)
     const float noise_th = 0.5f * (float)M_PI / 180;  // σ = 0.5° (≈ ±1°)
-    const float tau = 0.08f;                          // s, respuesta de motores
+    const float tau = getenv("TAU") ? atof(getenv("TAU")) : 0.08f;   // s, respuesta de motores
     const float asym = 0.95f;                         // oruga izquierda 5 % más lenta
     const float dt = 0.001f;
     srand(getenv("SEED") ? atoi(getenv("SEED")) : 1);

@@ -19,7 +19,9 @@
 #define WIN            4
 #define KP             3000.0f   // cuentas por m/s de error
 #define KI             30000.0f  // cuentas por (m/s)·s: corrige en ~0.1 s
-#define I_MAX          2500.0f   // tope del integrador (cuentas)
+// Tope del integrador (≈ 0.17 m/s del modelo): alcanza para vencer la fricción de la
+// oruga interior sin que el integrador se pase cuando el comando cambia rápido.
+#define I_MAX          1200.0f
 #define V_MIN          0.005f    // m/s: abajo de esto la oruga se apaga
 #define STALL_V        0.005f    // m/s: oruga "parada"
 #define STALL_REF      0.02f     // m/s: ... cuando se le pedía al menos esto

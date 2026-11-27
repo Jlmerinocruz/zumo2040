@@ -75,6 +75,7 @@ typedef struct {
     float latency;      // s     retardo de la cámara a compensar (0 = no compensar)
     bool adapt;         // ajustar g_v y g_ω con la cámara
     float g_w0;         // -     g_ω con la que arranca el ajuste
+    bool gw_all;        // g_ω corrige todo el giro (false: solo ω_ff = v·curvatura)
 } follower_params_t;
 
 #define FOLLOWER_MAX_SEGMENTS WAYPOINT_COUNT
