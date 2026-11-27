@@ -14,3 +14,16 @@ bool lp_decode(const can_frame_t *frame, pose_t *pose) {
     pose->theta = be16(&frame->data[4]) / 10.0f * PI_F / 180.0f;
     return true;
 }
+
+bool wp_goto_decode(const can_frame_t *frame, uint8_t *waypoint) {
+    if (frame->id != WP_GOTO_ID || frame->dlc < WP_GOTO_DLC) return false;
+    *waypoint = frame->data[0];
+    return true;
+}
+
+can_frame_t wp_status_frame(wp_state_t state, uint8_t waypoint) {
+    can_frame_t frame = { .id = WP_STATUS_ID, .dlc = WP_STATUS_DLC };
+    frame.data[0] = (uint8_t)state;
+    frame.data[1] = waypoint;
+    return frame;
+}

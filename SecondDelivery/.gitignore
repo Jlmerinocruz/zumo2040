@@ -1,4 +1,5 @@
 # Binarios y salidas regenerables (PC)
 sim/sim_follower
+sim/test_goto
 sim/vuelta.csv
 alpha/alpha_test

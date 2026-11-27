@@ -57,6 +57,8 @@ JSON de la cámara: `{"timestamp", "board_detected", "markers":[{"id","x","y","a
 | ID | Nombre | Emisor → Receptor | DLC | Bytes 0–1 | Bytes 2–3 | Bytes 4–5 |
 |---|---|---|---|---|---|---|
 | 0x100 | LP_POSE | Pico 2 W → Zumo | 6 | x [mm] int16 | y [mm] int16 | ángulo [0.1°] int16 |
+| 0x110 | WP_GOTO | Pico 2 W → Zumo | 1 | byte 0: waypoint destino 1–14, 0 = alto | — | — |
+| 0x111 | WP_STATUS | Zumo → Pico 2 W | 2 | byte 0: estado (0 espera, 1 en camino, 2 llegó, 3 rechazado, 4 detenido, 5 obstáculo) · byte 1: destino | — | — |
 
 CAN 2.0A (11 bits), **big-endian**, cristal de 8 MHz. Ejemplo real: x=0.176, y=0.079, ángulo=−69.0 → `00 B0 00 4F FD 4E`. Si se agregan mensajes nuevos, documentarlos en esta tabla y en el README.
 
@@ -72,7 +74,8 @@ CAN 2.0A (11 bits), **big-endian**, cristal de 8 MHz. Ejemplo real: x=0.176, y=0
 
 Detalle de `SecondDelivery/` (ver su `README.md`, la fuente más completa):
 - `follower.c`: arma 7 rectas + 5 arcos de 180° + 2 de 90° (R ≈ 7 cm) a partir de los waypoints; compensa el retardo de cámara; ω = v/R + k_θ·(rumbo ref − θ), con rumbo ref = tangente − atan(k_e·e_y) y k_e ajustada para ζ constante.
-- Constantes actuales en `ZumoWaypointFollower/main.c`: `MOTOR_K 7000`, `MOTOR_DEAD 850`, `WHEEL_BASE 0.085`, `CAM_LATENCY 0.12`, `V_STRAIGHT 0.08`, `V_ARC 0.06` m/s, `POSE_TIMEOUT_MS 800`.
+- Constantes actuales en `ZumoWaypointFollower/main.c`: `MOTOR_K 7000`, `MOTOR_DEAD 850`, `WHEEL_BASE 0.085`, `CAM_LATENCY 0.16`, `V_STRAIGHT 0.15`, `V_ARC 0.10` m/s, `POSE_TIMEOUT_MS 800` (las vueltas de la tabla de abajo se corrieron con `CAM_LATENCY 0.12` y 0.08/0.06 m/s).
+- Desde el 25-nov el seguidor también corre entre poses (`follower_tick`, cada 20 ms) y ajusta con la cámara las ganancias reales g_v y g_ω (en pista el Zumo giraba ~0.3 veces la ω mandada y se abría 15–25 mm en todos los arcos). Ver "Cómo funciona el seguidor" en `SecondDelivery/README.md`.
 - Botón A = vuelta desde P14 mirando a +y; botón B = calibración (fuera de vuelta) o paro (durante la vuelta).
 - `alpha/`: parte E, método para estimar α con los sensores de reflectancia (pendiente cargar mediciones reales t_i(r)).
 - `analysis/plot_route.py` (con `uv run`): mapa de waypoints y ruta deseada vs. medida a partir del log serial (líneas `L,...`).
@@ -93,9 +96,9 @@ Requisitos completos: `docs/Final_Evidence_TE2004B_AD26.pdf`. El reporte final d
 | 2 | Lazo cerrado con encoders (p. ej. distancia/cuadrado) | No hay código de encoders en el repo | Diagrama 2, unitaria sugerida |
 | 3 | Estimación de radio en el Zumo | Solo en PC (`alpha_radius`) con 3 radios; Stage1 imprime tiempos crudos | Integración 1 |
 | 4 | Estimación de α en el Zumo | Solo en PC (`alpha/`); faltan radios de calibración reales | Integración 2 |
-| 5 | Multinúcleo / hilos con sincronización | Nada; todo corre en un núcleo | Integración 3 |
+| 5 | Multinúcleo / hilos con sincronización | Implementado (Zumo y Pico 2 W, colas `queue_t`; ver "Reparto entre núcleos" en `SecondDelivery/README.md`); falta probarlo en el laboratorio | Integración 3 |
 | 6 | Micrófono: muestreo, filtrado de ruido, reconocer tonos y mandar la acción por CAN al Zumo | Nada (micrófono en GP26/ADC0 de la Pico 2 W) | Sistema 2 |
-| 7 | Función innovadora (sugerida: waypoints en la zona gris con reflectancia + LP) | Nada; requiere aprobación del profesor antes | Sistema 3 |
+| 7 | Función innovadora: GUI para ir a un waypoint | `SecondDelivery/gui/` + `goto_wp.c` + IDs 0x110/0x111; falta probar en pista, definir la acción al llegar y la aprobación del profesor | Sistema 3 |
 | 8 | Pruebas unitarias con criterio pass/fail | `alpha_test.c` y `sim/` existen pero no son pruebas unitarias formales | Unitarias (≥2) |
 | 9 | Firmware integrado del Zumo (modos: vuelta LP, radio/α, comandos por tono) | Cada función es un proyecto aparte | Sistema 1–3 |
 

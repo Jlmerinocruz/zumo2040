@@ -4,9 +4,18 @@
 // de robot diferencial (uniciclo) con:
 //   - respuesta de motores de primer orden (tau),
 //   - asimetría entre orugas (una más lenta que la otra),
-//   - cámara con frecuencia limitada, retardo y ruido en x, y, θ.
+//   - cámara con frecuencia limitada, retardo y ruido en x, y, θ;
+//   - lo que se midió en las vueltas del 17/11 (logs/vuelta*.txt) y el modelo ideal
+//     no tenía: las orugas van ~1.3 veces más rápido de lo que se manda (GAIN) y en
+//     los arcos patinan de lado, así que el Zumo gira mucho menos de lo mandado
+//     (separación efectiva WB_REAL = 0.30 m contra 0.085 m geométrica);
+//     además las poses llegan en ráfagas: cada 0.8 s hay un hueco de ~450 ms.
 //
 // Uso:   ./sim_follower [v_recta v_arco [hz_camara retardo_s]] > vuelta.csv
+// Variables de entorno opcionales: K_TH, ZETA, ACC, WB, LAT (ganancias y parámetros del
+// seguidor), ADAPT=0 (sin ajuste de ganancias), TICK=0 (control solo con pose nueva,
+// como el firmware anterior), IDEAL=1, GAIN, WB_REAL, DZ (planta), PARES=1 (poses de
+// dos en dos), HOLD (s que se espera para usar solo la última pose) y SEED (ruido).
 // Salida: CSV por stdout (t,x,y,theta,seg,vl,vr,e_true) y un resumen por stderr.
 #include <math.h>
 #include <stdio.h>
@@ -65,21 +74,36 @@ static int dump_route(void) {
 int main(int argc, char **argv) {
     if (argc >= 2 && argv[1][0] == '-' && argv[1][1] == '-') return dump_route();
     follower_params_t p = follower_default_params();
-    float cam_hz = 8.0f, cam_delay = 0.12f;   // ~8 poses/s medido en Wireless
+    float cam_hz = 9.5f, cam_delay = 0.12f;   // ~9.5 poses/s en el laboratorio
     if (argc >= 3) { p.v_straight = atof(argv[1]); p.v_arc = atof(argv[2]); }
     if (argc >= 5) { cam_hz = atof(argv[3]); cam_delay = atof(argv[4]); }
-    p.latency = cam_delay;
+    // Retardo a compensar: cámara + medio tiempo de respuesta del motor (CAM_LATENCY).
+    p.latency = getenv("LAT") ? atof(getenv("LAT")) : cam_delay + 0.04f;
     // Ajuste de ganancias sin recompilar: ZETA=0.9 K_TH=5 ./sim_follower ...
     if (getenv("ZETA")) p.zeta = atof(getenv("ZETA"));
     if (getenv("K_TH")) p.k_theta = atof(getenv("K_TH"));
     if (getenv("ACC"))  p.accel = p.decel = atof(getenv("ACC"));
+    if (getenv("WB"))   p.wheel_base = atof(getenv("WB"));
+    if (getenv("ADAPT")) p.adapt = atoi(getenv("ADAPT"));
+    // TICK=0 reproduce el firmware anterior: control solo cuando llega una pose.
+    const float tick = getenv("TICK") ? atof(getenv("TICK")) : 0.02f;
+    // Planta "como en pista" (valores ajustados a logs/vuelta4.txt). IDEAL=1 vuelve al
+    // modelo anterior: orugas exactas, sin patinar y cámara sin huecos.
+    const bool ideal = getenv("IDEAL") != NULL;
+    const float gain = getenv("GAIN") ? atof(getenv("GAIN")) : ideal ? 1.0f : 1.3f;
+    const float wb_real = getenv("WB_REAL") ? atof(getenv("WB_REAL"))
+                        : ideal ? p.wheel_base : 0.30f;
+    const float gap_period = 0.8f, gap_len = 0.45f;   // ráfagas de WiFi
+    const bool pairs = getenv("PARES") != NULL;
+    const float dz = getenv("DZ") ? atof(getenv("DZ")) : 0.0f;
+    const float hold = getenv("HOLD") ? atof(getenv("HOLD")) : 0.0f;
 
     const float noise_xy = 0.005f;                    // σ = 5 mm (≈ ±1 cm)
     const float noise_th = 0.5f * (float)M_PI / 180;  // σ = 0.5° (≈ ±1°)
     const float tau = 0.08f;                          // s, respuesta de motores
     const float asym = 0.95f;                         // oruga izquierda 5 % más lenta
     const float dt = 0.001f;
-    srand(1);
+    srand(getenv("SEED") ? atoi(getenv("SEED")) : 1);
 
     follower_t f;
     follower_init(&f, &p, WAYPOINTS, WAYPOINT_COUNT, WAYPOINT_START);
@@ -98,7 +122,7 @@ int main(int argc, char **argv) {
 
     printf("t,x,y,theta,seg,vl,vr,e_true\n");
     float t;
-    for (t = 0.0f; t < 60.0f; t += dt) {
+    for (t = 0.0f; t < 150.0f; t += dt) {
         // Cámara: toma la foto ahora, llega "cam_delay" después.
         if (t >= next_cam) {
             int i = (qh + qn) % QN;
@@ -106,10 +130,21 @@ int main(int argc, char **argv) {
             q[i].y = y + gauss(noise_xy);
             q[i].theta = th + gauss(noise_th);
             qt[i] = t + cam_delay;
+            // Hueco de WiFi: lo que llegaría dentro del hueco se entrega todo junto al final.
+            float ph = fmodf(qt[i], gap_period);
+            if (!ideal && ph > gap_period - gap_len) qt[i] += gap_period - ph;
+            // PARES=1: como en la prueba del 25/11, las poses llegan de dos en dos
+            // (5 ms entre ellas) cada 200 ms.
+            if (pairs) {
+                qt[i] = ceilf(qt[i] / 0.2f) * 0.2f;
+                if (qn > 1 && qt[i] <= qt[(i + QN - 1) % QN]) qt[i] = qt[(i + QN - 1) % QN] + 0.005f;
+            }
             if (qn < QN) qn++;
             next_cam += 1.0f / cam_hz;
         }
         if (qn > 0 && t >= qt[qh]) {                  // llega una pose al Zumo
+            // De una ráfaga solo se usa la más reciente (como BURST_WAIT_MS en main.c).
+            while (qn > 1 && t + hold >= qt[(qh + 1) % QN]) { qh = (qh + 1) % QN; qn--; }
             pose_t meas = q[qh];
             qh = (qh + 1) % QN; qn--;
             bool running = follower_update(&f, &meas, t - last_upd, &cl, &cr);
@@ -121,11 +156,16 @@ int main(int argc, char **argv) {
                 last_seg = f.cur;
             }
             if (!running) break;
+        } else if (tick > 0.0f && t - last_upd >= tick) {   // entre poses
+            if (!follower_tick(&f, t - last_upd, &cl, &cr)) break;
+            last_upd = t;
         }
         // Planta: motores de primer orden + uniciclo.
-        vl += (cl * asym - vl) * dt / tau;
-        vr += (cr - vr) * dt / tau;
-        float v = 0.5f * (vl + vr), w = (vr - vl) / p.wheel_base;
+        vl += (gain * cl * asym - vl) * dt / tau;
+        vr += (gain * cr - vr) * dt / tau;
+        // DZ: zona muerta del giro (m/s de diferencia entre orugas que no giran nada).
+        float dv = vr - vl, dv_eff = (fabsf(dv) > dz) ? dv - copysignf(dz, dv) : 0.0f;
+        float v = 0.5f * (vl + vr), w = dv_eff / wb_real;
         x += v * cosf(th) * dt;
         y += v * sinf(th) * dt;
         th += w * dt;
@@ -147,5 +187,6 @@ int main(int argc, char **argv) {
     fprintf(stderr, "  error lateral max %.1f mm, RMS %.1f mm\n",
             max_err * 1000, sqrtf(sum_err2 / (n_err ? n_err : 1)) * 1000);
     fprintf(stderr, "  distancia final a P14: %.1f mm\n", sqrtf(dx * dx + dy * dy) * 1000);
+    fprintf(stderr, "  ganancias estimadas: g_v=%.2f g_w=%.2f\n", f.g_v, f.g_w);
     return f.done ? 0 : 1;
 }

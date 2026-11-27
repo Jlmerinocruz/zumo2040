@@ -11,3 +11,4 @@ build/
 # Notas personales del equipo
 CANbus/CAMBIOS.md
 CANbus/GUIA_PRUEBAS.md
+__pycache__/
