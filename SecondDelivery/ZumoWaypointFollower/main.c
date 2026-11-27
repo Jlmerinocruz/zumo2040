@@ -34,7 +34,6 @@
 #include "goto_wp.h"
 #include "obstacle.h"
 #include "waypoints.h"
-#include "wheels.h"
 
 // ---- Parámetros a calibrar en pista (botón B) ----
 // Modelo del motor: cuentas = signo(v)·(MOTOR_DEAD + MOTOR_K·|v|).
@@ -54,21 +53,6 @@
 // Ajuste de g_v y g_ω con la cámara. Si en pista se porta raro, poner false: queda el
 // control anterior (más el control entre poses) para comparar.
 #define ADAPT_GAINS    true
-// PI de velocidad por oruga con los encoders (wheels.c). Con false queda el lazo
-// abierto de la vuelta 9 (26/11) para comparar.
-#define WHEEL_PI       true
-// Con el PI, g_ω solo corrige la parte de la curva (ω_ff), no la corrección de rumbo.
-// Vuelta 10 (27/11, PI con g_ω en todo el giro): las correcciones chicas, que antes
-// se perdían en la zona muerta, ahora sí se cumplen; divididas entre g_ω ≈ 0.5
-// salían al doble y el Zumo serpenteó en todas las rectas (±50 mm, rumbo ±40°).
-// Prueba 11 (27/11, g_ω inicial 0.5): en el primer arco giró de más y de ahí zigzag.
-// En la vuelta 10 el primer arco ya mandaba la oruga interior en reversa
-// (diferencia de 0.40 m/s) y con el PI eso sí se cumple: el Zumo pivotea a
-// 0.40 / 0.096 ≈ 4 rad/s, cuando el arco pide 1.4. Con las orugas a la velocidad
-// mandada vale la separación de los encoders (0.096 m, reporte del 4/10):
-// g_ω ≈ 0.085 / 0.096 ≈ 0.9, y la diferencia se limita a 0.20 m/s (≈ 2 rad/s).
-#define GW0_PI         0.9f
-#define DIFF_MAX_PI    0.20f    // m/s
 // ---- Velocidades (parte D: subirlas poco a poco cuando la vuelta salga completa) ----
 // Prueba 17/11: a 0.20 m/s la cámara dejó de reconocer el marcador en cuanto el Zumo
 // se movió (imagen movida). En la parte A (~0.05 m/s) sí lo seguía. Se empieza lento
@@ -121,6 +105,16 @@ static bool update_pose(void) {
 static void update_goto(void) {
     uint8_t wp;
     if (comm_take_goto(&wp)) goto_req = wp;
+}
+
+static int32_t to_counts(float v) {
+    if (fabsf(v) < 0.005f) return 0;
+    float c = motor_dead + motor_k * fabsf(v);
+    return (int32_t)lroundf(v > 0 ? c : -c);
+}
+
+static void set_wheels(float v_left, float v_right) {
+    motors_set_speeds(to_counts(v_left), to_counts(v_right));
 }
 
 static void wait_release_a(void) { while (button_a_is_pressed()) sleep_ms(10); sleep_ms(50); }
@@ -210,7 +204,6 @@ static void calibrate(void) {
     log_printf("CAL: giro %.1f deg -> w=%.2f rad/s -> WHEEL_BASE=%.3f m\n", dth * 57.2958f, w, wheel_base);
     log_printf("CAL: copiar a main.c: MOTOR_K %.0ff  MOTOR_DEAD %.0ff  WHEEL_BASE %.3ff\n",
                motor_k, motor_dead, wheel_base);
-    wheels_set_model(motor_k, motor_dead);
 }
 
 // Mediciones del reparto entre núcleos durante una vuelta (evidencia de la prueba
@@ -231,12 +224,11 @@ static void print_lap_stats(const lap_stats_t *st) {
     log_printf("# colas: %lu poses reemplazadas por una mas nueva, %lu mensajes de log perdidos\n",
                (unsigned long)(comm_replaced_poses() - st->replaced0),
                (unsigned long)(comm_dropped_logs() - st->dropped0));
-    wheels_print_stats();
 }
 
 // Termina un recorrido que llegó a su destino: motores en 0, ganancias y estadísticas.
 static void finish_route(const follower_t *f, uint32_t route_us, const lap_stats_t *st, float *t_s) {
-    wheels_stop();
+    motors_set_speeds(0, 0);
     *t_s = route_us / 1e6f;
     log_printf("# Ganancias medidas: g_v=%.2f g_w=%.2f\n", f->g_v, f->g_w);
     print_lap_stats(st);
@@ -250,11 +242,6 @@ static follower_params_t route_params(void) {
     p.adapt = ADAPT_GAINS;
     p.v_straight = V_STRAIGHT;
     p.v_arc = V_ARC;
-    if (WHEEL_PI) {
-        p.g_w0 = GW0_PI;
-        p.gw_all = false;
-        p.diff_max = DIFF_MAX_PI;
-    }
     return p;
 }
 
@@ -266,7 +253,6 @@ static bool run_route(follower_t *f, uint8_t dest, float *t_s) {
     log_printf("L,t_ms,x,y,theta_deg,seg,t,ey_mm,vl,vr\n");
 
     update_pose();                                 // descarta lo que llegó durante la espera
-    wheels_stop();                                 // el PI arranca desde cero
     uint32_t t0 = time_us_32(), call_us = t0;
     lap_stats_t st = { .replaced0 = comm_replaced_poses(), .dropped0 = comm_dropped_logs() };
     int last_seg = -1;
@@ -279,7 +265,7 @@ static bool run_route(follower_t *f, uint8_t dest, float *t_s) {
             blocked = !blocked;
             comm_set_alert(blocked);
             if (blocked) {
-                wheels_stop();
+                motors_set_speeds(0, 0);
                 paused = true;                     // al quitarlo arranca con la siguiente pose
                 log_printf("# OBSTACULO al frente (nivel %u de %d, tramo %d): detenido\n",
                            comm_front_level(), OBST_LEVELS, f->cur);
@@ -307,7 +293,7 @@ static bool run_route(follower_t *f, uint8_t dest, float *t_s) {
             float vl, vr;
             bool running = follower_update(f, &last_pose, (start_us - call_us) / 1e6f, &vl, &vr);
             call_us = start_us;
-            wheels_set(vl, vr);
+            set_wheels(vl, vr);
             uint32_t done_us = time_us_32();
             st.n++;
             if (done_us - start_us > st.work_max_us) st.work_max_us = done_us - start_us;
@@ -332,26 +318,26 @@ static bool run_route(follower_t *f, uint8_t dest, float *t_s) {
             float vl, vr;
             bool running = follower_tick(f, (now - call_us) / 1e6f, &vl, &vr);
             call_us = now;
-            wheels_set(vl, vr);
+            set_wheels(vl, vr);
             if (!running) { finish_route(f, now - t0, &st, t_s); return true; }
         }
         // La cámara puede perder el marcador mientras se quita el obstáculo: el plazo
         // para abortar cuenta desde que se quitó.
         uint32_t lost = pose_age_ms(), since_clear = (time_us_32() - clear_us) / 1000u;
         if (lost > POSE_TIMEOUT_MS && !paused) {
-            wheels_stop();
+            motors_set_speeds(0, 0);
             paused = true;
             log_printf("# PAUSA: sin pose de la camara por %d ms (tramo %d), esperando...\n",
                        POSE_TIMEOUT_MS, f->cur);
         }
         if (!blocked && lost > POSE_ABORT_MS && since_clear > POSE_ABORT_MS) {
-            wheels_stop();
+            motors_set_speeds(0, 0);
             log_printf("# ALTO: sin pose de la camara por %d ms (tramo %d)\n", POSE_ABORT_MS, f->cur);
             print_lap_stats(&st);
             return false;
         }
         if (button_b_is_pressed()) {              // paro de emergencia
-            wheels_stop();
+            motors_set_speeds(0, 0);
             comm_set_alert(false);
             log_printf("# ALTO: boton B\n");
             print_lap_stats(&st);
@@ -359,13 +345,12 @@ static bool run_route(follower_t *f, uint8_t dest, float *t_s) {
             return false;
         }
         if (goto_req >= 0) {                       // la GUI mandó alto u otro destino
-            wheels_stop();
+            motors_set_speeds(0, 0);
             comm_set_alert(false);
             log_printf("# ALTO: WP_GOTO %d desde la GUI\n", goto_req);
             print_lap_stats(&st);
             return false;
         }
-        wheels_update();
         sleep_ms(1);
     }
 }
@@ -376,9 +361,9 @@ static void run_lap(void) {
     follower_init(&f, &p, WAYPOINTS, WAYPOINT_COUNT, WAYPOINT_START);
 
     log_printf("Vuelta: inicio en P%d, v_recta=%.2f v_arco=%.2f m/s, bat=%u mV, "
-               "K=%.0f DEAD=%.0f WB=%.3f, PI orugas=%s. Arranca en 1 s...\n",
+               "K=%.0f DEAD=%.0f WB=%.3f. Arranca en 1 s...\n",
                WAYPOINT_START + 1, V_STRAIGHT, V_ARC, battery_get_level_millivolts(),
-               motor_k, motor_dead, wheel_base, WHEEL_PI ? "si" : "no");
+               motor_k, motor_dead, wheel_base);
     sleep_ms(1000);
     float t_s;
     if (run_route(&f, WAYPOINT_START + 1, &t_s))
@@ -437,7 +422,6 @@ static void run_goto(int waypoint) {
 int main(void) {
     stdio_init_all();
     motors_init();
-    wheels_init(MOTOR_K, MOTOR_DEAD, WHEEL_PI);
     sleep_ms(2000);
 
     comm_start();
@@ -463,14 +447,11 @@ int main(void) {
         // Sin pose reciente el núcleo 1 avisa "esperando LPdata" con los errores CAN.
         if (now_ms() - last_print > 500) {
             last_print = now_ms();
-            // Las cuentas de los encoders deben subir al empujar el Zumo hacia adelante.
-            int32_t el, er;
-            wheels_counts(&el, &er);
             if (have_pose && pose_age_ms() < 1000)
-                log_printf("pose: x=%.3f y=%.3f th=%.1f deg | a P%d: %.0f mm | bat=%u mV | enc %ld %ld\n",
+                log_printf("pose: x=%.3f y=%.3f th=%.1f deg | a P%d: %.0f mm | bat=%u mV\n",
                            last_pose.x, last_pose.y, last_pose.theta * 57.2958f, WAYPOINT_START + 1,
                            1000.0f * hypotf(last_pose.x - w0->x, last_pose.y - w0->y),
-                           battery_get_level_millivolts(), (long)el, (long)er);
+                           battery_get_level_millivolts());
         }
         if (button_a_is_pressed()) {
             wait_release_a();
