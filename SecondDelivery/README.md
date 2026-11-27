@@ -54,7 +54,7 @@ GUI (PC) <--UDP "ESTADO e n"--------- Pico 2 W <--CAN 0x111 WP_STATUS-- Zumo
 ### Uso
 1. PC conectada al WiFi del laboratorio (Python 3 con tkinter; no requiere instalar nada más).
 2. Ver la IP de la Pico 2 W en su monitor serial (`Conectado, IP: …`).
-3. `python gui/elegir_waypoint.py --pico <IP de la Pico>` (sin `--pico` manda broadcast). Clic en un punto = ir; **Alto** = detener. La GUI también se suscribe a la cámara y dibuja al Zumo en vivo.
+3. `python gui/elegir_waypoint.py --pico <IP de la Pico>` (sin `--pico` manda broadcast). Clic en un punto = ir; **Alto** = detener. La GUI también se suscribe a la cámara y dibuja al Zumo en vivo con el rastro del recorrido; el destino parpadea mientras va, y un panel muestra la velocidad medida con la cámara, el tiempo del recorrido y los cm que faltan siguiendo la pista. Si el Zumo frena por un obstáculo, aparece un aviso rojo.
 4. Prueba unitaria en la PC: `cd sim && make test` (6 casos con PASS/FAIL, incluye 42 trayectos simulados en lazo cerrado que deben detenerse a menos de 40 mm del destino).
 
 ## Obstáculos al frente (`obstacle.c`)
@@ -168,6 +168,6 @@ Lo que no modela el simulador: que la cámara deje de ver el marcador por imagen
 - [ ] Vueltas en pista a 0.15 / 0.10 m/s (parte D): 3 tiempos, video y gráfica medida.
 - [x] Probar en pista `follower_tick` + ganancias medidas (vueltas 6–8 del 25 y 26/11; ver "Resultados del simulador").
 - [ ] Guardar en `logs/` los seriales de las vueltas 7 y 8 y sacar el RMS con `analysis/analizar_vueltas.py`.
-- [x] GUI de waypoints en pista (26/11): GOTO, llegada, Alto y el dibujo del Zumo funcionan. Falta definir `on_arrival()`.
+- [x] GUI de waypoints en pista (26/11): GOTO, llegada, Alto y el dibujo del Zumo funcionan. Al llegar se queda el parpadeo del LED amarillo (decisión del equipo, 26/11).
 - [x] Obstáculos en pista (26/11): frena bien con `OBST_STOP_LEVEL` 6 (el máximo). Si frena demasiado lejos, bajar la potencia de los LEDs IR.
 - [ ] Parte E: medir t_i(r) con α = 0 en 5–7 radios (por ejemplo 0.25, 0.5, 0.75, 1.0, 1.25, 1.5 y 1.75 m) y cargarlos en la tabla de `alpha_test.c`. Opcional: validar con α = 45° y 90° en r = 1.5 m.
