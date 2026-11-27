@@ -61,8 +61,14 @@
 // Vuelta 10 (27/11, PI con g_ω en todo el giro): las correcciones chicas, que antes
 // se perdían en la zona muerta, ahora sí se cumplen; divididas entre g_ω ≈ 0.5
 // salían al doble y el Zumo serpenteó en todas las rectas (±50 mm, rumbo ±40°).
-// g_ω arranca en lo que midió esa vuelta.
-#define GW0_PI         0.5f
+// Prueba 11 (27/11, g_ω inicial 0.5): en el primer arco giró de más y de ahí zigzag.
+// En la vuelta 10 el primer arco ya mandaba la oruga interior en reversa
+// (diferencia de 0.40 m/s) y con el PI eso sí se cumple: el Zumo pivotea a
+// 0.40 / 0.096 ≈ 4 rad/s, cuando el arco pide 1.4. Con las orugas a la velocidad
+// mandada vale la separación de los encoders (0.096 m, reporte del 4/10):
+// g_ω ≈ 0.085 / 0.096 ≈ 0.9, y la diferencia se limita a 0.20 m/s (≈ 2 rad/s).
+#define GW0_PI         0.9f
+#define DIFF_MAX_PI    0.20f    // m/s
 // ---- Velocidades (parte D: subirlas poco a poco cuando la vuelta salga completa) ----
 // Prueba 17/11: a 0.20 m/s la cámara dejó de reconocer el marcador en cuanto el Zumo
 // se movió (imagen movida). En la parte A (~0.05 m/s) sí lo seguía. Se empieza lento
@@ -247,6 +253,7 @@ static follower_params_t route_params(void) {
     if (WHEEL_PI) {
         p.g_w0 = GW0_PI;
         p.gw_all = false;
+        p.diff_max = DIFF_MAX_PI;
     }
     return p;
 }
